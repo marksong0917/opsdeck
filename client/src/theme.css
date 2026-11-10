@@ -99,6 +99,13 @@
   button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) {
     min-height: 2rem;
   }
+  /* The board never scrolls sideways: a wide row wraps or truncates
+     inside its card instead of pushing the document wider than the
+     phone viewport. */
+  html,
+  body {
+    overflow-x: clip;
+  }
 }
 
 /* Flash highlight for a board row the hero dropdown just scrolled to. */

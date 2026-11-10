@@ -131,6 +131,22 @@ const STR = {
     themeLight: "浅色",
     themeDark: "深色",
     langAria: "语言 / Language",
+    spotifyLabel: "Spotify",
+    spotifyLoading: "Spotify 加载中…",
+    spotifyUnavailable: "Spotify 暂时取不到",
+    spotifyNotConnected: "Spotify 未连接",
+    spotifyIdle: "现在没在播放",
+    spotifyPlayingOn: "播放中",
+    spotifyPausedOn: "已暂停",
+    prevTrack: "上一首",
+    nextTrack: "下一首",
+    playLabel: "播放",
+    pauseLabel: "暂停",
+    volumeLabel: "音量",
+    allDay: "全天",
+    calendarWord: "日历",
+    calendarNotConnected: "日历未连接",
+    versionWord: "版本",
   },
   en: {
     loading: "Loading…",
@@ -244,6 +260,22 @@ const STR = {
     themeLight: "Light",
     themeDark: "Dark",
     langAria: "语言 / Language",
+    spotifyLabel: "Spotify",
+    spotifyLoading: "Loading Spotify…",
+    spotifyUnavailable: "Spotify unavailable right now",
+    spotifyNotConnected: "Spotify not connected",
+    spotifyIdle: "Nothing playing right now",
+    spotifyPlayingOn: "Playing",
+    spotifyPausedOn: "Paused",
+    prevTrack: "Previous track",
+    nextTrack: "Next track",
+    playLabel: "Play",
+    pauseLabel: "Pause",
+    volumeLabel: "Volume",
+    allDay: "All day",
+    calendarWord: "Calendar",
+    calendarNotConnected: "Calendar not connected",
+    versionWord: "Version",
   },
 } as const;
 
@@ -270,6 +302,13 @@ function uiLocale(): string {
   return activeLang === "zh" ? "zh-CN" : "en-US";
 }
 
+
+/** Board release version, bumped by Tina on each shipped edit.
+ * v1.0 = one-screen workbench (CRUD + status + weather/clocks);
+ * v1.1 = theme/language toggles + expandable hero;
+ * v1.2 = Spotify card + today's calendar + phone overflow fix. */
+const BOARD_VERSION = "v1.2";
+const BOARD_VERSION_DATE = "2026-11-10";
 
 const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
 
@@ -548,6 +587,22 @@ function torontoNowMinutes(): number {
   const hour = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
   const minute = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
   return hour * 60 + minute;
+}
+
+/** Time of day (minutes since midnight + HH:MM label) of an instant, in Toronto. */
+function torontoTimeOfDay(ms: number): { minutes: number; label: string } {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Toronto",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date(ms));
+  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
+  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
+  return {
+    minutes: hour * 60 + minute,
+    label: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
+  };
 }
 
 /** The workday ends at 18:00 in the owner's timezone. Live off-work state for the header. */function offWorkState(now: Date): { off: boolean; label: string } {
@@ -873,6 +928,218 @@ function DoneTodayStrip({ items }: { items: string[] }) {
             </li>
           ))}
         </ul>
+      )}
+    </div>
+  );
+}
+
+type SpotifyState = ApiResponse<typeof api, "getSpotify">["spotify"];
+type CalEvent = ApiResponse<typeof api, "getTodayCalendar">["calendar"]["events"][number];
+
+/** Small calendar glyph marking Google Calendar rows in the timeline. */
+function CalGlyph() {
+  return (
+    <SvgIcon color="#d97706" size={15} className="shrink-0">
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <line x1="16" x2="16" y1="2" y2="6" />
+      <line x1="8" x2="8" y1="2" y2="6" />
+      <line x1="3" x2="21" y1="10" y2="10" />
+    </SvgIcon>
+  );
+}
+
+function SpotifyGlyph() {
+  return (
+    <SvgIcon color="#1db954" size={16} className="shrink-0">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M8 10.5c2.7-.8 5.5-.6 8 .7" />
+      <path d="M8.2 13.3c2.2-.6 4.4-.4 6.4.7" />
+      <path d="M8.4 16c1.7-.5 3.4-.3 5 .6" />
+    </SvgIcon>
+  );
+}
+
+/**
+ * Slim Spotify strip under the Tina pulse row: now-playing (track /
+ * artist / device) with previous / play-pause / next buttons and a
+ * volume slider. Polls every 45 s; every control refetches the state
+ * immediately after it lands. Quiet empty states when Spotify is not
+ * connected or nothing is playing.
+ */
+function SpotifyStrip({
+  state,
+  pending,
+  controlPending,
+  onControl,
+  onRetry,
+}: {
+  state: SpotifyState | undefined;
+  pending: boolean;
+  controlPending: boolean;
+  onControl: (args: {
+    command: "pause" | "resume" | "skip" | "previous" | "setVolume";
+    volumePercent: number | null;
+    deviceId: string | null;
+  }) => void;
+  onRetry: () => void;
+}) {
+  const [volume, setVolume] = useState<number | null>(null);
+  const serverVolume = state?.volumePercent ?? null;
+  useEffect(() => {
+    if (!controlPending) setVolume(serverVolume);
+  }, [serverVolume, controlPending]);
+  const shownVolume = volume ?? serverVolume ?? 0;
+  const hasTrack = Boolean(state?.connected && state.trackName);
+  const btnCls =
+    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[var(--text)] transition hover:bg-[var(--bg)] active:scale-95 motion-reduce:transition-none disabled:opacity-40";
+
+  return (
+    <div
+      aria-label={t("spotifyLabel")}
+      className={`${CARD_CLASS} mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 [@media(max-height:949px)]:mt-1.5`}
+    >
+      <span className="flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-[var(--text)]">
+        <SpotifyGlyph />
+        {t("spotifyLabel")}
+      </span>
+      {state === undefined && pending ? (
+        <span className="text-[13px] text-[var(--dim)]">{t("spotifyLoading")}</span>
+      ) : state === null || state === undefined ? (
+        <span className="flex items-center gap-2 text-[13px] text-[var(--dim)]">
+          {t("spotifyUnavailable")}
+          <button
+            type="button"
+            onClick={onRetry}
+            className="font-medium text-[var(--text)] underline underline-offset-2"
+          >
+            {t("retry")}
+          </button>
+        </span>
+      ) : !state.connected ? (
+        <span className="text-[13px] text-[var(--dim)]">{t("spotifyNotConnected")}</span>
+      ) : !hasTrack ? (
+        <span className="min-w-0 truncate text-[13px] text-[var(--dim)]">
+          {t("spotifyIdle")}
+          {state.devices.length > 0
+            ? ` · ${state.devices.map((d) => d.name).join("、")}`
+            : ""}
+        </span>
+      ) : (
+        <>
+          <span className="flex min-w-0 flex-1 items-center gap-2">
+            <span
+              aria-hidden="true"
+              className={
+                state.isPlaying
+                  ? "h-2 w-2 shrink-0 animate-pulse rounded-full bg-[#1db954] motion-reduce:animate-none"
+                  : "h-2 w-2 shrink-0 rounded-full bg-[var(--dim)]"
+              }
+            />
+            <span className="min-w-0 truncate text-sm text-[var(--text)]">
+              <span className="font-medium">{state.trackName}</span>
+              {state.artistName ? (
+                <span className="text-[var(--dim)]"> · {state.artistName}</span>
+              ) : null}
+              {state.deviceName ? (
+                <span className="text-[var(--dim)]">
+                  {" "}
+                  · {state.isPlaying ? t("spotifyPlayingOn") : t("spotifyPausedOn")} ·{" "}
+                  {state.deviceName}
+                </span>
+              ) : null}
+            </span>
+          </span>
+          <span className="flex shrink-0 items-center gap-0.5">
+            <button
+              type="button"
+              disabled={controlPending}
+              onClick={() =>
+                onControl({ command: "previous", volumePercent: null, deviceId: null })
+              }
+              aria-label={t("prevTrack")}
+              className={btnCls}
+            >
+              <SvgIcon size={17} className="shrink-0">
+                <polygon points="19 20 9 12 19 4 19 20" fill="currentColor" stroke="none" />
+                <line x1="5" x2="5" y1="19" y2="5" />
+              </SvgIcon>
+            </button>
+            <button
+              type="button"
+              disabled={controlPending}
+              onClick={() =>
+                onControl({
+                  command: state.isPlaying ? "pause" : "resume",
+                  volumePercent: null,
+                  deviceId: null,
+                })
+              }
+              aria-label={state.isPlaying ? t("pauseLabel") : t("playLabel")}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1db954] text-white shadow-sm transition hover:brightness-110 active:scale-95 motion-reduce:transition-none disabled:opacity-40"
+            >
+              {state.isPlaying ? (
+                <SvgIcon size={17} className="shrink-0">
+                  <rect x="6" y="4" width="4" height="16" fill="currentColor" stroke="none" />
+                  <rect x="14" y="4" width="4" height="16" fill="currentColor" stroke="none" />
+                </SvgIcon>
+              ) : (
+                <SvgIcon size={17} className="shrink-0">
+                  <polygon points="7 4 20 12 7 20 7 4" fill="currentColor" stroke="none" />
+                </SvgIcon>
+              )}
+            </button>
+            <button
+              type="button"
+              disabled={controlPending}
+              onClick={() =>
+                onControl({ command: "skip", volumePercent: null, deviceId: null })
+              }
+              aria-label={t("nextTrack")}
+              className={btnCls}
+            >
+              <SvgIcon size={17} className="shrink-0">
+                <polygon points="5 4 15 12 5 20 5 4" fill="currentColor" stroke="none" />
+                <line x1="19" x2="19" y1="5" y2="19" />
+              </SvgIcon>
+            </button>
+          </span>
+          {serverVolume !== null ? (
+            <span className="flex shrink-0 items-center gap-1.5">
+              <SvgIcon color="var(--dim)" size={15} className="shrink-0">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+              </SvgIcon>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={1}
+                value={shownVolume}
+                disabled={controlPending}
+                onChange={(e) => setVolume(Number(e.target.value))}
+                onPointerUp={() =>
+                  onControl({
+                    command: "setVolume",
+                    volumePercent: shownVolume,
+                    deviceId: state.deviceId,
+                  })
+                }
+                onKeyUp={() =>
+                  onControl({
+                    command: "setVolume",
+                    volumePercent: shownVolume,
+                    deviceId: state.deviceId,
+                  })
+                }
+                aria-label={t("volumeLabel")}
+                className="w-20 accent-[#1db954] sm:w-28"
+              />
+              <span className="w-8 text-xs tabular-nums text-[var(--dim)]">
+                {shownVolume}%
+              </span>
+            </span>
+          ) : null}
+        </>
       )}
     </div>
   );
@@ -1777,6 +2044,26 @@ export function App() {
     },
     refetchInterval: 5 * 60_000,
   });
+  const spotifyQuery = useQuery({
+    queryKey: ["spotify"],
+    queryFn: () => api.getSpotify({}),
+    refetchInterval: 45_000,
+  });
+  const calendarQuery = useQuery({
+    queryKey: ["today-calendar"],
+    queryFn: () => api.getTodayCalendar({}),
+    refetchInterval: 5 * 60_000,
+  });
+  const spotifyControlMutation = useMutation({
+    mutationFn: async (args: {
+      command: "pause" | "resume" | "skip" | "previous" | "setVolume";
+      volumePercent: number | null;
+      deviceId: string | null;
+    }) => await api.spotifyControl(args),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["spotify"] });
+    },
+  });
 
   /** Header refresh: board + weather refetch, status checks re-run now. */
   const refreshAll = () => {
@@ -1784,6 +2071,8 @@ export function App() {
     void board.refetch();
     void weatherQuery.refetch();
     void statusQuery.refetch();
+    void spotifyQuery.refetch();
+    void calendarQuery.refetch();
   };
   const refreshing =
     board.isFetching || weatherQuery.isFetching || statusQuery.isFetching;
@@ -2015,14 +2304,61 @@ export function App() {
   const lastVerdictStillListed =
     lastVerdict != null && data.decisions.some((d) => d.id === lastVerdict.itemId);
 
-  // Timeline states: which of today's timed items are already past, and
-  // which one is next, by Toronto wall-clock time.
+  // Timeline: today's board items merged with today's Google Calendar
+  // events (primary calendar, Toronto day), sorted by Toronto time.
+  // All-day calendar events sit on top; calendar rows are marked with a
+  // calendar glyph. Past/next states follow Toronto wall-clock time.
   const nowMinutes = torontoNowMinutes();
-  const timedMinutes = data.today.map((item) => {
-    const { time } = splitTime(item.title);
-    return time ? timeToMinutes(time) : null;
-  });
-  const nextIdx = timedMinutes.findIndex((m) => m !== null && m >= nowMinutes);
+  type TLRow = {
+    key: string;
+    minutes: number | null;
+    timeLabel: string;
+    kind: "board" | "cal";
+    item?: Item;
+    cal?: CalEvent;
+    order: number;
+  };
+  const calEvents: CalEvent[] = calendarQuery.data?.calendar.connected
+    ? calendarQuery.data.calendar.events
+    : [];
+  const tlRows: TLRow[] = [
+    ...data.today.map((item, i): TLRow => {
+      const { time } = splitTime(item.title);
+      return {
+        key: `b-${item.id}`,
+        minutes: time ? timeToMinutes(time) : null,
+        timeLabel: time ?? "",
+        kind: "board",
+        item,
+        order: i,
+      };
+    }),
+    ...calEvents.map((ev, i): TLRow => {
+      if (ev.allDay || ev.startMs === null) {
+        return {
+          key: `c-${ev.id}`,
+          minutes: -1,
+          timeLabel: t("allDay"),
+          kind: "cal",
+          cal: ev,
+          order: 1000 + i,
+        };
+      }
+      const tod = torontoTimeOfDay(ev.startMs);
+      return {
+        key: `c-${ev.id}`,
+        minutes: tod.minutes,
+        timeLabel: tod.label,
+        kind: "cal",
+        cal: ev,
+        order: 1000 + i,
+      };
+    }),
+  ].sort((a, b) => (a.minutes ?? 9999) - (b.minutes ?? 9999) || a.order - b.order);
+  const nextKey =
+    tlRows.find(
+      (r) => r.minutes !== null && r.minutes >= 0 && r.minutes >= nowMinutes,
+    )?.key ?? null;
 
   // Hero count: everything waiting on Mark himself — the pending
   // decisions, plus any open item whose text says it is waiting on him
@@ -2278,6 +2614,15 @@ export function App() {
         {/* Tina 状态行 + 快捷入口 */}
         <TinaPulseStrip tinaStatus={data.tinaStatus} />
 
+        {/* Spotify 正在播放 + 播放控制 */}
+        <SpotifyStrip
+          state={spotifyQuery.data?.spotify}
+          pending={spotifyQuery.isPending}
+          controlPending={spotifyControlMutation.isPending}
+          onControl={(args) => spotifyControlMutation.mutate(args)}
+          onRetry={() => void spotifyQuery.refetch()}
+        />
+
         {/* 1. 待 Mark 拍板 — 永远置顶；为空时缩成一条细条（与今日已完成同量级） */}
         <section aria-label={t("decisionsTitle")} className="mt-2 [@media(max-height:949px)]:mt-1.5">
           {data.decisions.length === 0 ? (
@@ -2389,13 +2734,20 @@ export function App() {
         <DoneTodayStrip items={data.doneToday} />
 
         {/* 宽屏三列：今日时间线 | 到期 | Lane（等高一排，副屏一屏放下） */}
-        <div className="mt-2 grid items-stretch gap-2 md:grid-cols-2 xl:grid-cols-3 [@media(max-height:949px)]:mt-1.5 [@media(max-height:949px)]:gap-1.5">
+        <div className="mt-2 grid items-stretch gap-2 md:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0 [@media(max-height:949px)]:mt-1.5 [@media(max-height:949px)]:gap-1.5">
         {/* 2. 今日定时与动态 — 时间轴 */}
         <section aria-label={t("todayTitle")} className={`${CARD_CLASS} h-full`}>
-          <SectionHeading hint={t("torontoTime")} icon={<SectionTile kind="today" />}>
+          <SectionHeading
+            hint={
+              calendarQuery.data && !calendarQuery.data.calendar.connected
+                ? `${t("torontoTime")} · ${t("calendarNotConnected")}`
+                : t("torontoTime")
+            }
+            icon={<SectionTile kind="today" />}
+          >
             {t("todayTitle")}
           </SectionHeading>
-          {data.today.length === 0 ? (
+          {tlRows.length === 0 ? (
             <EmptyLine text={t("todayEmpty")} />
           ) : (
             <div className="relative">
@@ -2404,15 +2756,73 @@ export function App() {
                 className="absolute bottom-2 left-[53px] top-2 w-px bg-[var(--border)]"
               />
               <ul>
-                {data.today.map((item, idx) => {
-                  const { time, rest } = splitTime(item.title);
+                {tlRows.map((row) => {
+                  if (row.kind === "cal" && row.cal) {
+                    const ev = row.cal;
+                    const past =
+                      row.minutes !== null && row.minutes >= 0 && row.minutes < nowMinutes;
+                    const isNext = row.key === nextKey;
+                    return (
+                      <li
+                        key={row.key}
+                        className={
+                          past
+                            ? "relative flex items-center gap-2.5 py-[5px] opacity-55 [@media(max-height:949px)]:py-[3px]"
+                            : "relative flex items-center gap-2.5 py-[5px] [@media(max-height:949px)]:py-[3px]"
+                        }
+                      >
+                        <span
+                          className={
+                            isNext
+                              ? "w-10 shrink-0 text-right text-[13px] font-bold tabular-nums text-[var(--accent)]"
+                              : "w-10 shrink-0 text-right text-[13px] font-semibold tabular-nums text-[var(--text)]"
+                          }
+                        >
+                          {row.timeLabel}
+                        </span>
+                        <span
+                          aria-hidden="true"
+                          className={
+                            isNext
+                              ? "z-10 h-2 w-2 shrink-0 rounded-full bg-[#d97706] ring-4 ring-[var(--surface)]"
+                              : past
+                                ? "z-10 h-2 w-2 shrink-0 rounded-full bg-[var(--dim)] ring-4 ring-[var(--surface)]"
+                                : "z-10 h-2 w-2 shrink-0 rounded-full bg-[#d97706] ring-4 ring-[var(--surface)]"
+                          }
+                        />
+                        <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm text-[var(--text)] [&>svg]:mt-0">
+                          <CalGlyph />
+                          <span className="truncate">
+                            <span className="font-medium">{ev.title}</span>
+                            {ev.location ? (
+                              <span className="text-[var(--dim)]"> · {ev.location}</span>
+                            ) : null}
+                            {past ? (
+                              <span className="ml-1.5 text-xs text-[var(--dim)]">✓</span>
+                            ) : null}
+                          </span>
+                          {isNext ? (
+                            <span className="shrink-0 rounded-full bg-[var(--accent)] px-1.5 py-0.5 text-[11px] font-medium text-white">
+                              {t("nextUp")}
+                            </span>
+                          ) : null}
+                        </span>
+                        <span className="shrink-0 rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">
+                          {t("calendarWord")}
+                        </span>
+                      </li>
+                    );
+                  }
+                  const item = row.item;
+                  if (!item) return null;
+                  const { rest } = splitTime(item.title);
                   const active = item.status === "进行中";
-                  const minutes = timedMinutes[idx] ?? null;
-                  const past = !active && minutes !== null && minutes < nowMinutes;
-                  const isNext = idx === nextIdx && !active;
+                  const minutes = row.minutes;
+                  const past = !active && minutes !== null && minutes >= 0 && minutes < nowMinutes;
+                  const isNext = row.key === nextKey && !active;
                   return (
                     <li
-                      key={item.id}
+                      key={row.key}
                       id={`board-item-${item.id}`}
                       className={
                         past
@@ -2427,7 +2837,7 @@ export function App() {
                             : "w-10 shrink-0 text-right text-[13px] font-semibold tabular-nums text-[var(--text)]"
                         }
                       >
-                        {time ?? ""}
+                        {row.timeLabel}
                       </span>
                       <span
                         aria-hidden="true"
@@ -2579,7 +2989,9 @@ export function App() {
         </div>
 
         <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
-          <p className="text-xs text-[var(--dim)]">{t("footer")}</p>
+          <p className="text-xs text-[var(--dim)]">
+            {t("footer")} · {t("versionWord")} {BOARD_VERSION} · {BOARD_VERSION_DATE}
+          </p>
         </footer>
           </>
         )}

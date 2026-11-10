@@ -8,6 +8,7 @@
 import { defineAction, z, type Ctx, type ActionsModule } from "@hatch/space-sdk";
 import { asc, eq, isNull } from "drizzle-orm";
 import * as schema from "./schema";
+import { privileged } from "@space/privileged";
 
 const sectionEnum = z.enum(["decisions", "today", "deadlines", "lanes"]);
 
@@ -176,7 +177,6 @@ export const Actions = {
       const db = ctx.db<typeof schema>();
       const rows = await db.select().from(schema.siteChecks);
       const byKey = new Map<string, SiteCheckRow>(rows.map((r) => [r.key, r]));
-      const mainRow = byKey.get("example.com");
       const freshestSiteAt = SITE_DEFS.reduce<number | null>((acc, def) => {
         const at = byKey.get(def.key)?.checkedAt.getTime() ?? null;
         return at !== null && (acc === null || at < acc) ? at : acc;
@@ -388,6 +388,126 @@ export const Actions = {
           };
         }
         return { weather: null };
+      }
+    },
+  }),
+
+  getSpotify: defineAction({
+    description:
+      "Returns the user's live Spotify state (connection, now-playing track/artist, active device and volume, all devices) read through the Spotify connector.",
+    request: z.object({}),
+    response: z.object({
+      spotify: z
+        .object({
+          connected: z.boolean(),
+          isPlaying: z.boolean(),
+          trackName: z.string().nullable(),
+          artistName: z.string().nullable(),
+          contextName: z.string().nullable(),
+          progressMs: z.number().nullable(),
+          durationMs: z.number().nullable(),
+          deviceName: z.string().nullable(),
+          deviceId: z.string().nullable(),
+          volumePercent: z.number().nullable(),
+          devices: z.array(
+            z.object({
+              id: z.string(),
+              name: z.string(),
+              type: z.string(),
+              isActive: z.boolean(),
+              volumePercent: z.number().nullable(),
+            }),
+          ),
+        })
+        .nullable(),
+    }),
+    privileged: [privileged.spotifyState],
+    handler: async (ctx) => {
+      try {
+        const spotify = await ctx.executePrivileged(privileged.spotifyState, {});
+        return { spotify };
+      } catch {
+        return { spotify: null };
+      }
+    },
+  }),
+
+  spotifyControl: defineAction({
+    description:
+      "Controls the user's Spotify playback (pause, resume, skip, previous, or set volume) through the Spotify connector and returns the refreshed playback state.",
+    request: z.object({
+      command: z.enum(["pause", "resume", "skip", "previous", "setVolume"]),
+      volumePercent: z.number().int().min(0).max(100).nullable().default(null),
+      deviceId: z.string().nullable().default(null),
+    }),
+    response: z.object({ ok: z.boolean() }),
+    privileged: [privileged.spotifyControl],
+    handler: async (ctx, args): Promise<{ ok: boolean }> => {
+      try {
+        return await ctx.executePrivileged(privileged.spotifyControl, {
+          command: args.command,
+          volumePercent: args.volumePercent,
+          deviceId: args.deviceId,
+        });
+      } catch {
+        return { ok: false };
+      }
+    },
+  }),
+
+  getTodayCalendar: defineAction({
+    description:
+      "Returns today's events from the user's primary Google Calendar for the Toronto calendar day, read through the Google Calendar connector; connected=false when the connector is unavailable.",
+    request: z.object({}),
+    response: z.object({
+      calendar: z.object({
+        connected: z.boolean(),
+        events: z.array(
+          z.object({
+            id: z.string(),
+            title: z.string(),
+            startMs: z.number().nullable(),
+            endMs: z.number().nullable(),
+            allDay: z.boolean(),
+            startDate: z.string().nullable(),
+            location: z.string(),
+          }),
+        ),
+      }),
+    }),
+    privileged: [privileged.calendarToday],
+    handler: async (ctx) => {
+      // Wide UTC window around the Toronto day; events are filtered to
+      // the Toronto calendar date below, so DST offsets cannot shift an
+      // event onto the wrong day.
+      const todayKey = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Toronto",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date());
+      const windowStart = Date.parse(`${todayKey}T00:00:00Z`) - 12 * 3600_000;
+      const windowEnd = windowStart + 48 * 3600_000;
+      try {
+        const result = await ctx.executePrivileged(privileged.calendarToday, {
+          timeMin: new Date(windowStart).toISOString(),
+          timeMax: new Date(windowEnd).toISOString(),
+        });
+        if (!result.connected) return { calendar: { connected: false, events: [] } };
+        const events = result.events.filter((ev) => {
+          if (ev.allDay) return ev.startDate === todayKey;
+          if (ev.startMs === null) return false;
+          const eventDay = new Intl.DateTimeFormat("en-CA", {
+            timeZone: "America/Toronto",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          }).format(new Date(ev.startMs));
+          return eventDay === todayKey;
+        });
+        return { calendar: { connected: true, events } };
+      } catch {
+        return { calendar: { connected: false, events: [] } };
       }
     },
   }),
