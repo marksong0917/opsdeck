@@ -127,6 +127,7 @@ const STR = {
     viewStatusAria: "查看状态详情",
     statusLabel: "状态",
     footer: "由 Tina 维护 · 汇报在 Main，看板在这里",
+    portfolioLink: "作品集",
     themeAria: "显示模式",
     themeSystem: "跟随系统",
     themeLight: "浅色",
@@ -254,6 +255,7 @@ const STR = {
     viewStatusAria: "View status details",
     statusLabel: "Status",
     footer: "Maintained by Tina · Reports in Main, the board lives here",
+    portfolioLink: "Portfolio",
     themeAria: "Display theme",
     themeSystem: "System",
     themeLight: "Light",
@@ -307,8 +309,10 @@ function uiLocale(): string {
  * v1.2.2 = page-2 two-column layout, one-line header weather, compact
  * header stat strip;
  * v1.2.3 = weather condition words + item status pills follow the UI
- * language; page 2 goes full-width when nothing is due after 14 days. */
-const BOARD_VERSION = "v1.2.3";
+ * language; page 2 goes full-width when nothing is due after 14 days;
+ * v1.2.4 = footer gets a row of quick links to the owner's personal projects
+ * (portfolio, GitHub, Typebook, FoxShare). */
+const BOARD_VERSION = "v1.2.4";
 const BOARD_VERSION_DATE = "2026-11-10";
 
 const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
@@ -2947,6 +2951,42 @@ export function App() {
         <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
           <p className="text-xs text-[var(--dim)]">
             {t("footer")} · {t("versionWord")} {BOARD_VERSION} · {BOARD_VERSION_DATE}
+            {" · "}
+            <a
+              href="https://yourname.github.io/"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--accent)] underline underline-offset-2 decoration-[var(--accent)]/40 transition-colors hover:text-[var(--text)] hover:decoration-[var(--accent)]"
+            >
+              {t("portfolioLink")}
+            </a>
+            {" · "}
+            <a
+              href="https://github.com/yourname"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--accent)] underline underline-offset-2 decoration-[var(--accent)]/40 transition-colors hover:text-[var(--text)] hover:decoration-[var(--accent)]"
+            >
+              GitHub
+            </a>
+            {" · "}
+            <a
+              href="https://yourname.github.io/typebook-zh/"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--accent)] underline underline-offset-2 decoration-[var(--accent)]/40 transition-colors hover:text-[var(--text)] hover:decoration-[var(--accent)]"
+            >
+              Typebook
+            </a>
+            {" · "}
+            <a
+              href="https://share.example.com/"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--accent)] underline underline-offset-2 decoration-[var(--accent)]/40 transition-colors hover:text-[var(--text)] hover:decoration-[var(--accent)]"
+            >
+              FoxShare
+            </a>
           </p>
         </footer>
           </>
