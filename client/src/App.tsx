@@ -38,11 +38,12 @@ const STR = {
     offDone: "已下班",
     toronto: "多伦多",
     beijing: "北京",
-    weatherToday: "多伦多今日",
+    weatherToday: "多伦多",
     wxHigh: "高",
     wxLow: "低",
     feelsLike: "体感",
     precip: "降水",
+    windLabel: "风",
     tomorrow: "明日",
     staleData: "上次数据",
     weatherLoading: "多伦多天气加载中…",
@@ -164,11 +165,12 @@ const STR = {
     offDone: "Done for the day",
     toronto: "Toronto",
     beijing: "Beijing",
-    weatherToday: "Toronto today",
+    weatherToday: "Toronto",
     wxHigh: "High",
     wxLow: "Low",
     feelsLike: "Feels",
     precip: "Precip",
+    windLabel: "Wind",
     tomorrow: "Tomorrow",
     staleData: "last known",
     weatherLoading: "Loading Toronto weather…",
@@ -301,8 +303,10 @@ function uiLocale(): string {
  * v1.0 = one-screen workbench (CRUD + status + weather/clocks);
  * v1.1 = theme/language toggles + expandable hero;
  * v1.2 = Spotify card + today's calendar + phone overflow fix;
- * v1.2.1 = calendar merge removed at owner's direction (board items only). */
-const BOARD_VERSION = "v1.2.1";
+ * v1.2.1 = calendar merge removed at the owner's direction (board items only);
+ * v1.2.2 = page-2 two-column layout, one-line header weather, compact
+ * header stat strip. */
+const BOARD_VERSION = "v1.2.2";
 const BOARD_VERSION_DATE = "2026-11-10";
 
 const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
@@ -731,7 +735,20 @@ function HeaderClockWeather({
       </div>
       <div className="mt-1">
         {weather ? (
-          <p className="flex flex-wrap items-center justify-start gap-x-1.5 text-xs tabular-nums text-[var(--header-dim)] sm:justify-end">
+          <p
+            className="flex flex-nowrap items-center justify-start gap-x-1.5 whitespace-nowrap text-xs tabular-nums text-[var(--header-dim)] sm:justify-end"
+            title={[
+              weather.feelsLike !== null
+                ? `${t("feelsLike")} ${fmtTemp(weather.feelsLike)}`
+                : null,
+              weather.precipitationChance !== null
+                ? `${t("precip")} ${Math.round(weather.precipitationChance)}%`
+                : null,
+              weather.wind ? `${t("windLabel")} ${weather.wind}` : null,
+            ]
+              .filter((part): part is string => part !== null)
+              .join(" · ")}
+          >
             <WeatherGlyph />
             <span className="font-medium text-[var(--header-text)]">{t("weatherToday")}</span>
             <span className="text-sm font-bold tabular-nums text-[var(--header-text)]">
@@ -746,14 +763,11 @@ function HeaderClockWeather({
               {weather.high !== null || weather.low !== null
                 ? `· ${t("wxHigh")} ${fmtTemp(weather.high)} ${t("wxLow")} ${fmtTemp(weather.low)}`
                 : ""}
-              {weather.feelsLike !== null ? ` · ${t("feelsLike")} ${fmtTemp(weather.feelsLike)}` : ""}
-              {weather.precipitationChance !== null
-                ? ` · ${t("precip")} ${Math.round(weather.precipitationChance)}%`
-                : ""}
-              {weather.wind ? ` · ${weather.wind}` : ""}
-              {weather.tomorrowHigh !== null || weather.tomorrowLow !== null
-                ? ` · ${t("tomorrow")} ${fmtTemp(weather.tomorrowLow)}~${fmtTemp(weather.tomorrowHigh)}`
-                : ""}
+              {weather.tomorrowHigh !== null && weather.tomorrowLow !== null
+                ? ` · ${t("tomorrow")} ${Math.round(weather.tomorrowLow)}–${Math.round(weather.tomorrowHigh)}°`
+                : weather.tomorrowHigh !== null || weather.tomorrowLow !== null
+                  ? ` · ${t("tomorrow")} ${fmtTemp(weather.tomorrowLow)}~${fmtTemp(weather.tomorrowHigh)}`
+                  : ""}
               {weather.stale ? ` · ${t("staleData")}` : ""}
               {weather.alerts.length > 0 ? ` · ⚠ ${weather.alerts.join("；")}` : ""}
             </span>
@@ -1468,6 +1482,24 @@ function EmptyLine({ text }: { text: string }) {
   );
 }
 
+/** Compact one-row empty state for narrow cards (e.g. page 2's side column). */
+function EmptyLineCompact({ text }: { text: string }) {
+  return (
+    <div className="flex items-center gap-2 py-1 text-left">
+      <span
+        aria-hidden="true"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--bg)]"
+      >
+        <SvgIcon color="var(--dim)" size={15} className="shrink-0">
+          <path d="M22 12h-6l-2 3h-4l-2-3H2" />
+          <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+        </SvgIcon>
+      </span>
+      <p className="text-[13px] leading-snug text-[var(--dim)]">{text}</p>
+    </div>
+  );
+}
+
 function VerdictMark({ verdict }: { verdict: Verdict }) {
   return verdict === "yes" ? (
     <span className="font-semibold text-[var(--accent)]">{t("approved")}</span>
@@ -1620,7 +1652,7 @@ function DecisionItem({
 
 function HeaderStat({ value, label, accent }: { value: number; label: string; accent?: boolean }) {
   return (
-    <div className="flex items-baseline justify-center gap-1.5 px-1 py-0.5 text-center">
+    <div className="flex items-baseline gap-1.5 py-0.5">
       <span
         className={
           accent
@@ -2481,7 +2513,7 @@ export function App() {
               />
             </div>
           </div>
-          <div className="mt-1.5 grid grid-cols-4 divide-x divide-[var(--header-border)] border-t border-[var(--header-border)] pt-1.5 [@media(max-height:949px)]:mt-1 [@media(max-height:949px)]:pt-1">
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-[var(--header-border)] pt-1.5 [@media(max-height:949px)]:mt-1 [@media(max-height:949px)]:pt-1">
             <HeaderStat
               value={data.decisions.length}
               label={t("statDecisions")}
@@ -2500,44 +2532,50 @@ export function App() {
           <>
             <PageTabs page={page} farCount={farDeadlines.length} onChange={setPage} />
 
-            {/* 14 天后到期 */}
-            <section aria-label={t("farTitle")} className={`${CARD_CLASS} mt-3`}>
-              <SectionHeading icon={<SectionTile kind="deadlines" />}>
-                {t("farTitle")}
-              </SectionHeading>
-              {farDeadlines.length === 0 ? (
-                <EmptyLine text={t("farEmpty")} />
-              ) : (
-                <DeadlineGroups items={farDeadlines} />
-              )}
-            </section>
+            {/* 两栏：左 = 状态详情（主栏 2/3），右 = 14 天后到期（窄栏 1/3）；
+                窄窗/手机堆叠为单列（DOM 顺序：到期在前、状态在后）。 */}
+            <div className="mt-3 grid items-start gap-3 lg:grid-cols-3">
+              {/* 14 天后到期 */}
+              <section aria-label={t("farTitle")} className={`${CARD_CLASS} min-w-0 lg:order-2`}>
+                <SectionHeading icon={<SectionTile kind="deadlines" />}>
+                  {t("farTitle")}
+                </SectionHeading>
+                {farDeadlines.length === 0 ? (
+                  <EmptyLineCompact text={t("farEmpty")} />
+                ) : (
+                  <DeadlineGroups items={farDeadlines} />
+                )}
+              </section>
 
-            {/* 状态详情：每台机器 / 每个站点的完整列表 */}
-            <div className="mt-3 flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold tracking-tight text-[var(--text)]">
-                {t("statusDetail")}
-              </h2>
-              <button
-                type="button"
-                onClick={() => {
-                  statusForceRef.current = true;
-                  void statusQuery.refetch();
-                }}
-                disabled={statusQuery.isFetching}
-                aria-label={t("recheckAria")}
-                className="h-10 rounded-lg bg-[var(--accent)] px-4 text-[15px] font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
-              >
-                {statusQuery.isFetching ? t("checking") : t("recheck")}
-              </button>
+              {/* 状态详情：每台机器 / 每个站点的完整列表 */}
+              <div className="min-w-0 lg:order-1 lg:col-span-2">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="text-lg font-semibold tracking-tight text-[var(--text)]">
+                    {t("statusDetail")}
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      statusForceRef.current = true;
+                      void statusQuery.refetch();
+                    }}
+                    disabled={statusQuery.isFetching}
+                    aria-label={t("recheckAria")}
+                    className="h-10 rounded-lg bg-[var(--accent)] px-4 text-[15px] font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
+                  >
+                    {statusQuery.isFetching ? t("checking") : t("recheck")}
+                  </button>
+                </div>
+                <StatusCards
+                  data={statusQuery.data}
+                  pending={statusQuery.isPending}
+                  checking={statusQuery.isFetching}
+                />
+                <p className="mt-3 text-sm leading-relaxed text-[var(--dim)]">
+                  {t("statusFootnote")}
+                </p>
+              </div>
             </div>
-            <StatusCards
-              data={statusQuery.data}
-              pending={statusQuery.isPending}
-              checking={statusQuery.isFetching}
-            />
-            <p className="mt-3 text-sm leading-relaxed text-[var(--dim)]">
-              {t("statusFootnote")}
-            </p>
           </>
         ) : (
           <>
