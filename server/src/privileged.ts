@@ -4,11 +4,10 @@
 // reach the user's connected accounts through their official CLIs:
 //   - Spotify: /opt/hatch/bin/spotify-api (now-playing / devices read,
 //     pause / resume / skip / previous / set-volume control)
-//   - Google Calendar: /opt/hatch/bin/hatch_gws_cli calendar events list
 // The daemon routes those CLI calls through the artifact's declared
-// connector grants (spotify access.read + playback.control,
-// google_calendar events.list + calendar_list.list); the handlers only
-// shape the CLI JSON into the small typed payloads the actions return.
+// connector grants (spotify access.read + playback.control); the
+// handlers only shape the CLI JSON into the small typed payloads the
+// actions return.
 
 import { spawnSync } from "node:child_process";
 import {
@@ -35,17 +34,6 @@ type SpotifyState = {
     isActive: boolean;
     volumePercent: number | null;
   }[];
-};
-
-type CalendarEvent = {
-  id: string;
-  title: string;
-  startMs: number | null;
-  endMs: number | null;
-  allDay: boolean;
-  // For all-day events: the plain calendar date (YYYY-MM-DD), no timezone.
-  startDate: string | null;
-  location: string;
 };
 
 export const privileged = definePrivilegedContracts({
@@ -83,25 +71,6 @@ export const privileged = definePrivilegedContracts({
     }),
     response: z.object({ ok: z.boolean() }),
     capabilities: ["spotify.playback.control"],
-    timeoutMs: 30_000,
-  },
-  calendarToday: {
-    request: z.object({ timeMin: z.string(), timeMax: z.string() }),
-    response: z.object({
-      connected: z.boolean(),
-      events: z.array(
-        z.object({
-          id: z.string(),
-          title: z.string(),
-          startMs: z.number().nullable(),
-          endMs: z.number().nullable(),
-          allDay: z.boolean(),
-          startDate: z.string().nullable(),
-          location: z.string(),
-        }),
-      ),
-    }),
-    capabilities: ["google_calendar.events.list", "google_calendar.calendar_list.list"],
     timeoutMs: 30_000,
   },
 });
@@ -158,7 +127,6 @@ function runCliJson(bin: string, args: string[]): Json | null {
 }
 
 const SPOTIFY_BIN = "/opt/hatch/bin/spotify-api";
-const GWS_BIN = "/opt/hatch/bin/hatch_gws_cli";
 
 export const privilegedHandlers = definePrivilegedHandlers(privileged, {
   spotifyState() {
@@ -255,61 +223,5 @@ export const privilegedHandlers = definePrivilegedHandlers(privileged, {
     if (deviceId) playArgs.push("--target-device-id", deviceId);
     const played = runCliJson(SPOTIFY_BIN, playArgs);
     return { ok: played !== null && played.ok !== false };
-  },
-
-  calendarToday(args) {
-    const params = JSON.stringify({
-      calendarId: "primary",
-      timeMin: args.timeMin,
-      timeMax: args.timeMax,
-      singleEvents: true,
-      orderBy: "startTime",
-      maxResults: 50,
-    });
-    const json = runCliJson(GWS_BIN, [
-      "calendar",
-      "events",
-      "list",
-      "--params",
-      params,
-      "--format",
-      "json",
-    ]);
-    if (!json || json.ok === false) return { connected: false, events: [] };
-    const rawItems: unknown[] = Array.isArray(json.items)
-      ? json.items
-      : Array.isArray(json.events)
-        ? json.events
-        : Array.isArray(asRecord(json.body)?.items)
-          ? (asRecord(json.body)?.items as unknown[])
-          : [];
-    const events: CalendarEvent[] = [];
-    for (const raw of rawItems) {
-      const ev = asRecord(raw);
-      if (!ev) continue;
-      if (ev.status === "cancelled") continue;
-      const start = asRecord(ev.start);
-      const end = asRecord(ev.end);
-      const startDate = str(start?.date);
-      const startDateTime = str(start?.dateTime);
-      const endDateTime = str(end?.dateTime);
-      const allDay = startDate !== null;
-      const startMs = allDay
-        ? null
-        : startDateTime
-          ? Date.parse(startDateTime)
-          : null;
-      const endMs = endDateTime ? Date.parse(endDateTime) : null;
-      events.push({
-        id: str(ev.id) ?? `ev-${events.length}`,
-        title: str(ev.summary) ?? "(无标题)",
-        startMs: startMs !== null && Number.isFinite(startMs) ? startMs : null,
-        endMs: endMs !== null && Number.isFinite(endMs ?? NaN) ? endMs : null,
-        allDay,
-        startDate: allDay ? startDate : null,
-        location: str(ev.location) ?? "",
-      });
-    }
-    return { connected: true, events };
   },
 });

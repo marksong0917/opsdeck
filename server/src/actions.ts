@@ -455,63 +455,6 @@ export const Actions = {
     },
   }),
 
-  getTodayCalendar: defineAction({
-    description:
-      "Returns today's events from the user's primary Google Calendar for the Toronto calendar day, read through the Google Calendar connector; connected=false when the connector is unavailable.",
-    request: z.object({}),
-    response: z.object({
-      calendar: z.object({
-        connected: z.boolean(),
-        events: z.array(
-          z.object({
-            id: z.string(),
-            title: z.string(),
-            startMs: z.number().nullable(),
-            endMs: z.number().nullable(),
-            allDay: z.boolean(),
-            startDate: z.string().nullable(),
-            location: z.string(),
-          }),
-        ),
-      }),
-    }),
-    privileged: [privileged.calendarToday],
-    handler: async (ctx) => {
-      // Wide UTC window around the Toronto day; events are filtered to
-      // the Toronto calendar date below, so DST offsets cannot shift an
-      // event onto the wrong day.
-      const todayKey = new Intl.DateTimeFormat("en-CA", {
-        timeZone: "America/Toronto",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }).format(new Date());
-      const windowStart = Date.parse(`${todayKey}T00:00:00Z`) - 12 * 3600_000;
-      const windowEnd = windowStart + 48 * 3600_000;
-      try {
-        const result = await ctx.executePrivileged(privileged.calendarToday, {
-          timeMin: new Date(windowStart).toISOString(),
-          timeMax: new Date(windowEnd).toISOString(),
-        });
-        if (!result.connected) return { calendar: { connected: false, events: [] } };
-        const events = result.events.filter((ev) => {
-          if (ev.allDay) return ev.startDate === todayKey;
-          if (ev.startMs === null) return false;
-          const eventDay = new Intl.DateTimeFormat("en-CA", {
-            timeZone: "America/Toronto",
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-          }).format(new Date(ev.startMs));
-          return eventDay === todayKey;
-        });
-        return { calendar: { connected: true, events } };
-      } catch {
-        return { calendar: { connected: false, events: [] } };
-      }
-    },
-  }),
-
   getBoard: defineAction({
     description:
       "Returns all open board items grouped by section, plus the board's last-updated timestamp.",

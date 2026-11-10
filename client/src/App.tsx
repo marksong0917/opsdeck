@@ -143,9 +143,6 @@ const STR = {
     playLabel: "播放",
     pauseLabel: "暂停",
     volumeLabel: "音量",
-    allDay: "全天",
-    calendarWord: "日历",
-    calendarNotConnected: "日历未连接",
     versionWord: "版本",
   },
   en: {
@@ -272,9 +269,6 @@ const STR = {
     playLabel: "Play",
     pauseLabel: "Pause",
     volumeLabel: "Volume",
-    allDay: "All day",
-    calendarWord: "Calendar",
-    calendarNotConnected: "Calendar not connected",
     versionWord: "Version",
   },
 } as const;
@@ -306,8 +300,9 @@ function uiLocale(): string {
 /** Board release version, bumped by Tina on each shipped edit.
  * v1.0 = one-screen workbench (CRUD + status + weather/clocks);
  * v1.1 = theme/language toggles + expandable hero;
- * v1.2 = Spotify card + today's calendar + phone overflow fix. */
-const BOARD_VERSION = "v1.2";
+ * v1.2 = Spotify card + today's calendar + phone overflow fix;
+ * v1.2.1 = calendar merge removed at owner's direction (board items only). */
+const BOARD_VERSION = "v1.2.1";
 const BOARD_VERSION_DATE = "2026-11-10";
 
 const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
@@ -587,22 +582,6 @@ function torontoNowMinutes(): number {
   const hour = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
   const minute = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
   return hour * 60 + minute;
-}
-
-/** Time of day (minutes since midnight + HH:MM label) of an instant, in Toronto. */
-function torontoTimeOfDay(ms: number): { minutes: number; label: string } {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Toronto",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(new Date(ms));
-  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
-  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
-  return {
-    minutes: hour * 60 + minute,
-    label: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
-  };
 }
 
 /** The workday ends at 18:00 in the owner's timezone. Live off-work state for the header. */function offWorkState(now: Date): { off: boolean; label: string } {
@@ -934,19 +913,6 @@ function DoneTodayStrip({ items }: { items: string[] }) {
 }
 
 type SpotifyState = ApiResponse<typeof api, "getSpotify">["spotify"];
-type CalEvent = ApiResponse<typeof api, "getTodayCalendar">["calendar"]["events"][number];
-
-/** Small calendar glyph marking Google Calendar rows in the timeline. */
-function CalGlyph() {
-  return (
-    <SvgIcon color="#d97706" size={15} className="shrink-0">
-      <rect x="3" y="4" width="18" height="18" rx="2" />
-      <line x1="16" x2="16" y1="2" y2="6" />
-      <line x1="8" x2="8" y1="2" y2="6" />
-      <line x1="3" x2="21" y1="10" y2="10" />
-    </SvgIcon>
-  );
-}
 
 function SpotifyGlyph() {
   return (
@@ -2049,11 +2015,6 @@ export function App() {
     queryFn: () => api.getSpotify({}),
     refetchInterval: 45_000,
   });
-  const calendarQuery = useQuery({
-    queryKey: ["today-calendar"],
-    queryFn: () => api.getTodayCalendar({}),
-    refetchInterval: 5 * 60_000,
-  });
   const spotifyControlMutation = useMutation({
     mutationFn: async (args: {
       command: "pause" | "resume" | "skip" | "previous" | "setVolume";
@@ -2072,7 +2033,6 @@ export function App() {
     void weatherQuery.refetch();
     void statusQuery.refetch();
     void spotifyQuery.refetch();
-    void calendarQuery.refetch();
   };
   const refreshing =
     board.isFetching || weatherQuery.isFetching || statusQuery.isFetching;
@@ -2304,57 +2264,28 @@ export function App() {
   const lastVerdictStillListed =
     lastVerdict != null && data.decisions.some((d) => d.id === lastVerdict.itemId);
 
-  // Timeline: today's board items merged with today's Google Calendar
-  // events (primary calendar, Toronto day), sorted by Toronto time.
-  // All-day calendar events sit on top; calendar rows are marked with a
-  // calendar glyph. Past/next states follow Toronto wall-clock time.
+  // Timeline: today's board items (crons / planned items) only, sorted
+  // by Toronto time. Past/next states follow Toronto wall-clock time.
   const nowMinutes = torontoNowMinutes();
   type TLRow = {
     key: string;
     minutes: number | null;
     timeLabel: string;
-    kind: "board" | "cal";
-    item?: Item;
-    cal?: CalEvent;
+    item: Item;
     order: number;
   };
-  const calEvents: CalEvent[] = calendarQuery.data?.calendar.connected
-    ? calendarQuery.data.calendar.events
-    : [];
-  const tlRows: TLRow[] = [
-    ...data.today.map((item, i): TLRow => {
+  const tlRows: TLRow[] = data.today
+    .map((item, i): TLRow => {
       const { time } = splitTime(item.title);
       return {
         key: `b-${item.id}`,
         minutes: time ? timeToMinutes(time) : null,
         timeLabel: time ?? "",
-        kind: "board",
         item,
         order: i,
       };
-    }),
-    ...calEvents.map((ev, i): TLRow => {
-      if (ev.allDay || ev.startMs === null) {
-        return {
-          key: `c-${ev.id}`,
-          minutes: -1,
-          timeLabel: t("allDay"),
-          kind: "cal",
-          cal: ev,
-          order: 1000 + i,
-        };
-      }
-      const tod = torontoTimeOfDay(ev.startMs);
-      return {
-        key: `c-${ev.id}`,
-        minutes: tod.minutes,
-        timeLabel: tod.label,
-        kind: "cal",
-        cal: ev,
-        order: 1000 + i,
-      };
-    }),
-  ].sort((a, b) => (a.minutes ?? 9999) - (b.minutes ?? 9999) || a.order - b.order);
+    })
+    .sort((a, b) => (a.minutes ?? 9999) - (b.minutes ?? 9999) || a.order - b.order);
   const nextKey =
     tlRows.find(
       (r) => r.minutes !== null && r.minutes >= 0 && r.minutes >= nowMinutes,
@@ -2737,14 +2668,7 @@ export function App() {
         <div className="mt-2 grid items-stretch gap-2 md:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0 [@media(max-height:949px)]:mt-1.5 [@media(max-height:949px)]:gap-1.5">
         {/* 2. 今日定时与动态 — 时间轴 */}
         <section aria-label={t("todayTitle")} className={`${CARD_CLASS} h-full`}>
-          <SectionHeading
-            hint={
-              calendarQuery.data && !calendarQuery.data.calendar.connected
-                ? `${t("torontoTime")} · ${t("calendarNotConnected")}`
-                : t("torontoTime")
-            }
-            icon={<SectionTile kind="today" />}
-          >
+          <SectionHeading hint={t("torontoTime")} icon={<SectionTile kind="today" />}>
             {t("todayTitle")}
           </SectionHeading>
           {tlRows.length === 0 ? (
@@ -2757,64 +2681,7 @@ export function App() {
               />
               <ul>
                 {tlRows.map((row) => {
-                  if (row.kind === "cal" && row.cal) {
-                    const ev = row.cal;
-                    const past =
-                      row.minutes !== null && row.minutes >= 0 && row.minutes < nowMinutes;
-                    const isNext = row.key === nextKey;
-                    return (
-                      <li
-                        key={row.key}
-                        className={
-                          past
-                            ? "relative flex items-center gap-2.5 py-[5px] opacity-55 [@media(max-height:949px)]:py-[3px]"
-                            : "relative flex items-center gap-2.5 py-[5px] [@media(max-height:949px)]:py-[3px]"
-                        }
-                      >
-                        <span
-                          className={
-                            isNext
-                              ? "w-10 shrink-0 text-right text-[13px] font-bold tabular-nums text-[var(--accent)]"
-                              : "w-10 shrink-0 text-right text-[13px] font-semibold tabular-nums text-[var(--text)]"
-                          }
-                        >
-                          {row.timeLabel}
-                        </span>
-                        <span
-                          aria-hidden="true"
-                          className={
-                            isNext
-                              ? "z-10 h-2 w-2 shrink-0 rounded-full bg-[#d97706] ring-4 ring-[var(--surface)]"
-                              : past
-                                ? "z-10 h-2 w-2 shrink-0 rounded-full bg-[var(--dim)] ring-4 ring-[var(--surface)]"
-                                : "z-10 h-2 w-2 shrink-0 rounded-full bg-[#d97706] ring-4 ring-[var(--surface)]"
-                          }
-                        />
-                        <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm text-[var(--text)] [&>svg]:mt-0">
-                          <CalGlyph />
-                          <span className="truncate">
-                            <span className="font-medium">{ev.title}</span>
-                            {ev.location ? (
-                              <span className="text-[var(--dim)]"> · {ev.location}</span>
-                            ) : null}
-                            {past ? (
-                              <span className="ml-1.5 text-xs text-[var(--dim)]">✓</span>
-                            ) : null}
-                          </span>
-                          {isNext ? (
-                            <span className="shrink-0 rounded-full bg-[var(--accent)] px-1.5 py-0.5 text-[11px] font-medium text-white">
-                              {t("nextUp")}
-                            </span>
-                          ) : null}
-                        </span>
-                        <span className="shrink-0 rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">
-                          {t("calendarWord")}
-                        </span>
-                      </li>
-                    );
-                  }
                   const item = row.item;
-                  if (!item) return null;
                   const { rest } = splitTime(item.title);
                   const active = item.status === "进行中";
                   const minutes = row.minutes;

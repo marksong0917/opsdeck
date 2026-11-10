@@ -38,23 +38,4 @@ export const privileged = definePrivilegedContracts({
     capabilities: ["spotify.playback.control"],
     timeoutMs: 30_000,
   },
-  calendarToday: {
-    request: z.object({ timeMin: z.string(), timeMax: z.string() }),
-    response: z.object({
-      connected: z.boolean(),
-      events: z.array(
-        z.object({
-          id: z.string(),
-          title: z.string(),
-          startMs: z.number().nullable(),
-          endMs: z.number().nullable(),
-          allDay: z.boolean(),
-          startDate: z.string().nullable(),
-          location: z.string(),
-        }),
-      ),
-    }),
-    capabilities: ["google_calendar.events.list", "google_calendar.calendar_list.list"],
-    timeoutMs: 30_000,
-  },
 });
