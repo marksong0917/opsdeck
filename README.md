@@ -44,6 +44,10 @@ The board is maintained *by* the assistant, not by you: the assistant pushes its
 
 **Page 2 — the back office**: deadlines beyond 14 days, and full status detail for every monitored site and server.
 
+**Page 3 — China Trip checklist** (new in v1.3.0): a check-off to-do list for a trip home — tick an item and it is marked done in place (stays visible, struck through, untick to undo), and new items can be added right on the page.
+
+第 3 页「回国待办」（v1.3.0 新增）：回国行程的勾选清单——点一下复选框就标记完成（条目留在原地、划线显示，再点可取消），也能直接在页面上新增条目。
+
 ## Design principles
 
 - **One screen, no scroll** at 1920×1080; a height-based compact tier kicks in under ~950 px viewport height (e.g. 125% display scaling).
@@ -60,6 +64,7 @@ Built as a **Muse Space** (TypeScript web artifact): React client + typed server
 | `getBoard` | client | All sections in one read |
 | `answerDecision` / `undoDecision` / `getLastVerdict` | client / assistant | Yes-No verdicts the assistant consumes |
 | `addItem` / `updateItem` / `closeItem` | both | CRUD on lane items |
+| `toggleChinaDone` | client | Ticks a page-3 checklist item done / not done in place |
 | `replaceTodaySchedule` | assistant (scheduled jobs) | Mirrors the day's real cron schedule, read-only for the user |
 | `updateBoardPulse` | assistant | "Currently…" line + done-today list |
 | `getStatus` / `recordServerCheck` | server / assistant | HTTPS probes for public sites; inspection records for private servers |

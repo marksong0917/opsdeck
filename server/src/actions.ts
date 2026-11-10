@@ -10,7 +10,7 @@ import { asc, eq, isNull } from "drizzle-orm";
 import * as schema from "./schema";
 import { privileged } from "@space/privileged";
 
-const sectionEnum = z.enum(["decisions", "today", "deadlines", "lanes"]);
+const sectionEnum = z.enum(["decisions", "today", "deadlines", "lanes", "china"]);
 
 const verdictEnum = z.enum(["yes", "no"]);
 
@@ -464,6 +464,7 @@ export const Actions = {
       today: z.array(itemShape),
       deadlines: z.array(itemShape),
       lanes: z.array(itemShape),
+      china: z.array(itemShape),
       updatedAt: z.string().nullable(),
       tinaStatus: z.string(),
       doneToday: z.array(z.string()),
@@ -533,6 +534,7 @@ export const Actions = {
         today: items.filter((i) => i.section === "today"),
         deadlines: items.filter((i) => i.section === "deadlines"),
         lanes: items.filter((i) => i.section === "lanes"),
+        china: items.filter((i) => i.section === "china"),
         updatedAt: metaRow ? metaRow.updatedAt.toISOString() : null,
         tinaStatus: metaRow?.tinaStatus || "待命，随时喊我",
         doneToday,
@@ -570,7 +572,7 @@ export const Actions = {
 
   addItem: defineAction({
     description:
-      "Adds one item to a board section (decisions, today, deadlines, or lanes) and returns its id.",
+      "Adds one item to a board section (decisions, today, deadlines, lanes, or china) and returns its id.",
     request: z.object({
       section: sectionEnum,
       title: z.string().min(1),
@@ -624,6 +626,26 @@ export const Actions = {
         .update(schema.items)
         .set({ ...fields, updatedAt: new Date() })
         .where(eq(schema.items.id, id));
+      await touchMeta(ctx);
+      ctx.invalidateQueries();
+      return { ok: true };
+    },
+  }),
+
+  toggleChinaDone: defineAction({
+    description:
+      "Toggles one 'china' (page 3 回国待办) item between done and open by setting its status to \"done\" or clearing it; the row stays on the list either way.",
+    request: z.object({
+      id: z.number().int().positive(),
+      done: z.boolean(),
+    }),
+    response: okResponse,
+    handler: async (ctx, args): Promise<z.infer<typeof okResponse>> => {
+      const db = ctx.db<typeof schema>();
+      await db
+        .update(schema.items)
+        .set({ status: args.done ? "done" : "", updatedAt: new Date() })
+        .where(eq(schema.items.id, args.id));
       await touchMeta(ctx);
       ctx.invalidateQueries();
       return { ok: true };

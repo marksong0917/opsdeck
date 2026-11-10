@@ -107,6 +107,14 @@ const STR = {
     errProcess: "没处理成功，再试一次。",
     tabsAria: "看板分页",
     page1: "第 1 页 · 工作台",
+    page3: "第 3 页 · 回国待办",
+    chinaTitle: "回国待办",
+    chinaTripLine: "20XX-XX-XX 出发 · 目的地 · 20XX-XX-XX 回程",
+    chinaEmpty: "还没有回国待办",
+    chinaAddItemAria: "新增回国待办",
+    chinaMarkDone: "标记完成",
+    chinaMarkUndone: "取消完成",
+    chinaProgress: "已完成",
     statusDetail: "状态详情",
     recheck: "↻ 重新检测",
     recheckAria: "重新检测状态",
@@ -235,6 +243,14 @@ const STR = {
     errProcess: "Couldn't do that — try again.",
     tabsAria: "Board pages",
     page1: "Page 1 · Workbench",
+    page3: "Page 3 · China Trip",
+    chinaTitle: "China Trip",
+    chinaTripLine: "Depart 20XX-XX-XX · Destination · Return 20XX-XX-XX",
+    chinaEmpty: "No China trip to-dos yet",
+    chinaAddItemAria: "Add a China trip to-do",
+    chinaMarkDone: "Mark done",
+    chinaMarkUndone: "Mark not done",
+    chinaProgress: "done",
     statusDetail: "Status detail",
     recheck: "↻ Re-check",
     recheckAria: "Re-check status",
@@ -311,8 +327,10 @@ function uiLocale(): string {
  * v1.2.3 = weather condition words + item status pills follow the UI
  * language; page 2 goes full-width when nothing is due after 14 days;
  * v1.2.4 = footer gets a row of quick links to the owner's personal projects
- * (portfolio, GitHub, Typebook, FoxShare). */
-const BOARD_VERSION = "v1.2.4";
+ * (portfolio, GitHub, Typebook, FoxShare);
+ * v1.3.0 = page 3 "China Trip" checklist: a check-off list backed by the
+ * new "china" item section; ticking a row sets status "done" in place. */
+const BOARD_VERSION = "v1.3.0";
 const BOARD_VERSION_DATE = "2026-11-10";
 
 const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
@@ -356,7 +374,7 @@ function SvgIcon({
   );
 }
 
-type SectionKind = "decisions" | "today" | "deadlines" | "lanes" | "sites" | "servers";
+type SectionKind = "decisions" | "today" | "deadlines" | "lanes" | "sites" | "servers" | "china";
 
 function SectionGlyph({
   kind,
@@ -414,6 +432,13 @@ function SectionGlyph({
       </SvgIcon>
     );
   }
+  if (kind === "china") {
+    return (
+      <SvgIcon color={c} size={s} className="shrink-0">
+        <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" />
+      </SvgIcon>
+    );
+  }
   return (
     <SvgIcon color={c} size={s} className="shrink-0">
       <polygon points="12 2 2 7 12 12 22 7 12 2" />
@@ -434,6 +459,7 @@ const TILE_STYLE: Record<SectionKind, { bg: string; fg: string }> = {
   lanes: { bg: "rgba(139,92,246,0.13)", fg: "#8b5cf6" },
   sites: { bg: "rgba(8,145,178,0.13)", fg: "#0891b2" },
   servers: { bg: "rgba(190,52,85,0.12)", fg: "#be3455" },
+  china: { bg: "rgba(220,38,38,0.11)", fg: "#dc2626" },
 };
 
 function SectionTile({ kind }: { kind: SectionKind }) {
@@ -1373,20 +1399,25 @@ function StatusChip({
   );
 }
 
-/** Page switch: page 1 = one-screen workbench, page 2 = later deadlines + status detail. */
+type BoardPage = "main" | "more" | "china";
+
+/** Page switch: page 1 = one-screen workbench, page 2 = later deadlines +
+ * status detail, page 3 = 回国待办 (China Trip checklist). */
 function PageTabs({
   page,
   farCount,
+  chinaCount,
   onChange,
 }: {
-  page: "main" | "more";
+  page: BoardPage;
   farCount: number;
-  onChange: (page: "main" | "more") => void;
+  chinaCount: number;
+  onChange: (page: BoardPage) => void;
 }) {
   const tabCls = (active: boolean) =>
     active
-      ? "h-7 rounded-full bg-[var(--accent)] px-3 text-[13px] font-semibold text-white shadow-sm transition"
-      : "h-7 rounded-full px-3 text-[13px] font-medium text-[var(--dim)] transition hover:text-[var(--text)]";
+      ? "h-7 whitespace-nowrap rounded-full bg-[var(--accent)] px-3 text-[13px] font-semibold text-white shadow-sm transition"
+      : "h-7 whitespace-nowrap rounded-full px-3 text-[13px] font-medium text-[var(--dim)] transition hover:text-[var(--text)]";
   return (
     <div className="mt-2">
       <div
@@ -1398,24 +1429,160 @@ function PageTabs({
           type="button"
           role="tab"
           aria-selected={page === "main"}
+          aria-label={t("page1")}
           onClick={() => onChange("main")}
           className={tabCls(page === "main")}
         >
-          {t("page1")}
+          <span className="sm:hidden">{activeLang === "zh" ? "工作台" : "Workbench"}</span>
+          <span className="hidden sm:inline">{t("page1")}</span>
         </button>
         <button
           type="button"
           role="tab"
           aria-selected={page === "more"}
+          aria-label={
+            activeLang === "zh"
+              ? `第 2 页 · 更远到期${farCount > 0 ? ` ${farCount}` : ""} + 状态详情`
+              : `Page 2 · Later${farCount > 0 ? ` ${farCount}` : ""} + Status`
+          }
           onClick={() => onChange("more")}
           className={tabCls(page === "more")}
         >
-          {activeLang === "zh"
-            ? `第 2 页 · 更远到期${farCount > 0 ? ` ${farCount}` : ""} + 状态详情`
-            : `Page 2 · Later${farCount > 0 ? ` ${farCount}` : ""} + Status`}
+          <span className="sm:hidden">{activeLang === "zh" ? "状态详情" : "Status"}</span>
+          <span className="hidden sm:inline">
+            {activeLang === "zh"
+              ? `第 2 页 · 更远到期${farCount > 0 ? ` ${farCount}` : ""} + 状态详情`
+              : `Page 2 · Later${farCount > 0 ? ` ${farCount}` : ""} + Status`}
+          </span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={page === "china"}
+          aria-label={t("page3")}
+          onClick={() => onChange("china")}
+          className={tabCls(page === "china")}
+        >
+          <span className="sm:hidden">
+            {activeLang === "zh"
+              ? `回国待办${chinaCount > 0 ? ` ${chinaCount}` : ""}`
+              : `China Trip${chinaCount > 0 ? ` ${chinaCount}` : ""}`}
+          </span>
+          <span className="hidden sm:inline">
+            {activeLang === "zh"
+              ? `第 3 页 · 回国待办${chinaCount > 0 ? ` ${chinaCount}` : ""}`
+              : `Page 3 · China Trip${chinaCount > 0 ? ` ${chinaCount}` : ""}`}
+          </span>
         </button>
       </div>
     </div>
+  );
+}
+
+/** One page-3 checklist row: a real checkbox toggles done in place —
+ * done rows stay listed, greyed and struck through, and can be unticked. */
+function ChinaRow({
+  item,
+  pending,
+  onToggle,
+}: {
+  item: Item;
+  pending: boolean;
+  onToggle: (done: boolean) => void;
+}) {
+  const done = item.status === "done";
+  return (
+    <li
+      id={`board-item-${item.id}`}
+      className="flex scroll-mt-24 items-start gap-3 py-2.5"
+    >
+      <input
+        type="checkbox"
+        checked={done}
+        disabled={pending}
+        onChange={(e) => onToggle(e.target.checked)}
+        aria-label={`${done ? t("chinaMarkUndone") : t("chinaMarkDone")}：${item.title}`}
+        className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer accent-[var(--accent)] disabled:opacity-50"
+      />
+      <div className={`min-w-0 flex-1 ${done ? "opacity-55" : ""}`}>
+        <p
+          className={`text-[15px] font-medium leading-snug text-[var(--text)] ${
+            done ? "line-through decoration-[var(--dim)]" : ""
+          }`}
+        >
+          {item.title}
+        </p>
+        {item.detail ? (
+          <p
+            className={`mt-0.5 text-sm leading-relaxed text-[var(--dim)] ${
+              done ? "line-through" : ""
+            }`}
+          >
+            {item.detail}
+          </p>
+        ) : null}
+        {item.dueDate ? (
+          <p className="mt-0.5 text-xs tabular-nums text-[var(--dim)]">
+            {formatDateLabel(item.dueDate)}
+          </p>
+        ) : null}
+      </div>
+    </li>
+  );
+}
+
+/** Add form for page 3: title + optional detail, same habit as the lanes form. */
+function AddChinaForm({
+  pending,
+  onCancel,
+  onSubmit,
+}: {
+  pending: boolean;
+  onCancel: () => void;
+  onSubmit: (fields: { title: string; detail: string }) => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [detail, setDetail] = useState("");
+  return (
+    <form
+      className="mb-3 space-y-2 rounded-lg border border-[var(--border)] bg-[var(--bg)] p-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!title.trim()) return;
+        onSubmit({ title: title.trim(), detail: detail.trim() });
+      }}
+    >
+      <input
+        aria-label={t("formTitleAria")}
+        className={INPUT_CLASS}
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder={t("titlePh")}
+      />
+      <input
+        aria-label={t("formDetailAria")}
+        className={INPUT_CLASS}
+        value={detail}
+        onChange={(e) => setDetail(e.target.value)}
+        placeholder={t("detailPh")}
+      />
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          disabled={!title.trim() || pending}
+          className="h-10 flex-1 rounded-lg bg-[var(--accent)] text-[15px] font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
+        >
+          {pending ? t("adding") : t("add")}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="h-10 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 text-[15px] font-medium text-[var(--text)]"
+        >
+          {t("cancel")}
+        </button>
+      </div>
+    </form>
   );
 }
 
@@ -2117,7 +2284,7 @@ export function App() {
 
   // Board pagination: page 1 is the one-screen workbench; page 2 holds
   // deadlines due beyond 14 days plus the full status detail lists.
-  const [page, setPage] = useState<"main" | "more">("main");
+  const [page, setPage] = useState<BoardPage>("main");
 
   // Hero dropdown: lists every item behind the hero count; picking one
   // scrolls to that item's row and flashes it. Closed by default, closes
@@ -2280,6 +2447,39 @@ export function App() {
       setBusy(null);
       setDeleteArmId(null);
       setDismissArmId(null);
+      void queryClient.invalidateQueries({ queryKey: ["board"] });
+    },
+  });
+
+  // Page 3 （回国待办）: checkbox toggles + add form. Toggling only flips
+  // the item's status between "done" and "" — the row never closes, so
+  // done items stay visible and never touch page 1's hero count (which
+  // only scans decisions/today/deadlines/lanes).
+  const [showChinaAddForm, setShowChinaAddForm] = useState(false);
+  const [chinaError, setChinaError] = useState<string | null>(null);
+  const chinaToggleMutation = useMutation({
+    mutationFn: async (args: { id: number; done: boolean }) =>
+      await api.toggleChinaDone(args),
+    onMutate: () => setChinaError(null),
+    onError: () => setChinaError(t("errProcess")),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["board"] });
+    },
+  });
+  const chinaAddMutation = useMutation({
+    mutationFn: async (args: { title: string; detail: string }) =>
+      await api.addItem({
+        section: "china",
+        lane: "",
+        title: args.title,
+        detail: args.detail,
+        status: "",
+        dueDate: null,
+        sort: 9999,
+      }),
+    onMutate: () => setChinaError(null),
+    onError: () => setChinaError(t("errAdd")),
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["board"] });
     },
   });
@@ -2576,7 +2776,7 @@ export function App() {
       <main className="mx-auto w-full max-w-[1600px] px-5 pb-3">
         {page === "more" ? (
           <>
-            <PageTabs page={page} farCount={farDeadlines.length} onChange={setPage} />
+            <PageTabs page={page} farCount={farDeadlines.length} chinaCount={data.china.length} onChange={setPage} />
 
             {/* 两栏：左 = 状态详情（主栏 2/3），右 = 14 天后到期（窄栏 1/3）；
                 远期为空时不排窄栏，状态详情占整行满宽；
@@ -2632,9 +2832,89 @@ export function App() {
               </div>
             </div>
           </>
+        ) : page === "china" ? (
+          <>
+            <PageTabs page={page} farCount={farDeadlines.length} chinaCount={data.china.length} onChange={setPage} />
+
+            {/* 行程信息：静态一行 */}
+            <div className={`${CARD_CLASS} mt-3 flex flex-wrap items-center gap-x-3 gap-y-1`}>
+              <span className="flex shrink-0 items-center gap-2 text-sm font-semibold text-[var(--text)]">
+                <SectionTile kind="china" />
+                {t("chinaTitle")}
+              </span>
+              <span className="text-sm tabular-nums text-[var(--dim)]">{t("chinaTripLine")}</span>
+              {data.china.length > 0 ? (
+                <span className="ml-auto shrink-0 rounded-full bg-[var(--bg)] px-2 py-0.5 text-xs font-medium tabular-nums text-[var(--dim)]">
+                  {t("chinaProgress")} {data.china.filter((i) => i.status === "done").length}/{data.china.length}
+                </span>
+              ) : null}
+            </div>
+
+            {/* 待办清单：勾选完成 / 取消恢复 + 新增 */}
+            <section aria-label={t("chinaTitle")} className={`${CARD_CLASS} mt-3`}>
+              <SectionHeading
+                icon={<SectionTile kind="china" />}
+                action={
+                  <button
+                    type="button"
+                    onClick={() => setShowChinaAddForm((v) => !v)}
+                    aria-expanded={showChinaAddForm}
+                    aria-label={t("chinaAddItemAria")}
+                    className="h-8 shrink-0 rounded-lg bg-[var(--accent)] px-3 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 active:scale-[0.98] motion-reduce:transition-none"
+                  >
+                    {showChinaAddForm ? t("collapse") : t("addNew")}
+                  </button>
+                }
+              >
+                {t("chinaTitle")}
+              </SectionHeading>
+              {chinaError ? (
+                <p
+                  role="alert"
+                  className="mb-2 rounded-lg border border-[#b91c1c] px-3 py-2 text-sm text-[#b91c1c] dark:text-[#f87171]"
+                >
+                  {chinaError}
+                </p>
+              ) : null}
+              {showChinaAddForm ? (
+                <AddChinaForm
+                  pending={chinaAddMutation.isPending}
+                  onCancel={() => setShowChinaAddForm(false)}
+                  onSubmit={(fields) => {
+                    chinaAddMutation.mutate(fields, {
+                      onSuccess: () => setShowChinaAddForm(false),
+                    });
+                  }}
+                />
+              ) : null}
+              {data.china.length === 0 ? (
+                <EmptyLine text={t("chinaEmpty")} />
+              ) : (
+                <ul className="divide-y divide-[var(--border)]">
+                  {data.china.map((item) => (
+                    <ChinaRow
+                      key={item.id}
+                      item={item}
+                      pending={
+                        chinaToggleMutation.isPending &&
+                        chinaToggleMutation.variables?.id === item.id
+                      }
+                      onToggle={(done) => chinaToggleMutation.mutate({ id: item.id, done })}
+                    />
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
+              <p className="text-xs text-[var(--dim)]">
+                {t("footer")} · {t("versionWord")} {BOARD_VERSION} · {BOARD_VERSION_DATE}
+              </p>
+            </footer>
+          </>
         ) : (
           <>
-        <PageTabs page={page} farCount={farDeadlines.length} onChange={setPage} />
+        <PageTabs page={page} farCount={farDeadlines.length} chinaCount={data.china.length} onChange={setPage} />
         {/* Tina 状态行 + 快捷入口 */}
         <TinaPulseStrip tinaStatus={data.tinaStatus} />
 

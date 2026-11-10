@@ -1,7 +1,10 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 // One row per board item. `section` is one of:
-//   "decisions" | "today" | "deadlines" | "lanes"
+//   "decisions" | "today" | "deadlines" | "lanes" | "china"
+// ("china" = page 3, the China-trip checklist; its rows stay
+// open when ticked done — completion is the `status` field, "done",
+// not `closedAt`, so a ticked row remains visible struck through.)
 // `lane` groups items in the "lanes" section (and is free text elsewhere).
 // `dueDate` is an ISO date string (YYYY-MM-DD) or null.
 // A row is closed when `closedAt` is set; closed rows stay in the table
@@ -9,7 +12,7 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 export const items = sqliteTable("items", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   section: text("section", {
-    enum: ["decisions", "today", "deadlines", "lanes"],
+    enum: ["decisions", "today", "deadlines", "lanes", "china"],
   }).notNull(),
   lane: text("lane").notNull().default(""),
   title: text("title").notNull(),
