@@ -305,8 +305,10 @@ function uiLocale(): string {
  * v1.2 = Spotify card + today's calendar + phone overflow fix;
  * v1.2.1 = calendar merge removed at the owner's direction (board items only);
  * v1.2.2 = page-2 two-column layout, one-line header weather, compact
- * header stat strip. */
-const BOARD_VERSION = "v1.2.2";
+ * header stat strip;
+ * v1.2.3 = weather condition words + item status pills follow the UI
+ * language; page 2 goes full-width when nothing is due after 14 days. */
+const BOARD_VERSION = "v1.2.3";
 const BOARD_VERSION_DATE = "2026-11-10";
 
 const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
@@ -658,23 +660,55 @@ type Weather = ApiResponse<typeof api, "getWeather">["weather"];
 const WX_ZH: Record<string, string> = {
   Fair: "晴",
   Sunny: "晴",
-  Clear: "晴朗",
+  Clear: "晴",
   "Mostly Clear": "晴朗",
   "Mostly Sunny": "晴间多云",
-  "Partly Cloudy": "多云",
+  "Partly Cloudy": "多云间晴",
   "Mostly Cloudy": "多云",
-  Cloudy: "阴",
+  Cloudy: "多云",
   Overcast: "阴",
   Rain: "雨",
   "Light Rain": "小雨",
+  "Heavy Rain": "大雨",
   Showers: "阵雨",
   "PM Showers": "午后阵雨",
   Snow: "雪",
   "Light Snow": "小雪",
+  Thunderstorm: "雷阵雨",
   Thunderstorms: "雷阵雨",
   Fog: "雾",
+  Mist: "薄雾",
+  Wind: "有风",
   Windy: "大风",
+  "Sunny/Wind": "晴·有风",
 };
+
+/**
+ * Chinese label for an English weather condition phrase. Tries an exact
+ * match, then a case-insensitive one, then translates each part of a
+ * slash combo ("Sunny/Wind" → "晴·有风"); anything unmapped stays raw.
+ */
+function wxZh(description: string): string {
+  const exact = WX_ZH[description];
+  if (exact) return exact;
+  const lower = description.toLowerCase();
+  for (const [key, value] of Object.entries(WX_ZH)) {
+    if (key.toLowerCase() === lower) return value;
+  }
+  if (description.includes("/")) {
+    const parts = description.split("/").map((part) => part.trim());
+    const translated = parts.map((part) => {
+      const hit = Object.entries(WX_ZH).find(
+        ([key]) => key.toLowerCase() === part.toLowerCase(),
+      );
+      return hit ? hit[1] : null;
+    });
+    if (translated.every((part): part is string => part !== null)) {
+      return translated.join("·");
+    }
+  }
+  return description;
+}
 
 function fmtTemp(value: number | null): string {
   return value === null ? "—" : `${Math.round(value)}°`;
@@ -756,7 +790,7 @@ function HeaderClockWeather({
             </span>
             <span className="text-[var(--header-text)]">
               {activeLang === "zh"
-                ? WX_ZH[weather.description] ?? weather.description
+                ? wxZh(weather.description)
                 : weather.description}
             </span>
             <span>
@@ -1418,6 +1452,13 @@ function DeadlineGroups({ items }: { items: Item[] }) {
   );
 }
 
+/** System status labels Tina stamps on items; these render in the UI
+ * language (the item's own title/detail text is never translated). */
+const STATUS_LABELS: Record<string, { zh: string; en: string }> = {
+  等待中: { zh: "等待中", en: "Waiting" },
+  进行中: { zh: "进行中", en: "In progress" },
+};
+
 function StatusPill({ status }: { status: string }) {
   if (!status) return null;
   let cls = "bg-[var(--bg)] text-[var(--dim)]";
@@ -1428,12 +1469,13 @@ function StatusPill({ status }: { status: string }) {
   } else if (/注意|异常|过期|卡/.test(status)) {
     cls = "bg-amber-500/15 text-amber-700 dark:text-amber-300";
   }
+  const label = STATUS_LABELS[status]?.[activeLang] ?? status;
   return (
     <span
       className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}
     >
       {status === "进行中" ? "● " : ""}
-      {status}
+      {label}
     </span>
   );
 }
@@ -2533,8 +2575,13 @@ export function App() {
             <PageTabs page={page} farCount={farDeadlines.length} onChange={setPage} />
 
             {/* 两栏：左 = 状态详情（主栏 2/3），右 = 14 天后到期（窄栏 1/3）；
+                远期为空时不排窄栏，状态详情占整行满宽；
                 窄窗/手机堆叠为单列（DOM 顺序：到期在前、状态在后）。 */}
-            <div className="mt-3 grid items-start gap-3 lg:grid-cols-3">
+            <div
+              className={`mt-3 grid items-start gap-3 ${
+                farDeadlines.length > 0 ? "lg:grid-cols-3" : ""
+              }`}
+            >
               {/* 14 天后到期 */}
               <section aria-label={t("farTitle")} className={`${CARD_CLASS} min-w-0 lg:order-2`}>
                 <SectionHeading icon={<SectionTile kind="deadlines" />}>
@@ -2548,7 +2595,11 @@ export function App() {
               </section>
 
               {/* 状态详情：每台机器 / 每个站点的完整列表 */}
-              <div className="min-w-0 lg:order-1 lg:col-span-2">
+              <div
+                className={`min-w-0 lg:order-1 ${
+                  farDeadlines.length > 0 ? "lg:col-span-2" : ""
+                }`}
+              >
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="text-lg font-semibold tracking-tight text-[var(--text)]">
                     {t("statusDetail")}
