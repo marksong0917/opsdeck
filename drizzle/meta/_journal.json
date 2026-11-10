@@ -43,6 +43,13 @@
       "when": 1794332734956,
       "tag": "0006_add_tina_pulse_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1794339688845,
+      "tag": "0007_add_done_history",
+      "breakpoints": true
     }
   ]
 }

@@ -66,6 +66,57 @@ async function touchMeta(
 
 const okResponse = z.object({ ok: z.literal(true) });
 
+const doneHistoryShape = z.array(
+  z.object({ date: z.string(), items: z.array(z.string()) }),
+);
+
+type DoneHistory = z.infer<typeof doneHistoryShape>;
+
+function parseDoneHistory(raw: string | undefined | null): DoneHistory {
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (entry): entry is { date: string; items: string[] } =>
+        typeof entry === "object" &&
+        entry !== null &&
+        typeof (entry as { date?: unknown }).date === "string" &&
+        Array.isArray((entry as { items?: unknown }).items) &&
+        (entry as { items: unknown[] }).items.every(
+          (i) => typeof i === "string",
+        ),
+    );
+  } catch {
+    return [];
+  }
+}
+
+function parseStringList(raw: string | undefined | null): string[] {
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return parsed.filter(
+        (entry): entry is string => typeof entry === "string",
+      );
+    }
+  } catch {
+    // fall through
+  }
+  return [];
+}
+
+/** Toronto calendar date (YYYY-MM-DD) for an instant. */
+function torontoDateKey(instant: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Toronto",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(instant);
+}
+
 const weatherShape = z.object({
   location: z.string(),
   temperature: z.number().nullable(),
@@ -468,6 +519,7 @@ export const Actions = {
       updatedAt: z.string().nullable(),
       tinaStatus: z.string(),
       doneToday: z.array(z.string()),
+      doneHistory: doneHistoryShape,
       lastVerdict: z
         .object({
           itemId: z.number(),
@@ -516,19 +568,7 @@ export const Actions = {
           };
         }
       }
-      let doneToday: string[] = [];
-      if (metaRow?.doneToday) {
-        try {
-          const parsed: unknown = JSON.parse(metaRow.doneToday);
-          if (Array.isArray(parsed)) {
-            doneToday = parsed.filter(
-              (entry): entry is string => typeof entry === "string",
-            );
-          }
-        } catch {
-          doneToday = [];
-        }
-      }
+      const doneToday = parseStringList(metaRow?.doneToday);
       return {
         decisions: items.filter((i) => i.section === "decisions"),
         today: items.filter((i) => i.section === "today"),
@@ -538,6 +578,7 @@ export const Actions = {
         updatedAt: metaRow ? metaRow.updatedAt.toISOString() : null,
         tinaStatus: metaRow?.tinaStatus || "待命，随时喊我",
         doneToday,
+        doneHistory: parseDoneHistory(metaRow?.doneHistory),
         lastVerdict,
       };
     },
@@ -567,6 +608,66 @@ export const Actions = {
         });
       ctx.invalidateQueries();
       return { ok: true };
+    },
+  }),
+
+  archiveDoneToday: defineAction({
+    description:
+      "Archives the current done-today list into the done-history bucket for today's Toronto date (merging into that date's bucket if one already exists), clears done-today, and drops history buckets older than 7 days (the 7th day back is kept). Returns the archived count and the history after pruning.",
+    request: z.object({}),
+    response: z.object({
+      archived: z.number(),
+      history: doneHistoryShape,
+    }),
+    handler: async (ctx): Promise<{ archived: number; history: DoneHistory }> => {
+      const db = ctx.db<typeof schema>();
+      const meta = await db
+        .select()
+        .from(schema.boardMeta)
+        .where(eq(schema.boardMeta.id, 1))
+        .limit(1);
+      const metaRow = meta[0];
+      const doneToday = parseStringList(metaRow?.doneToday);
+      const history = parseDoneHistory(metaRow?.doneHistory);
+
+      const todayKey = torontoDateKey(new Date());
+      if (doneToday.length > 0) {
+        const existing = history.find((b) => b.date === todayKey);
+        if (existing) {
+          existing.items = [...existing.items, ...doneToday];
+        } else {
+          history.unshift({ date: todayKey, items: [...doneToday] });
+        }
+      }
+      // Keep today plus the 6 previous Toronto days (7 buckets of days);
+      // a bucket dated 7 or more days before today is dropped. Date keys
+      // compare correctly as strings in YYYY-MM-DD form.
+      const cutoff = new Date(`${todayKey}T12:00:00Z`);
+      cutoff.setUTCDate(cutoff.getUTCDate() - 6);
+      const cutoffKey = cutoff.toISOString().slice(0, 10);
+      const pruned = history
+        .filter((b) => b.date >= cutoffKey)
+        .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+
+      const now = new Date();
+      await db
+        .insert(schema.boardMeta)
+        .values({
+          id: 1,
+          updatedAt: now,
+          doneToday: "[]",
+          doneHistory: JSON.stringify(pruned),
+        })
+        .onConflictDoUpdate({
+          target: schema.boardMeta.id,
+          set: {
+            updatedAt: now,
+            doneToday: "[]",
+            doneHistory: JSON.stringify(pruned),
+          },
+        });
+      ctx.invalidateQueries();
+      return { archived: doneToday.length, history: pruned };
     },
   }),
 

@@ -48,6 +48,10 @@ The board is maintained *by* the assistant, not by you: the assistant pushes its
 
 第 3 页「回国待办」（v1.3.0 新增）：回国行程的勾选清单——点一下复选框就标记完成（条目留在原地、划线显示，再点可取消），也能直接在页面上新增条目。
 
+**Page 4 — History** (new in v1.4.0): the "Done today" strip grew into a read-only 7-day archive of completions, grouped by day; page 1 keeps a slim one-line count that links here. Each night an archive action rolls the day's completions into history and prunes anything older than 7 days.
+
+第 4 页「完成记录」（v1.4.0 新增）：「今日已完成」升级成按天分组的 7 天只读归档，第 1 页只留一行计数摘要、点一下跳过来；每晚的归档动作把当天完成卷进历史，超过 7 天的自动删除。
+
 ## Design principles
 
 - **One screen, no scroll** at 1920×1080; a height-based compact tier kicks in under ~950 px viewport height (e.g. 125% display scaling).
@@ -67,6 +71,7 @@ Built as a **Muse Space** (TypeScript web artifact): React client + typed server
 | `toggleChinaDone` | client | Ticks a page-3 checklist item done / not done in place |
 | `replaceTodaySchedule` | assistant (scheduled jobs) | Mirrors the day's real cron schedule, read-only for the user |
 | `updateBoardPulse` | assistant | "Currently…" line + done-today list |
+| `archiveDoneToday` | assistant (nightly job) | Rolls the done-today list into the 7-day history archive (page 4), clears it, and prunes buckets older than 7 days |
 | `getStatus` / `recordServerCheck` | server / assistant | HTTPS probes for public sites; inspection records for private servers |
 | `getWeather` | server | Cached local weather (1 h TTL, stale-flagged fallback) |
 | `seedBoard` | first run | Demo data so a fresh board shows its layout |

@@ -68,4 +68,8 @@ export const boardMeta = sqliteTable("board_meta", {
   tinaStatus: text("tina_status").notNull().default("待命，随时喊我"),
   // JSON array of short one-line entries: what Tina finished today.
   doneToday: text("done_today").notNull().default("[]"),
+  // JSON array of archived done-today buckets, one per Toronto date:
+  // [{ date: "YYYY-MM-DD", items: string[] }], newest first, kept for
+  // 7 days by the archiveDoneToday action.
+  doneHistory: text("done_history").notNull().default("[]"),
 });

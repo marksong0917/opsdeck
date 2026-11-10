@@ -53,6 +53,13 @@ const STR = {
     opensNewWindow: "（新窗口打开）",
     doneToday: "今日已完成",
     doneTodayEmpty: "今天的完成记录还没上来，Tina 正在推进中。",
+    doneTodayNone: "今日还没有完成记录",
+    page4: "第 4 页 · 完成记录",
+    historyTitle: "完成记录",
+    historyEmpty: "最近 7 天还没有完成记录，Tina 干完的活会记在这里。",
+    historyTodayLabel: "今天",
+    historyYesterdayLabel: "昨天",
+    historyItemsUnit: "件",
     decisionsTitle: "待 Mark 拍板",
     decisionsEmpty: "暂时没有等你决定的事，Tina 都盯着呢，放心忙你的。",
     recentVerdict: "最近拍板",
@@ -189,6 +196,13 @@ const STR = {
     opensNewWindow: "(opens in a new window)",
     doneToday: "Done today",
     doneTodayEmpty: "Nothing logged yet — Tina is on it.",
+    doneTodayNone: "No completions yet today",
+    page4: "Page 4 · History",
+    historyTitle: "History",
+    historyEmpty: "No completions in the last 7 days yet — finished work lands here.",
+    historyTodayLabel: "Today",
+    historyYesterdayLabel: "Yesterday",
+    historyItemsUnit: "items",
     decisionsTitle: "Awaiting Mark's call",
     decisionsEmpty: "Nothing needs your decision right now.",
     recentVerdict: "Latest call",
@@ -329,8 +343,11 @@ function uiLocale(): string {
  * v1.2.4 = footer gets a row of quick links to the owner's personal projects
  * (portfolio, GitHub, Typebook, FoxShare);
  * v1.3.0 = page 3 "China Trip" checklist: a check-off list backed by the
- * new "china" item section; ticking a row sets status "done" in place. */
-const BOARD_VERSION = "v1.3.0";
+ * new "china" item section; ticking a row sets status "done" in place;
+ * v1.4.0 = page 4 "History": done-today moved off page 1 into a read-only
+ * 7-day archive grouped by Toronto date (archiveDoneToday action); page 1
+ * keeps a one-line done-today count summary that links to page 4. */
+const BOARD_VERSION = "v1.4.0";
 const BOARD_VERSION_DATE = "2026-11-10";
 
 const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
@@ -959,10 +976,22 @@ function TinaPulseStrip({ tinaStatus }: { tinaStatus: string }) {
   );
 }
 
-/** Compact strip of what Tina finished today (from board_meta.done_today). */
-function DoneTodayStrip({ items }: { items: string[] }) {
+/** Page-1 slim summary of today's completions: one line with the count,
+ * linking to page 4 (History) where the full 7-day archive lives. */
+function DoneTodayStrip({
+  count,
+  onOpen,
+}: {
+  count: number;
+  onOpen: () => void;
+}) {
   return (
-    <div className={`${CARD_CLASS} mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 [@media(max-height:949px)]:mt-1.5`}>
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label={t("page4")}
+      className={`${CARD_CLASS} mt-2 flex w-full flex-wrap items-center gap-x-3 gap-y-1 text-left transition hover:brightness-[1.02] active:scale-[0.995] motion-reduce:transition-none [@media(max-height:949px)]:mt-1.5`}
+    >
       <span className="flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-[var(--text)]">
         <SvgIcon color="var(--accent)" size={14} className="shrink-0">
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
@@ -970,22 +999,107 @@ function DoneTodayStrip({ items }: { items: string[] }) {
         </SvgIcon>
         {t("doneToday")}
       </span>
-      {items.length === 0 ? (
+      {count === 0 ? (
         <span className="truncate text-[13px] text-[var(--dim)]">
-          {t("doneTodayEmpty")}
+          {t("doneTodayNone")}
         </span>
       ) : (
-        <ul className="flex min-w-0 flex-wrap items-center gap-1">
-          {items.map((entry) => (
-            <li
-              key={entry}
-              className="rounded-full bg-emerald-600/10 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300"
-            >
-              ✓ {entry}
-            </li>
-          ))}
-        </ul>
+        <span className="text-[13px] font-medium text-[var(--accent)]">
+          {activeLang === "zh"
+            ? `✓ 今日已完成 ${count} 件 → 第 4 页`
+            : `✓ ${count} done today → History`}
+        </span>
       )}
+    </button>
+  );
+}
+
+function shiftDateKey(key: string, days: number): string {
+  const d = new Date(`${key}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+/** Relative group heading for one history day: 今天 / 昨天, else a
+ * "11月8日周六"-style date + weekday in the active UI language. */
+function historyGroupLabel(dateKey: string): string {
+  const todayKey = torontoTodayKey(new Date());
+  if (dateKey === todayKey) return t("historyTodayLabel");
+  if (dateKey === shiftDateKey(todayKey, -1)) return t("historyYesterdayLabel");
+  const d = new Date(`${dateKey}T12:00:00Z`);
+  if (activeLang === "zh") {
+    const weekday = new Intl.DateTimeFormat("zh-CN", {
+      timeZone: "UTC",
+      weekday: "short",
+    }).format(d);
+    return `${d.getUTCMonth() + 1}月${d.getUTCDate()}日${weekday}`;
+  }
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  }).format(d);
+}
+
+type DoneGroup = { date: string; items: string[] };
+
+/** Page-4 day groups: today's live list first (still unarchived), then
+ * the archived buckets; a same-date bucket merges into today's group. */
+function buildDoneGroups(
+  doneToday: string[],
+  history: DoneGroup[],
+): DoneGroup[] {
+  const todayKey = torontoTodayKey(new Date());
+  const groups: DoneGroup[] = [];
+  const todayBucket = history.find((b) => b.date === todayKey);
+  const todayItems = [...doneToday, ...(todayBucket?.items ?? [])];
+  if (todayItems.length > 0) groups.push({ date: todayKey, items: todayItems });
+  for (const bucket of history) {
+    if (bucket.date !== todayKey && bucket.items.length > 0) {
+      groups.push(bucket);
+    }
+  }
+  return groups;
+}
+
+/** Page 4 「完成记录」: read-only archive of completions, grouped by day. */
+function DoneHistoryPage({ groups }: { groups: DoneGroup[] }) {
+  if (groups.length === 0) {
+    return (
+      <section aria-label={t("historyTitle")} className={`${CARD_CLASS} mt-3`}>
+        <EmptyLine text={t("historyEmpty")} />
+      </section>
+    );
+  }
+  return (
+    <div className="mt-3 flex flex-col gap-3">
+      {groups.map((group) => (
+        <section
+          key={group.date}
+          aria-label={`${historyGroupLabel(group.date)} · ${group.date}`}
+          className={CARD_CLASS}
+        >
+          <div className="flex items-baseline justify-between gap-3">
+            <h3 className="text-[15px] font-semibold tracking-tight text-[var(--text)]">
+              {historyGroupLabel(group.date)}
+            </h3>
+            <span className="shrink-0 text-xs tabular-nums text-[var(--dim)]">
+              {group.items.length} {t("historyItemsUnit")}
+            </span>
+          </div>
+          <ul className="mt-1.5 flex flex-wrap items-center gap-1">
+            {group.items.map((entry, i) => (
+              <li
+                key={`${group.date}-${i}-${entry}`}
+                className="rounded-full bg-emerald-600/10 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300"
+              >
+                ✓ {entry}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
     </div>
   );
 }
@@ -1399,10 +1513,11 @@ function StatusChip({
   );
 }
 
-type BoardPage = "main" | "more" | "china";
+type BoardPage = "main" | "more" | "china" | "history";
 
 /** Page switch: page 1 = one-screen workbench, page 2 = later deadlines +
- * status detail, page 3 = 回国待办 (China Trip checklist). */
+ * status detail, page 3 = 回国待办 (China Trip checklist), page 4 =
+ * 完成记录 (History, 7-day done archive). */
 function PageTabs({
   page,
   farCount,
@@ -1473,6 +1588,17 @@ function PageTabs({
               ? `第 3 页 · 回国待办${chinaCount > 0 ? ` ${chinaCount}` : ""}`
               : `Page 3 · China Trip${chinaCount > 0 ? ` ${chinaCount}` : ""}`}
           </span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={page === "history"}
+          aria-label={t("page4")}
+          onClick={() => onChange("history")}
+          className={tabCls(page === "history")}
+        >
+          <span className="sm:hidden">{activeLang === "zh" ? "完成记录" : "History"}</span>
+          <span className="hidden sm:inline">{t("page4")}</span>
         </button>
       </div>
     </div>
@@ -2912,6 +3038,31 @@ export function App() {
               </p>
             </footer>
           </>
+        ) : page === "history" ? (
+          <>
+            <PageTabs page={page} farCount={farDeadlines.length} chinaCount={data.china.length} onChange={setPage} />
+
+            <div className={`${CARD_CLASS} mt-3 flex flex-wrap items-center gap-x-3 gap-y-1`}>
+              <span className="flex shrink-0 items-center gap-2 text-sm font-semibold text-[var(--text)]">
+                <SvgIcon color="var(--accent)" size={16} className="shrink-0">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </SvgIcon>
+                {t("historyTitle")}
+              </span>
+              <span className="text-sm text-[var(--dim)]">
+                {activeLang === "zh" ? "最近 7 天 · 按天归档" : "Last 7 days · grouped by day"}
+              </span>
+            </div>
+
+            <DoneHistoryPage groups={buildDoneGroups(data.doneToday, data.doneHistory)} />
+
+            <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
+              <p className="text-xs text-[var(--dim)]">
+                {t("footer")} · {t("versionWord")} {BOARD_VERSION} · {BOARD_VERSION_DATE}
+              </p>
+            </footer>
+          </>
         ) : (
           <>
         <PageTabs page={page} farCount={farDeadlines.length} chinaCount={data.china.length} onChange={setPage} />
@@ -3034,8 +3185,8 @@ export function App() {
           )}
         </section>
 
-        {/* 今日已完成 */}
-        <DoneTodayStrip items={data.doneToday} />
+        {/* 今日已完成 — 瘦身摘要行，点进第 4 页看 7 天归档 */}
+        <DoneTodayStrip count={data.doneToday.length} onOpen={() => setPage("history")} />
 
         {/* 宽屏三列：今日时间线 | 到期 | Lane（等高一排，副屏一屏放下） */}
         <div className="mt-2 grid items-stretch gap-2 md:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0 [@media(max-height:949px)]:mt-1.5 [@media(max-height:949px)]:gap-1.5">
