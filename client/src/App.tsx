@@ -416,8 +416,19 @@ function uiLocale(): string {
  * destination card gains a 7-day forecast grid (weekday + high/low +
  * condition per day) from the same weather source's forecast_days; the
  * same payload's destination air-quality / UV (when the source provides
- * them) shows on page 3 and in the dual-city strip. */
-const BOARD_VERSION = "v1.6.0";
+ * them) shows on page 3 and in the dual-city strip;
+ * v1.6.1 = polish/correctness pass: sunrise/sunset render as local
+ * HH:MM everywhere (the source's raw ISO timestamps never reach the
+ * page); the destination's tomorrow line is localized (condition +
+ * ranges in Chinese format, never the English source sentence); page 1's
+ * dual-city strip slimmed to four glanceable chips (trip countdown,
+ * temperature difference, destination tomorrow, destination air) with
+ * sunrise/sunset moved to the header tooltip and page 3's card; the
+ * hero counter's label is truthful — follow-ups waiting on Mark no
+ * longer masquerade as pending decisions ("件等你跟进" when no decision
+ * is pending); small CSS tidy (softer card shadow, section-heading
+ * hierarchy, header weather/FX spacing rhythm, antialiased text). */
+const BOARD_VERSION = "v1.6.1";
 const BOARD_VERSION_DATE = "2026-11-11";
 
 const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
@@ -563,7 +574,7 @@ function SectionTile({ kind }: { kind: SectionKind }) {
 }
 
 const CARD_CLASS =
-  "rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 shadow-[0_1px_2px_rgba(16,24,40,0.05),0_4px_16px_rgba(16,24,40,0.05)] [@media(max-height:949px)]:py-1.5";
+  "rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_10px_rgba(16,24,40,0.04)] [@media(max-height:949px)]:py-1.5";
 
 function LaneGlyph({ lane }: { lane: string }) {
   // Row glyphs stay single-accent; color lives in the header tiles,
@@ -897,8 +908,8 @@ function WeatherLine({
         weather.humidity !== null ? `${t("humidityLabel")} ${Math.round(weather.humidity)}%` : null,
         weather.precipitationChance !== null ? `${t("precip")} ${Math.round(weather.precipitationChance)}%` : null,
         weather.wind ? `${t("windLabel")} ${weather.wind}` : null,
-        weather.sunrise ? `${t("sunriseLabel")} ${weather.sunrise}` : null,
-        weather.sunset ? `${t("sunsetLabel")} ${weather.sunset}` : null,
+        fmtSunTime(weather.sunrise) ? `${t("sunriseLabel")} ${fmtSunTime(weather.sunrise)}` : null,
+        fmtSunTime(weather.sunset) ? `${t("sunsetLabel")} ${fmtSunTime(weather.sunset)}` : null,
       ].filter((p): p is string => p !== null).join(" · ")}
     >
       <WeatherGlyph />
@@ -1013,6 +1024,55 @@ function forecastCondition(summary: string | null): string | null {
   return activeLang === "zh" ? wxZh(phrase) : phrase;
 }
 
+/** The weather source reports sunrise/sunset as raw ISO timestamps
+ * ("2026-11-11T07:06:34-05:00", "2026-11-11T06:58:42+0800"); the board
+ * only ever shows the local HH:MM wall time. The ISO time portion is
+ * already the location's local time (its offset says so), so it is
+ * extracted directly — no timezone conversion that could shift it.
+ * Values that are already "HH:MM" pass through; anything unparseable
+ * is dropped rather than shown raw. */
+function fmtSunTime(raw: string | null): string | null {
+  if (!raw) return null;
+  const iso = /T(\d{2}):(\d{2})/.exec(raw);
+  if (iso) return `${iso[1]}:${iso[2]}`;
+  const plain = /^(\d{1,2}):(\d{2})/.exec(raw.trim());
+  if (plain) return `${(plain[1] ?? "0").padStart(2, "0")}:${plain[2]}`;
+  return null;
+}
+
+/** Tomorrow's line for one city, fully localized: the source summary is
+ * an English sentence ("Sunshine. Highs 17 to 19C and lows 2 to 4C."),
+ * so the Chinese board renders condition + ranges in Chinese format
+ * ("晴 · 高 17–19° 低 2–4°") and never the raw sentence. When the
+ * sentence's ranges can't be parsed, fall back to the numeric
+ * tomorrow low–high, the same shape Toronto's header line uses. */
+function tomorrowLine(w: Weather): string | null {
+  if (!w) return null;
+  const cond = w.tomorrowSummary ? forecastCondition(w.tomorrowSummary) : null;
+  if (activeLang === "zh" && w.tomorrowSummary) {
+    const hi = /highs?\s+(-?\d+)\s*(?:to|–|-)\s*(-?\d+)/i.exec(w.tomorrowSummary);
+    const lo = /lows?\s+(-?\d+)\s*(?:to|–|-)\s*(-?\d+)/i.exec(w.tomorrowSummary);
+    if (hi && lo) {
+      const ranges = `高 ${hi[1]}–${hi[2]}° 低 ${lo[1]}–${lo[2]}°`;
+      return cond ? `${cond} · ${ranges}` : ranges;
+    }
+    if (hi) {
+      const range = `高 ${hi[1]}–${hi[2]}°`;
+      return cond ? `${cond} · ${range}` : range;
+    }
+    if (lo) {
+      const range = `低 ${lo[1]}–${lo[2]}°`;
+      return cond ? `${cond} · ${range}` : range;
+    }
+  }
+  const range =
+    w.tomorrowLow !== null && w.tomorrowHigh !== null
+      ? `${Math.round(w.tomorrowLow)}–${Math.round(w.tomorrowHigh)}°`
+      : null;
+  if (cond && range) return `${cond} ${range}`;
+  return cond ?? range;
+}
+
 const AQI_ZH: Record<string, string> = {
   Good: "良好",
   Moderate: "中等",
@@ -1071,9 +1131,7 @@ function DualCityStrip({ toronto, destination, onOpenChina }: { toronto: Weather
         {trip.days !== null ? `${trip.label} ${trip.days} ${t("daysUnit")} · 2027-02-01 → 2027-04-15` : trip.label}
       </button>
       {diffText ? <span className="text-[13px] text-[var(--dim)]">{diffText}</span> : null}
-      {toronto?.sunrise || toronto?.sunset ? <span className="text-[13px] text-[var(--dim)]">{t("toronto")} {t("sunriseLabel")} {toronto.sunrise ?? "—"} · {t("sunsetLabel")} {toronto.sunset ?? "—"}</span> : null}
-      {destination?.sunrise || destination?.sunset ? <span className="text-[13px] text-[var(--dim)]">{t("destination")} {t("sunriseLabel")} {destination.sunrise ?? "—"} · {t("sunsetLabel")} {destination.sunset ?? "—"}</span> : null}
-      {destination?.tomorrowSummary ? <span className="min-w-0 truncate text-[13px] text-[var(--dim)]">{t("destination")} {t("tomorrow")}：{activeLang === "zh" ? wxZh(destination.tomorrowSummary) : destination.tomorrowSummary}{destination.tomorrowLow !== null && destination.tomorrowHigh !== null ? ` ${Math.round(destination.tomorrowLow)}–${Math.round(destination.tomorrowHigh)}°` : ""}</span> : null}
+      {tomorrowLine(destination) ? <span className="min-w-0 truncate text-[13px] text-[var(--dim)]">{t("destination")} {t("tomorrow")}：{tomorrowLine(destination)}</span> : null}
       {aqiText(destination) ? <span className="text-[13px] text-[var(--dim)]">{t("destination")} {aqiText(destination)}</span> : null}
     </div>
   );
@@ -1140,7 +1198,7 @@ function HeaderClockWeather({
           </span>
         </span>
       </div>
-      <div className="mt-1 space-y-0.5">
+      <div className="mt-1.5 space-y-1">
         <WeatherLine label={t("weatherToday")} weather={weather} pending={weatherPending} loadingText={t("weatherLoading")} unavailableText={t("weatherUnavailable")} onRetry={onRetryWeather} />
         <WeatherLine label={`${t("weatherDestination")}`} weather={destination} pending={weatherPending} loadingText={t("destinationLoading")} unavailableText={t("destinationUnavailable")} onRetry={onRetryWeather} />
         <FxLine fx={fx} pending={fxPending} onRetry={onRetryFx} />
@@ -2065,8 +2123,8 @@ function SectionHeading({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-1 flex items-center justify-between gap-3">
-      <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-[var(--text)]">
+    <div className="mb-1.5 flex items-center justify-between gap-3">
+      <h2 className="flex items-center gap-2 text-[15px] font-semibold tracking-tight text-[var(--text)]">
         {icon}
         {children}
       </h2>
@@ -3014,13 +3072,20 @@ export function App() {
     ...followItems,
   ];
   const actionCount = data.decisions.length + followCount;
+  // Truth-in-labeling: the follow-ups are NOT pending decisions — when
+  // they are the only thing counted, the hero headline must say
+  // "等你跟进" (waiting for your follow-up), never "需要你处理", so the
+  // header can never appear to contradict the 待拍板 card's "nothing
+  // waiting for a decision" state. The breakdown parts then only list
+  // what the headline doesn't already say.
+  const followOnly = data.decisions.length === 0 && followCount > 0;
   const heroParts = [
     data.decisions.length > 0
       ? activeLang === "zh"
         ? `待拍板 ${data.decisions.length}`
         : `${data.decisions.length} to decide`
       : null,
-    followCount > 0
+    followCount > 0 && !followOnly
       ? activeLang === "zh"
         ? `等你跟进 ${followCount}`
         : `${followCount} waiting on you`
@@ -3028,7 +3093,7 @@ export function App() {
   ].filter((part): part is string => part !== null);
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] font-sans">
+    <div className="min-h-screen bg-[var(--bg)] font-sans antialiased">
       <SafeAreaTopScrim backgroundColor={scrimColor} />
 
       {/* 深色顶栏：日期 + 今日概览数字；右上角双时钟 + 今日天气 */}
@@ -3092,7 +3157,9 @@ export function App() {
                     aria-haspopup="true"
                     aria-label={
                       activeLang === "zh"
-                        ? `查看需要你处理的 ${actionCount} 件事`
+                        ? followOnly
+                          ? `查看等你跟进的 ${actionCount} 件事`
+                          : `查看需要你处理的 ${actionCount} 件事`
                         : actionCount === 1
                           ? "View the 1 item that needs you"
                           : `View the ${actionCount} items that need you`
@@ -3105,12 +3172,20 @@ export function App() {
                       </span>
                       <span className="text-base font-semibold text-[var(--header-text)]">
                         {activeLang === "zh"
-                          ? "样东西需要你处理"
-                          : actionCount === 1
-                            ? "item needs your call"
-                            : "items need your call"}
+                          ? followOnly
+                            ? "件等你跟进"
+                            : "样东西需要你处理"
+                          : followOnly
+                            ? actionCount === 1
+                              ? "item waiting on you"
+                              : "items waiting on you"
+                            : actionCount === 1
+                              ? "item needs your call"
+                              : "items need your call"}
                       </span>
-                      <span className="text-xs text-[var(--header-dim)]">{heroParts.join(" · ")}</span>
+                      {heroParts.length > 0 ? (
+                        <span className="text-xs text-[var(--header-dim)]">{heroParts.join(" · ")}</span>
+                      ) : null}
                       <span aria-hidden="true" className="text-xs text-[var(--header-dim)]">
                         {heroOpen ? "▴" : "▾"}
                       </span>
@@ -3277,7 +3352,8 @@ export function App() {
                   {weatherQuery.data.destination.wind ? <span className="text-[13px] text-[var(--dim)]">{t("windLabel")} {weatherQuery.data.destination.wind}</span> : null}
                   {aqiText(weatherQuery.data.destination) ? <span className="text-[13px] text-[var(--dim)]">{aqiText(weatherQuery.data.destination)}</span> : null}
                   {uvText(weatherQuery.data.destination) ? <span className="text-[13px] text-[var(--dim)]">{uvText(weatherQuery.data.destination)}</span> : null}
-                  {weatherQuery.data.destination.tomorrowHigh !== null && weatherQuery.data.destination.tomorrowLow !== null ? <span className="text-[13px] text-[var(--dim)]">{t("tomorrow")} {Math.round(weatherQuery.data.destination.tomorrowLow)}–{Math.round(weatherQuery.data.destination.tomorrowHigh)}°{weatherQuery.data.destination.tomorrowSummary ? ` · ${activeLang === "zh" ? wxZh(weatherQuery.data.destination.tomorrowSummary) : weatherQuery.data.destination.tomorrowSummary}` : ""}</span> : null}
+                  {fmtSunTime(weatherQuery.data.destination.sunrise) || fmtSunTime(weatherQuery.data.destination.sunset) ? <span className="text-[13px] tabular-nums text-[var(--dim)]">{t("sunriseLabel")} {fmtSunTime(weatherQuery.data.destination.sunrise) ?? "—"} · {t("sunsetLabel")} {fmtSunTime(weatherQuery.data.destination.sunset) ?? "—"}</span> : null}
+                  {tomorrowLine(weatherQuery.data.destination) ? <span className="text-[13px] text-[var(--dim)]">{t("tomorrow")}：{tomorrowLine(weatherQuery.data.destination)}</span> : null}
                   {weatherQuery.data.destination.stale ? <span className="text-[13px] text-[var(--dim)]">{t("staleData")}</span> : null}
                   {weatherQuery.data.destination.alerts.length > 0 ? <span className="text-[13px] font-medium text-amber-700 dark:text-amber-300">⚠ {weatherQuery.data.destination.alerts.join("；")}</span> : null}
                 </div>
@@ -3397,7 +3473,8 @@ export function App() {
         {/* Tina 状态行 + 快捷入口 */}
         <TinaPulseStrip tinaStatus={data.tinaStatus} />
 
-        {/* 双城速览：回国倒计时 + 温差 + 日出日落 + 目的地明日 */}
+        {/* 双城速览（精简版）：回国倒计时 + 温差 + 目的地明日 + 目的地空气，
+            四个小块一行扫完；日出日落只在天气悬停提示和第 3 页目的地卡里看 */}
         <DualCityStrip toronto={weatherQuery.data?.weather ?? null} destination={weatherQuery.data?.destination ?? null} onOpenChina={() => setPage("china")} />
 
         {/* Spotify 正在播放 + 播放控制 */}
