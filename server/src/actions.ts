@@ -359,87 +359,103 @@ export const Actions = {
 
   getWeather: defineAction({
     description:
-      "Returns today's Toronto weather for the board header, refreshing from the weather source when the cached snapshot is older than an hour and falling back to the stale snapshot (flagged stale) when a refresh fails.",
+      "Returns today's weather for Toronto (id 1) and the destination city (id 2) for the board header, refreshing each city from the weather source when its cached snapshot is older than an hour and falling back to the stale snapshot (flagged stale) when a refresh fails.",
     request: z.object({}),
-    response: z.object({ weather: weatherShape.nullable() }),
-    handler: async (ctx): Promise<{ weather: z.infer<typeof weatherShape> | null }> => {
-      const db = ctx.db<typeof schema>();
-      const cachedRows = await db
-        .select()
-        .from(schema.weatherCache)
-        .where(eq(schema.weatherCache.id, 1))
-        .limit(1);
-      const cached = cachedRows[0];
-      let cachedPayload: WeatherPayload | null = null;
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached.payload) as WeatherPayload;
-          // A snapshot with no temperature is a failed lookup, not data:
-          // never serve it as if it were real weather.
-          if (parsed.temperature !== null) cachedPayload = parsed;
-        } catch {
-          cachedPayload = null;
+    response: z.object({
+      weather: weatherShape.nullable(),
+      destination: weatherShape.nullable(),
+    }),
+    handler: async (
+      ctx,
+    ): Promise<{
+      weather: z.infer<typeof weatherShape> | null;
+      destination: z.infer<typeof weatherShape> | null;
+    }> => {
+      const loadCity = async (
+        cacheId: number,
+        query: string,
+      ): Promise<z.infer<typeof weatherShape> | null> => {
+        const db = ctx.db<typeof schema>();
+        const cachedRows = await db
+          .select()
+          .from(schema.weatherCache)
+          .where(eq(schema.weatherCache.id, cacheId))
+          .limit(1);
+        const cached = cachedRows[0];
+        let cachedPayload: WeatherPayload | null = null;
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached.payload) as WeatherPayload;
+            if (parsed.temperature !== null) cachedPayload = parsed;
+          } catch {
+            cachedPayload = null;
+          }
         }
-      }
-      if (
-        cached &&
-        cachedPayload &&
-        Date.now() - cached.fetchedAt.getTime() < WEATHER_TTL_MS
-      ) {
-        return {
-          weather: { ...cachedPayload, fetchedAt: cached.fetchedAt.toISOString(), stale: false },
-        };
-      }
-      try {
-        const result = await ctx.tool.weather("Toronto weather today", {
-          language_code: "en",
-        });
-        const w = result.content;
-        if (w.conditions.temperature === null) {
-          throw new Error("weather lookup returned no conditions");
-        }
-        const today = w.forecast_days[0];
-        const tomorrow = w.forecast_days[1];
-        const payload: WeatherPayload = {
-          location: w.location,
-          temperature: w.conditions.temperature,
-          unit: w.conditions.unit,
-          description: w.conditions.description,
-          feelsLike: w.conditions.feels_like ?? null,
-          high: w.conditions.high ?? today?.high ?? null,
-          low: w.conditions.low ?? today?.low ?? null,
-          humidity: w.conditions.humidity_percent ?? null,
-          precipitationChance:
-            w.conditions.precipitation_chance ?? today?.precipitation_chance ?? null,
-          wind: w.conditions.wind ?? null,
-          sunrise: w.conditions.sunrise ?? null,
-          sunset: w.conditions.sunset ?? null,
-          tomorrowSummary: tomorrow?.summary ?? null,
-          tomorrowHigh: tomorrow?.high ?? null,
-          tomorrowLow: tomorrow?.low ?? null,
-          alerts: w.alerts ?? [],
-        };
-        const now = new Date();
-        await db
-          .insert(schema.weatherCache)
-          .values({ id: 1, payload: JSON.stringify(payload), fetchedAt: now })
-          .onConflictDoUpdate({
-            target: schema.weatherCache.id,
-            set: { payload: JSON.stringify(payload), fetchedAt: now },
-          });
-        return { weather: { ...payload, fetchedAt: now.toISOString(), stale: false } };
-      } catch {
-        if (cached && cachedPayload) {
+        if (
+          cached &&
+          cachedPayload &&
+          Date.now() - cached.fetchedAt.getTime() < WEATHER_TTL_MS
+        ) {
           return {
-            weather: {
+            ...cachedPayload,
+            fetchedAt: cached.fetchedAt.toISOString(),
+            stale: false,
+          };
+        }
+        try {
+          const result = await ctx.tool.weather(query, {
+            language_code: "en",
+          });
+          const w = result.content;
+          if (w.conditions.temperature === null) {
+            throw new Error("weather lookup returned no conditions");
+          }
+          const today = w.forecast_days[0];
+          const tomorrow = w.forecast_days[1];
+          const payload: WeatherPayload = {
+            location: w.location,
+            temperature: w.conditions.temperature,
+            unit: w.conditions.unit,
+            description: w.conditions.description,
+            feelsLike: w.conditions.feels_like ?? null,
+            high: w.conditions.high ?? today?.high ?? null,
+            low: w.conditions.low ?? today?.low ?? null,
+            humidity: w.conditions.humidity_percent ?? null,
+            precipitationChance:
+              w.conditions.precipitation_chance ?? today?.precipitation_chance ?? null,
+            wind: w.conditions.wind ?? null,
+            sunrise: w.conditions.sunrise ?? null,
+            sunset: w.conditions.sunset ?? null,
+            tomorrowSummary: tomorrow?.summary ?? null,
+            tomorrowHigh: tomorrow?.high ?? null,
+            tomorrowLow: tomorrow?.low ?? null,
+            alerts: w.alerts ?? [],
+          };
+          const now = new Date();
+          await db
+            .insert(schema.weatherCache)
+            .values({ id: cacheId, payload: JSON.stringify(payload), fetchedAt: now })
+            .onConflictDoUpdate({
+              target: schema.weatherCache.id,
+              set: { payload: JSON.stringify(payload), fetchedAt: now },
+            });
+          return { ...payload, fetchedAt: now.toISOString(), stale: false };
+        } catch {
+          if (cached && cachedPayload) {
+            return {
               ...cachedPayload,
               fetchedAt: cached.fetchedAt.toISOString(),
               stale: true,
-            },
-          };
+            };
+          }
+          return null;
         }
-        return { weather: null };
-      }
+      };
+      const [toronto, destination] = await Promise.all([
+        loadCity(1, "Toronto weather today"),
+        loadCity(2, "Destination City weather today"),
+      ]);
+      return { weather: toronto, destination };
     },
   }),
 

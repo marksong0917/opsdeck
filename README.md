@@ -39,7 +39,8 @@ The board is maintained *by* the assistant, not by you: the assistant pushes its
 - **Open items by lane** — work streams (bookkeeping, product, outreach, …) with full CRUD: add, edit inline, mark done, delete with a two-tap confirm.
 - **Status chip** — "6/6 all normal" as one compact fraction; turns red only on a *confirmed* outage (probes retry once before declaring down). Full detail on page 2.
 - **Assistant pulse** — a "Tina is currently…" status line and a "Done today" strip, both fed by the assistant.
-- **Header** — local weather, dual clocks (home + second city), off-work countdown chip, one-tap refresh, quick links to your daily tools.
+- **Dual-city glance strip** (new in v1.5.0) — home vs destination weather side by side on page 1: the China-trip countdown, the temperature difference between the two cities, and sunrise/sunset for both.
+- **Header** — dual-city weather (home + destination) and dual clocks (home + second city), off-work countdown chip, one-tap refresh, quick links to your daily tools.
 - **Dark / light themes** and a **中文 / English** UI toggle, both persisted.
 
 **Page 2 — the back office**: deadlines beyond 14 days, and full status detail for every monitored site and server.
@@ -73,7 +74,7 @@ Built as a **Muse Space** (TypeScript web artifact): React client + typed server
 | `updateBoardPulse` | assistant | "Currently…" line + done-today list |
 | `archiveDoneToday` | assistant (nightly job) | Rolls the done-today list into the 7-day history archive (page 4), clears it, and prunes buckets older than 7 days |
 | `getStatus` / `recordServerCheck` | server / assistant | HTTPS probes for public sites; inspection records for private servers |
-| `getWeather` | server | Cached local weather (1 h TTL, stale-flagged fallback) |
+| `getWeather` | server | Cached dual-city weather (1 h TTL, stale-flagged fallback) |
 | `seedBoard` | first run | Demo data so a fresh board shows its layout |
 
 ## Notes

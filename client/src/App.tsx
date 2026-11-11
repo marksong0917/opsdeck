@@ -39,16 +39,34 @@ const STR = {
     offDone: "已下班",
     toronto: "多伦多",
     beijing: "北京",
+    destination: "目的地",
     weatherToday: "多伦多",
+    weatherDestination: "目的地",
     wxHigh: "高",
     wxLow: "低",
     feelsLike: "体感",
     precip: "降水",
     windLabel: "风",
+    humidityLabel: "湿度",
+    sunriseLabel: "日出",
+    sunsetLabel: "日落",
     tomorrow: "明日",
     staleData: "上次数据",
-    weatherLoading: "多伦多天气加载中…",
-    weatherUnavailable: "多伦多天气暂时取不到",
+    weatherLoading: "天气加载中…",
+    weatherUnavailable: "天气暂时取不到",
+    destinationLoading: "目的地天气加载中…",
+    destinationUnavailable: "目的地天气暂时取不到",
+    tripCountdownTitle: "回国倒计时",
+    tripNotStarted: "距出发",
+    tripInProgress: "目的地行程中 · 距回程",
+    tripDone: "已回程",
+    daysUnit: "天",
+    tempWarmer: "比多伦多暖",
+    tempColder: "比多伦多冷",
+    tempSame: "与多伦多同温",
+    dualCityTitle: "双城速览",
+    torontoSun: "多伦多日出日落",
+    destinationSun: "目的地日出日落",
     tinaNow: "Tina 正在",
     quickLinks: "快捷入口",
     opensNewWindow: "（新窗口打开）",
@@ -183,16 +201,34 @@ const STR = {
     offDone: "Done for the day",
     toronto: "Toronto",
     beijing: "Beijing",
+    destination: "Destination City",
     weatherToday: "Toronto",
+    weatherDestination: "Destination City",
     wxHigh: "High",
     wxLow: "Low",
     feelsLike: "Feels",
     precip: "Precip",
     windLabel: "Wind",
+    humidityLabel: "Humidity",
+    sunriseLabel: "Sunrise",
+    sunsetLabel: "Sunset",
     tomorrow: "Tomorrow",
     staleData: "last known",
-    weatherLoading: "Loading Toronto weather…",
-    weatherUnavailable: "Toronto weather unavailable",
+    weatherLoading: "Loading weather…",
+    weatherUnavailable: "Weather unavailable",
+    destinationLoading: "Loading destination-city weather…",
+    destinationUnavailable: "Destination-city weather unavailable",
+    tripCountdownTitle: "China trip countdown",
+    tripNotStarted: "Depart in",
+    tripInProgress: "At the destination · return in",
+    tripDone: "Trip completed",
+    daysUnit: "days",
+    tempWarmer: "warmer than Toronto",
+    tempColder: "colder than Toronto",
+    tempSame: "same as Toronto",
+    dualCityTitle: "Dual-city glance",
+    torontoSun: "Toronto sun",
+    destinationSun: "Destination sun",
     tinaNow: "Tina is",
     quickLinks: "Quick links",
     opensNewWindow: "(opens in a new window)",
@@ -351,8 +387,13 @@ function uiLocale(): string {
  * keeps a one-line done-today count summary that links to page 4;
  * v1.4.1 = header work-status fix: the workday is 08:00–18:00 Toronto, so
  * before 08:00 the chip counts down to the start instead of wrongly
- * reading 上班中 with the full day left. */
-const BOARD_VERSION = "v1.4.1";
+ * reading 上班中 with the full day left;
+ * v1.5.0 = destination-city weather added alongside Toronto in the
+ * header (dual-city, cached separately), plus a dual-city glance strip
+ * on page 1: China-trip countdown to the departure / return dates,
+ * Toronto vs destination temperature difference, and sunrise/sunset for
+ * both cities when the weather source provides them. */
+const BOARD_VERSION = "v1.5.0";
 const BOARD_VERSION_DATE = "2026-11-11";
 
 const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
@@ -791,16 +832,101 @@ function fmtTemp(value: number | null): string {
   return value === null ? "—" : `${Math.round(value)}°`;
 }
 
+function WeatherLine({
+  label,
+  weather,
+  pending,
+  loadingText,
+  unavailableText,
+  onRetry,
+}: {
+  label: string;
+  weather: Weather;
+  pending: boolean;
+  loadingText: string;
+  unavailableText: string;
+  onRetry: () => void;
+}) {
+  if (!weather) {
+    if (pending) return <p className="text-xs text-[var(--header-dim)] sm:text-right">{loadingText}</p>;
+    return (
+      <p className="text-xs text-[var(--header-dim)] sm:text-right">
+        {unavailableText}
+        <button type="button" onClick={onRetry} aria-label={t("retry")} className="ml-2 font-medium text-[var(--header-text)] underline underline-offset-2">{t("retry")}</button>
+      </p>
+    );
+  }
+  return (
+    <p
+      className="flex flex-wrap items-center justify-start gap-x-1.5 text-xs tabular-nums text-[var(--header-dim)] sm:flex-nowrap sm:justify-end sm:whitespace-nowrap"
+      title={[
+        weather.feelsLike !== null ? `${t("feelsLike")} ${fmtTemp(weather.feelsLike)}` : null,
+        weather.humidity !== null ? `${t("humidityLabel")} ${Math.round(weather.humidity)}%` : null,
+        weather.precipitationChance !== null ? `${t("precip")} ${Math.round(weather.precipitationChance)}%` : null,
+        weather.wind ? `${t("windLabel")} ${weather.wind}` : null,
+        weather.sunrise ? `${t("sunriseLabel")} ${weather.sunrise}` : null,
+        weather.sunset ? `${t("sunsetLabel")} ${weather.sunset}` : null,
+      ].filter((p): p is string => p !== null).join(" · ")}
+    >
+      <WeatherGlyph />
+      <span className="font-medium text-[var(--header-text)]">{label}</span>
+      <span className="text-sm font-bold tabular-nums text-[var(--header-text)]">{fmtTemp(weather.temperature)}</span>
+      <span className="text-[var(--header-text)]">{activeLang === "zh" ? wxZh(weather.description) : weather.description}</span>
+      <span>
+        {weather.high !== null || weather.low !== null ? `· ${t("wxHigh")} ${fmtTemp(weather.high)} ${t("wxLow")} ${fmtTemp(weather.low)}` : ""}
+        {weather.tomorrowHigh !== null && weather.tomorrowLow !== null ? ` · ${t("tomorrow")} ${Math.round(weather.tomorrowLow)}–${Math.round(weather.tomorrowHigh)}°` : ""}
+        {weather.humidity !== null ? ` · ${t("humidityLabel")} ${Math.round(weather.humidity)}%` : ""}
+        {weather.stale ? ` · ${t("staleData")}` : ""}
+        {weather.alerts.length > 0 ? ` · ⚠ ${weather.alerts.join("；")}` : ""}
+      </span>
+    </p>
+  );
+}
+
+/** Trip countdown derived from the fixed trip dates on page 3. */
+function tripCountdown(nowKey: string): { label: string; days: number | null } {
+  const dep = "2027-02-01";
+  const ret = "2027-04-15";
+  const diff = (a: string, b: string) => Math.round((new Date(`${b}T12:00:00Z`).getTime() - new Date(`${a}T12:00:00Z`).getTime()) / 86400000);
+  if (nowKey < dep) return { label: t("tripNotStarted"), days: diff(nowKey, dep) };
+  if (nowKey <= ret) return { label: t("tripInProgress"), days: diff(nowKey, ret) };
+  return { label: t("tripDone"), days: null };
+}
+
+function DualCityStrip({ toronto, destination, onOpenChina }: { toronto: Weather; destination: Weather; onOpenChina: () => void }) {
+  const todayKey = torontoTodayKey(new Date());
+  const trip = tripCountdown(todayKey);
+  const diffTemp = toronto?.temperature != null && destination?.temperature != null ? Math.round(destination.temperature - toronto.temperature) : null;
+  const diffText = diffTemp === null ? null : diffTemp === 0 ? t("tempSame") : diffTemp > 0 ? `${t("destination")} ${t("tempWarmer")} ${diffTemp}°` : `${t("destination")} ${t("tempColder")} ${Math.abs(diffTemp)}°`;
+  return (
+    <div className={`${CARD_CLASS} mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5 [@media(max-height:949px)]:mt-1.5`} aria-label={t("dualCityTitle")}>
+      <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[var(--text)]">
+        <SvgIcon color="#dc2626" size={14} className="shrink-0"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" /></SvgIcon>
+        {t("tripCountdownTitle")}
+      </span>
+      <button type="button" onClick={onOpenChina} className="text-[13px] font-medium text-[var(--accent)] underline-offset-2 hover:underline" aria-label={t("page3")}>
+        {trip.days !== null ? `${trip.label} ${trip.days} ${t("daysUnit")} · 2027-02-01 → 2027-04-15` : trip.label}
+      </button>
+      {diffText ? <span className="text-[13px] text-[var(--dim)]">{diffText}</span> : null}
+      {toronto?.sunrise || toronto?.sunset ? <span className="text-[13px] text-[var(--dim)]">{t("toronto")} {t("sunriseLabel")} {toronto.sunrise ?? "—"} · {t("sunsetLabel")} {toronto.sunset ?? "—"}</span> : null}
+      {destination?.sunrise || destination?.sunset ? <span className="text-[13px] text-[var(--dim)]">{t("destination")} {t("sunriseLabel")} {destination.sunrise ?? "—"} · {t("sunsetLabel")} {destination.sunset ?? "—"}</span> : null}
+      {destination?.tomorrowSummary ? <span className="min-w-0 truncate text-[13px] text-[var(--dim)]">{t("destination")} {t("tomorrow")}：{activeLang === "zh" ? wxZh(destination.tomorrowSummary) : destination.tomorrowSummary}{destination.tomorrowLow !== null && destination.tomorrowHigh !== null ? ` ${Math.round(destination.tomorrowLow)}–${Math.round(destination.tomorrowHigh)}°` : ""}</span> : null}
+    </div>
+  );
+}
+
 /**
  * Top-right header block: live Toronto + Beijing clocks side by side,
- * with Toronto's weather for today underneath. Ticks every second.
+ * with Toronto + destination-city weather underneath. Ticks every second.
  */
 function HeaderClockWeather({
   weather,
+  destination,
   weatherPending,
   onRetryWeather,
 }: {
   weather: Weather;
+  destination: Weather;
   weatherPending: boolean;
   onRetryWeather: () => void;
 }) {
@@ -844,60 +970,9 @@ function HeaderClockWeather({
           </span>
         </span>
       </div>
-      <div className="mt-1">
-        {weather ? (
-          <p
-            className="flex flex-nowrap items-center justify-start gap-x-1.5 whitespace-nowrap text-xs tabular-nums text-[var(--header-dim)] sm:justify-end"
-            title={[
-              weather.feelsLike !== null
-                ? `${t("feelsLike")} ${fmtTemp(weather.feelsLike)}`
-                : null,
-              weather.precipitationChance !== null
-                ? `${t("precip")} ${Math.round(weather.precipitationChance)}%`
-                : null,
-              weather.wind ? `${t("windLabel")} ${weather.wind}` : null,
-            ]
-              .filter((part): part is string => part !== null)
-              .join(" · ")}
-          >
-            <WeatherGlyph />
-            <span className="font-medium text-[var(--header-text)]">{t("weatherToday")}</span>
-            <span className="text-sm font-bold tabular-nums text-[var(--header-text)]">
-              {fmtTemp(weather.temperature)}
-            </span>
-            <span className="text-[var(--header-text)]">
-              {activeLang === "zh"
-                ? wxZh(weather.description)
-                : weather.description}
-            </span>
-            <span>
-              {weather.high !== null || weather.low !== null
-                ? `· ${t("wxHigh")} ${fmtTemp(weather.high)} ${t("wxLow")} ${fmtTemp(weather.low)}`
-                : ""}
-              {weather.tomorrowHigh !== null && weather.tomorrowLow !== null
-                ? ` · ${t("tomorrow")} ${Math.round(weather.tomorrowLow)}–${Math.round(weather.tomorrowHigh)}°`
-                : weather.tomorrowHigh !== null || weather.tomorrowLow !== null
-                  ? ` · ${t("tomorrow")} ${fmtTemp(weather.tomorrowLow)}~${fmtTemp(weather.tomorrowHigh)}`
-                  : ""}
-              {weather.stale ? ` · ${t("staleData")}` : ""}
-              {weather.alerts.length > 0 ? ` · ⚠ ${weather.alerts.join("；")}` : ""}
-            </span>
-          </p>
-        ) : weatherPending ? (
-          <p className="text-xs text-[var(--header-dim)] sm:text-right">{t("weatherLoading")}</p>
-        ) : (
-          <p className="text-xs text-[var(--header-dim)] sm:text-right">
-            {t("weatherUnavailable")}
-            <button
-              type="button"
-              onClick={onRetryWeather}
-              aria-label={t("retry")}
-              className="ml-2 font-medium text-[var(--header-text)] underline underline-offset-2"
-            >
-              {t("retry")}
-            </button>
-          </p>
-        )}
+      <div className="mt-1 space-y-0.5">
+        <WeatherLine label={t("weatherToday")} weather={weather} pending={weatherPending} loadingText={t("weatherLoading")} unavailableText={t("weatherUnavailable")} onRetry={onRetryWeather} />
+        <WeatherLine label={`${t("weatherDestination")}`} weather={destination} pending={weatherPending} loadingText={t("destinationLoading")} unavailableText={t("destinationUnavailable")} onRetry={onRetryWeather} />
       </div>
     </div>
   );
@@ -2910,6 +2985,7 @@ export function App() {
             <div className="lg:justify-self-end">
               <HeaderClockWeather
                 weather={weatherQuery.data?.weather ?? null}
+                destination={weatherQuery.data?.destination ?? null}
                 weatherPending={weatherQuery.isPending}
                 onRetryWeather={() => void weatherQuery.refetch()}
               />
@@ -3006,6 +3082,22 @@ export function App() {
               ) : null}
             </div>
 
+            {/* 目的地当地天气（回国目的地） */}
+            {weatherQuery.data?.destination ? (
+              <div className={`${CARD_CLASS} mt-3 flex flex-wrap items-center gap-x-4 gap-y-1`}>
+                <span className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text)]"><WeatherGlyph />{t("destination")}</span>
+                <span className="text-sm tabular-nums text-[var(--text)]"><span className="text-base font-bold">{fmtTemp(weatherQuery.data.destination.temperature)}</span> {activeLang === "zh" ? wxZh(weatherQuery.data.destination.description) : weatherQuery.data.destination.description}</span>
+                {weatherQuery.data.destination.high !== null || weatherQuery.data.destination.low !== null ? <span className="text-[13px] tabular-nums text-[var(--dim)]">{t("wxHigh")} {fmtTemp(weatherQuery.data.destination.high)} · {t("wxLow")} {fmtTemp(weatherQuery.data.destination.low)}</span> : null}
+                {weatherQuery.data.destination.feelsLike !== null ? <span className="text-[13px] text-[var(--dim)]">{t("feelsLike")} {fmtTemp(weatherQuery.data.destination.feelsLike)}</span> : null}
+                {weatherQuery.data.destination.humidity !== null ? <span className="text-[13px] text-[var(--dim)]">{t("humidityLabel")} {Math.round(weatherQuery.data.destination.humidity)}%</span> : null}
+                {weatherQuery.data.destination.wind ? <span className="text-[13px] text-[var(--dim)]">{t("windLabel")} {weatherQuery.data.destination.wind}</span> : null}
+                {weatherQuery.data.destination.tomorrowHigh !== null && weatherQuery.data.destination.tomorrowLow !== null ? <span className="text-[13px] text-[var(--dim)]">{t("tomorrow")} {Math.round(weatherQuery.data.destination.tomorrowLow)}–{Math.round(weatherQuery.data.destination.tomorrowHigh)}°{weatherQuery.data.destination.tomorrowSummary ? ` · ${activeLang === "zh" ? wxZh(weatherQuery.data.destination.tomorrowSummary) : weatherQuery.data.destination.tomorrowSummary}` : ""}</span> : null}
+                {weatherQuery.data.destination.alerts.length > 0 ? <span className="text-[13px] font-medium text-amber-700 dark:text-amber-300">⚠ {weatherQuery.data.destination.alerts.join("；")}</span> : null}
+              </div>
+            ) : (
+              <div className={`${CARD_CLASS} mt-3 text-[13px] text-[var(--dim)]`}>{weatherQuery.isPending ? t("destinationLoading") : t("destinationUnavailable")}</div>
+            )}
+
             {/* 待办清单：勾选完成 / 取消恢复 + 新增 */}
             <section aria-label={t("chinaTitle")} className={`${CARD_CLASS} mt-3`}>
               <SectionHeading
@@ -3098,6 +3190,9 @@ export function App() {
         <PageTabs page={page} farCount={farDeadlines.length} chinaCount={data.china.length} onChange={setPage} />
         {/* Tina 状态行 + 快捷入口 */}
         <TinaPulseStrip tinaStatus={data.tinaStatus} />
+
+        {/* 双城速览：回国倒计时 + 温差 + 日出日落 + 目的地明日 */}
+        <DualCityStrip toronto={weatherQuery.data?.weather ?? null} destination={weatherQuery.data?.destination ?? null} onOpenChina={() => setPage("china")} />
 
         {/* Spotify 正在播放 + 播放控制 */}
         <SpotifyStrip
