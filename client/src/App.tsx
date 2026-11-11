@@ -35,6 +35,7 @@ const STR = {
     statOpen: "开放事项",
     heroNoneNote: "没有等拍板的事，Tina 都盯着呢",
     offWorkPrefix: "下班 18:00",
+    onWorkPrefix: "上班 08:00",
     offDone: "已下班",
     toronto: "多伦多",
     beijing: "北京",
@@ -178,6 +179,7 @@ const STR = {
     statOpen: "Open items",
     heroNoneNote: "Nothing waiting — Tina has it covered",
     offWorkPrefix: "Off work 18:00",
+    onWorkPrefix: "Start 08:00",
     offDone: "Done for the day",
     toronto: "Toronto",
     beijing: "Beijing",
@@ -346,9 +348,12 @@ function uiLocale(): string {
  * new "china" item section; ticking a row sets status "done" in place;
  * v1.4.0 = page 4 "History": done-today moved off page 1 into a read-only
  * 7-day archive grouped by Toronto date (archiveDoneToday action); page 1
- * keeps a one-line done-today count summary that links to page 4. */
-const BOARD_VERSION = "v1.4.0";
-const BOARD_VERSION_DATE = "2026-11-10";
+ * keeps a one-line done-today count summary that links to page 4;
+ * v1.4.1 = header work-status fix: the workday is 08:00–18:00 Toronto, so
+ * before 08:00 the chip counts down to the start instead of wrongly
+ * reading 上班中 with the full day left. */
+const BOARD_VERSION = "v1.4.1";
+const BOARD_VERSION_DATE = "2026-11-11";
 
 const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
 
@@ -637,7 +642,10 @@ function torontoNowMinutes(): number {
   return hour * 60 + minute;
 }
 
-/** The workday ends at 18:00 in the owner's timezone. Live off-work state for the header. */function offWorkState(now: Date): { off: boolean; label: string } {
+/** The owner's workday is 08:00–18:00 Toronto. Live work state for the header:
+ * before 08:00 it counts down to the start (not "上班中"), 08:00–18:00 it
+ * counts down to 18:00, and from 18:00 on it reads 已下班. */
+function offWorkState(now: Date): { off: boolean; prefix: string; label: string } {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Toronto",
     hour: "2-digit",
@@ -646,18 +654,40 @@ function torontoNowMinutes(): number {
     hourCycle: "h23",
   }).formatToParts(now);
   const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? "0");
-  const remaining = 18 * 3600 - (get("hour") * 3600 + get("minute") * 60 + get("second"));
-  if (remaining <= 0) return { off: true, label: t("offDone") };
-  const hours = Math.floor(remaining / 3600);
-  const minutes = Math.floor((remaining % 3600) / 60);
-  if (activeLang === "en") {
-    const countdown =
-      hours > 0 ? `${hours} h ${minutes} min left` : `${minutes} min left`;
-    return { off: false, label: `Working · ${countdown}` };
+  const nowSeconds = get("hour") * 3600 + get("minute") * 60 + get("second");
+  const workStart = 8 * 3600;
+  const workEnd = 18 * 3600;
+  const duration = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (activeLang === "en") {
+      return hours > 0 ? `${hours} h ${minutes} min` : `${minutes} min`;
+    }
+    return hours > 0 ? `${hours} 小时 ${minutes} 分` : `${minutes} 分`;
+  };
+  if (nowSeconds < workStart) {
+    const untilStart = duration(workStart - nowSeconds);
+    return {
+      off: true,
+      prefix: t("onWorkPrefix"),
+      label:
+        activeLang === "en"
+          ? `Not yet on · starts in ${untilStart}`
+          : `未上班 · 距上班还差 ${untilStart}`,
+    };
   }
-  const countdown =
-    hours > 0 ? `还差 ${hours} 小时 ${minutes} 分` : `还差 ${minutes} 分`;
-  return { off: false, label: `上班中 · ${countdown}` };
+  if (nowSeconds >= workEnd) {
+    return { off: true, prefix: t("offWorkPrefix"), label: t("offDone") };
+  }
+  const untilEnd = duration(workEnd - nowSeconds);
+  return {
+    off: false,
+    prefix: t("offWorkPrefix"),
+    label:
+      activeLang === "en"
+        ? `Working · ${untilEnd} left`
+        : `上班中 · 还差 ${untilEnd}`,
+  };
 }
 
 function formatTorontoTime(d: Date): string {
@@ -799,7 +829,7 @@ function HeaderClockWeather({
                 : "mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 align-middle motion-reduce:animate-none dark:bg-emerald-400"
             }
           />
-          {t("offWorkPrefix")} · {work.label}
+          {work.prefix} · {work.label}
         </span>
         <span className="text-[11px] text-[var(--header-dim)]">
           {t("toronto")} {formatZoneDate(now, "America/Toronto")}{" "}
