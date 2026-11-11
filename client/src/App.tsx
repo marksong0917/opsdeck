@@ -433,8 +433,16 @@ function uiLocale(): string {
  * hero counter's label is truthful — follow-ups waiting on Mark no
  * longer masquerade as pending decisions ("件等你跟进" when no decision
  * is pending); small CSS tidy (softer card shadow, section-heading
- * hierarchy, header weather/FX spacing rhythm, antialiased text). */
-const BOARD_VERSION = "v1.7.1";
+ * hierarchy, header weather/FX spacing rhythm, antialiased text).
+ * v1.7.1 = dedup fix: the 待拍板 empty state is one compact line
+ * instead of a second full-width "Tina's got it covered" card.
+ * v1.7.2 = three-state schedule items: status "blocked" renders an
+ * amber marker + 「受阻」 pill, never the past ✓, and never counts as
+ * completed or next-up; the 未来 14 天到期 list renders in pure
+ * due-date order (getBoard sorts deadlines by dueDate, ignoring the
+ * stored sort values); Product lane copy refreshed to 0.369 live /
+ * 0.370 in build (applyV172BoardUpdates). */
+const BOARD_VERSION = "v1.7.2";
 const BOARD_VERSION_DATE = "2026-11-11";
 
 const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
@@ -2053,8 +2061,8 @@ function AddChinaForm({
 }
 
 /** Deadline items as ONE line per item (date · title · note inline · countdown),
- * shared by page 1 (≤14 天） and page 2 (>14 天）. Items arrive sorted by due
- * date from the server (sort order), so render them flat. */
+ * shared by page 1 (≤14 天） and page 2 (>14 天）. Items arrive from the
+ * server in pure due-date order (soonest first), so render them flat. */
 function DeadlineGroups({ items }: { items: Item[] }) {
   return (
     <ul className="divide-y divide-[var(--border)]">
@@ -2094,6 +2102,7 @@ function DeadlineGroups({ items }: { items: Item[] }) {
 const STATUS_LABELS: Record<string, { zh: string; en: string }> = {
   等待中: { zh: "等待中", en: "Waiting" },
   进行中: { zh: "进行中", en: "In progress" },
+  blocked: { zh: "受阻", en: "Blocked" },
 };
 
 function StatusPill({ status }: { status: string }) {
@@ -2101,6 +2110,9 @@ function StatusPill({ status }: { status: string }) {
   let cls = "bg-[var(--fill)] text-[var(--dim)]";
   if (status === "进行中") {
     cls = "bg-[#0077fa]/10 text-[#0063d1] dark:bg-[#4d9fff]/15 dark:text-[#8fbeff]";
+  } else if (status === "blocked") {
+    // Blocked is its own third state: amber, never the green done tint.
+    cls = "bg-[#ff9d0a]/15 text-[#a15e00] dark:text-[#ffc65c]";
   } else if (/完成|已发|已录/.test(status)) {
     cls = "bg-[#00b578]/10 text-[#00754b] dark:text-[#5ee0a8]";
   } else if (/注意|异常|过期|卡/.test(status)) {
@@ -3041,7 +3053,11 @@ export function App() {
     .sort((a, b) => (a.minutes ?? 9999) - (b.minutes ?? 9999) || a.order - b.order);
   const nextKey =
     tlRows.find(
-      (r) => r.minutes !== null && r.minutes >= 0 && r.minutes >= nowMinutes,
+      (r) =>
+        r.minutes !== null &&
+        r.minutes >= 0 &&
+        r.minutes >= nowMinutes &&
+        r.item.status !== "blocked",
     )?.key ?? null;
 
   // Hero count: everything waiting on Mark himself — the pending
@@ -3620,9 +3636,19 @@ export function App() {
                   const item = row.item;
                   const { rest } = splitTime(item.title);
                   const active = item.status === "进行中";
+                  // Third state: a blocked item is neither pending nor
+                  // done — it never takes the past ✓ / dimmed treatment
+                  // (so it never reads as completed) and never counts
+                  // as the next-up item.
+                  const blocked = item.status === "blocked";
                   const minutes = row.minutes;
-                  const past = !active && minutes !== null && minutes >= 0 && minutes < nowMinutes;
-                  const isNext = row.key === nextKey && !active;
+                  const past =
+                    !blocked &&
+                    !active &&
+                    minutes !== null &&
+                    minutes >= 0 &&
+                    minutes < nowMinutes;
+                  const isNext = row.key === nextKey && !active && !blocked;
                   return (
                     <li
                       key={row.key}
@@ -3645,7 +3671,9 @@ export function App() {
                       <span
                         aria-hidden="true"
                         className={
-                          active
+                          blocked
+                            ? "z-10 h-2 w-2 shrink-0 rounded-full bg-[#ff9d0a] ring-4 ring-[var(--surface)]"
+                            : active
                             ? "z-10 h-2 w-2 shrink-0 animate-pulse rounded-full bg-[var(--accent)] ring-4 ring-[var(--surface)] motion-reduce:animate-none"
                             : isNext
                               ? "z-10 h-2 w-2 shrink-0 rounded-full bg-[var(--accent)] ring-4 ring-[var(--surface)]"

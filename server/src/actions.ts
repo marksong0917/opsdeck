@@ -743,10 +743,23 @@ export const Actions = {
         }
       }
       const doneToday = parseStringList(metaRow?.doneToday);
+      // Deadlines render in pure chronological order — dueDate
+      // ascending, soonest first — regardless of the stored sort
+      // values; undated items keep their stored order at the end.
+      const deadlines = items
+        .filter((i) => i.section === "deadlines")
+        .sort((a, b) => {
+          if (a.dueDate && b.dueDate) {
+            return a.dueDate < b.dueDate ? -1 : a.dueDate > b.dueDate ? 1 : a.id - b.id;
+          }
+          if (a.dueDate) return -1;
+          if (b.dueDate) return 1;
+          return a.sort - b.sort || a.id - b.id;
+        });
       return {
         decisions: items.filter((i) => i.section === "decisions"),
         today: items.filter((i) => i.section === "today"),
-        deadlines: items.filter((i) => i.section === "deadlines"),
+        deadlines,
         lanes: items.filter((i) => i.section === "lanes"),
         china: items.filter((i) => i.section === "china"),
         updatedAt: metaRow ? metaRow.updatedAt.toISOString() : null,
@@ -904,6 +917,65 @@ export const Actions = {
       await touchMeta(ctx);
       ctx.invalidateQueries();
       return { ok: true };
+    },
+  }),
+
+  applyV172BoardUpdates: defineAction({
+    description:
+      "One-time v1.7.2 board data update: marks today item 47 (15:30 QB 浏览器下午场) as blocked with its deferral note, and refreshes the Product lane item 17 to the 0.369-live / 0.370-in-build wording. Each write is guarded by the item's current text, so re-running it after the board has moved on changes nothing. Returns the ids actually updated.",
+    request: z.object({}),
+    response: z.object({ updated: z.array(z.number()) }),
+    handler: async (ctx): Promise<{ updated: number[] }> => {
+      const db = ctx.db<typeof schema>();
+      const rows = await db
+        .select()
+        .from(schema.items)
+        .where(isNull(schema.items.closedAt));
+      const byId = new Map(rows.map((r) => [r.id, r]));
+      const updated: number[] = [];
+      const now = new Date();
+
+      const item47 = byId.get(47);
+      if (
+        item47 &&
+        item47.section === "today" &&
+        item47.title.includes("15:30") &&
+        item47.status !== "blocked"
+      ) {
+        await db
+          .update(schema.items)
+          .set({
+            status: "blocked",
+            detail: "验证码未取得 · 残单顺延明天",
+            updatedAt: now,
+          })
+          .where(eq(schema.items.id, 47));
+        updated.push(47);
+      }
+
+      const item17 = byId.get(17);
+      if (
+        item17 &&
+        item17.section === "lanes" &&
+        item17.title.includes("0.368")
+      ) {
+        await db
+          .update(schema.items)
+          .set({
+            title: "Product 队列定版推进（0.369 已上线 · 0.370 在建）",
+            detail:
+              "0.364–0.368 连上五版：通知清扫 + Trash purge、工资条修复、员工档案结构、lead 生命周期、Files UX。0.369 已上线，0.370 在建（Q3-B 分拣免确认）。Q2 发票补链至 70 条。后排：测试账号隐藏 → 邮箱证明 + 退订 → 分享同事 → Settings 大合并",
+            updatedAt: now,
+          })
+          .where(eq(schema.items.id, 17));
+        updated.push(17);
+      }
+
+      if (updated.length > 0) {
+        await touchMeta(ctx);
+        ctx.invalidateQueries();
+      }
+      return { updated };
     },
   }),
 
