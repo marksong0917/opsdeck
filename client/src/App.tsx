@@ -417,6 +417,12 @@ function uiLocale(): string {
  * condition per day) from the same weather source's forecast_days; the
  * same payload's destination air-quality / UV (when the source provides
  * them) shows on page 3 and in the dual-city strip;
+ * v1.7.0 = Semi Design conversion: Semi blue #0077FA primary (lighter
+ * step in dark), Semi token surfaces (cool grey page, white cards;
+ * dark = deep grey-blue elevation steps, never pure black), 10px
+ * cards / 8px large buttons / 6px tags + inputs, Semi soft semantic
+ * tags, button-type page tabs, layered soft shadows, system font
+ * stack. Visual language only — data, layout and functions unchanged.
  * v1.6.1 = polish/correctness pass: sunrise/sunset render as local
  * HH:MM everywhere (the source's raw ISO timestamps never reach the
  * page); the destination's tomorrow line is localized (condition +
@@ -428,18 +434,18 @@ function uiLocale(): string {
  * longer masquerade as pending decisions ("件等你跟进" when no decision
  * is pending); small CSS tidy (softer card shadow, section-heading
  * hierarchy, header weather/FX spacing rhythm, antialiased text). */
-const BOARD_VERSION = "v1.6.1";
+const BOARD_VERSION = "v1.7.0";
 const BOARD_VERSION_DATE = "2026-11-11";
 
 const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
 
 const LANE_DOT: Record<string, string> = {
-  Bookkeeping: "#0f766e",
-  Product: "#1d6fb8",
-  "General Ops": "#64748b",
-  Outreach: "#b45309",
-  Devices: "#0891b2",
-  Servers: "#be3455",
+  Bookkeeping: "#00a870",
+  Product: "#0077fa",
+  "General Ops": "#86909c",
+  Outreach: "#fa7a08",
+  Devices: "#00a5ff",
+  Servers: "#7a4df3",
 };
 
 /** Small 16px stroke icons (Lucide-style paths), one accent color per lane. */
@@ -552,12 +558,12 @@ const TILE_STYLE: Record<SectionKind, { bg: string; fg: string }> = {
     bg: "color-mix(in srgb, var(--accent) 13%, transparent)",
     fg: "var(--accent)",
   },
-  today: { bg: "rgba(59,130,246,0.13)", fg: "#3b82f6" },
-  deadlines: { bg: "rgba(217,119,6,0.14)", fg: "#d97706" },
-  lanes: { bg: "rgba(139,92,246,0.13)", fg: "#8b5cf6" },
-  sites: { bg: "rgba(8,145,178,0.13)", fg: "#0891b2" },
-  servers: { bg: "rgba(190,52,85,0.12)", fg: "#be3455" },
-  china: { bg: "rgba(220,38,38,0.11)", fg: "#dc2626" },
+  today: { bg: "rgba(0,165,255,0.10)", fg: "#00a5ff" },
+  deadlines: { bg: "rgba(250,122,8,0.12)", fg: "#fa7a08" },
+  lanes: { bg: "rgba(122,77,243,0.10)", fg: "#7a4df3" },
+  sites: { bg: "rgba(0,168,112,0.10)", fg: "#00a870" },
+  servers: { bg: "rgba(134,144,156,0.13)", fg: "#86909c" },
+  china: { bg: "rgba(245,63,63,0.10)", fg: "#f53f3f" },
 };
 
 function SectionTile({ kind }: { kind: SectionKind }) {
@@ -565,16 +571,16 @@ function SectionTile({ kind }: { kind: SectionKind }) {
   return (
     <span
       aria-hidden="true"
-      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px]"
       style={{ backgroundColor: tile.bg }}
     >
-      <SectionGlyph kind={kind} color={tile.fg} size={14} />
+      <SectionGlyph kind={kind} color={tile.fg} size={15} />
     </span>
   );
 }
 
 const CARD_CLASS =
-  "rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_10px_rgba(16,24,40,0.04)] [@media(max-height:949px)]:py-1.5";
+  "rounded-[10px] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 shadow-[0_0_1px_rgba(28,31,35,0.07),0_4px_14px_rgba(28,31,35,0.05)] [@media(max-height:949px)]:py-2";
 
 function LaneGlyph({ lane }: { lane: string }) {
   // Row glyphs stay single-accent; color lives in the header tiles,
@@ -1124,7 +1130,7 @@ function DualCityStrip({ toronto, destination, onOpenChina }: { toronto: Weather
   return (
     <div className={`${CARD_CLASS} mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5 [@media(max-height:949px)]:mt-1.5`} aria-label={t("dualCityTitle")}>
       <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[var(--text)]">
-        <SvgIcon color="#dc2626" size={14} className="shrink-0"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" /></SvgIcon>
+        <SvgIcon color="#f53f3f" size={14} className="shrink-0"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" /></SvgIcon>
         {t("tripCountdownTitle")}
       </span>
       <button type="button" onClick={onOpenChina} className="text-[13px] font-medium text-[var(--accent)] underline-offset-2 hover:underline" aria-label={t("page3")}>
@@ -1172,7 +1178,7 @@ function HeaderClockWeather({
           className={
             work.off
               ? "max-w-full rounded-full bg-[var(--header-chip)] px-2 py-0.5 text-[11px] font-medium leading-snug text-[var(--header-dim)]"
-              : "max-w-full rounded-full bg-emerald-400/15 px-2 py-0.5 text-[11px] font-medium leading-snug text-emerald-700 dark:text-emerald-300"
+              : "max-w-full rounded-full bg-[#00b578]/15 px-2 py-0.5 text-[11px] font-medium leading-snug text-[#00754b] dark:text-[#5ee0a8]"
           }
         >
           <span
@@ -1180,7 +1186,7 @@ function HeaderClockWeather({
             className={
               work.off
                 ? "mr-1 inline-block h-1.5 w-1.5 rounded-full bg-[var(--header-dim)] align-middle"
-                : "mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 align-middle motion-reduce:animate-none dark:bg-emerald-400"
+                : "mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#00b578] align-middle motion-reduce:animate-none dark:bg-[#00b578]"
             }
           />
           {work.prefix} · {work.label}
@@ -1216,9 +1222,9 @@ const QUICK_LINKS: {
   {
     label: "Hub",
     href: "https://app.example.com/",
-    bg: "rgba(15,118,110,0.13)",
+    bg: "rgba(0,119,250,0.10)",
     glyph: (
-      <SvgIcon color="#0f766e" size={18} className="shrink-0">
+      <SvgIcon color="#0077fa" size={18} className="shrink-0">
         <rect x="3" y="3" width="7" height="7" rx="1" />
         <rect x="14" y="3" width="7" height="7" rx="1" />
         <rect x="14" y="14" width="7" height="7" rx="1" />
@@ -1260,9 +1266,9 @@ const QUICK_LINKS: {
   {
     label: "App",
     href: "https://app.example.com",
-    bg: "rgba(29,111,184,0.13)",
+    bg: "rgba(0,119,250,0.10)",
     glyph: (
-      <SvgIcon color="#1d6fb8" size={18} className="shrink-0">
+      <SvgIcon color="#0077fa" size={18} className="shrink-0">
         <path d="M3 9.5 12 3l9 6.5V20a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20z" />
         <path d="M9 21v-8h6v8" />
       </SvgIcon>
@@ -1277,7 +1283,7 @@ function TinaPulseStrip({ tinaStatus }: { tinaStatus: string }) {
       <p className="flex min-w-0 items-center gap-2 text-sm text-[var(--text)]">
         <span
           aria-hidden="true"
-          className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-emerald-500 motion-reduce:animate-none"
+          className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-[#00b578] motion-reduce:animate-none"
         />
         <span className="shrink-0 font-medium text-[var(--dim)]">{t("tinaNow")}</span>
         <span className="truncate font-medium">{tinaStatus}</span>
@@ -1291,11 +1297,11 @@ function TinaPulseStrip({ tinaStatus }: { tinaStatus: string }) {
                 target="_blank"
                 rel="noreferrer"
                 aria-label={`${link.label} ${t("opensNewWindow")}`}
-                className="flex items-center gap-1.5 rounded-lg px-1.5 py-1 transition hover:bg-[var(--bg)]"
+                className="flex items-center gap-1.5 rounded-[6px] px-1.5 py-1 transition hover:bg-[var(--fill)]"
               >
                 <span
                   aria-hidden="true"
-                  className="flex h-6 w-6 items-center justify-center rounded-md"
+                  className="flex h-6 w-6 items-center justify-center rounded-[6px]"
                   style={{ backgroundColor: link.bg }}
                 >
                   {link.glyph}
@@ -1426,7 +1432,7 @@ function DoneHistoryPage({ groups }: { groups: DoneGroup[] }) {
             {group.items.map((entry, i) => (
               <li
                 key={`${group.date}-${i}-${entry}`}
-                className="rounded-full bg-emerald-600/10 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300"
+                className="rounded-[6px] bg-[#00b578]/10 px-2 py-0.5 text-xs font-medium text-[#00754b] dark:text-[#5ee0a8]"
               >
                 ✓ {entry}
               </li>
@@ -1643,18 +1649,18 @@ type StatusKind = "up" | "down" | "unknown";
 function StatusDot({ status }: { status: StatusKind }) {
   const cls =
     status === "up"
-      ? "bg-emerald-500"
+      ? "bg-[#00b578]"
       : status === "down"
-        ? "bg-[#dc2626]"
+        ? "bg-[#f53f3f]"
         : "bg-[var(--dim)]";
   return <span aria-hidden="true" className={`h-2.5 w-2.5 shrink-0 rounded-full ${cls}`} />;
 }
 
 function StatusWord({ status }: { status: StatusKind }) {
   if (status === "up")
-    return <span className="shrink-0 text-sm font-medium text-emerald-600 dark:text-emerald-400">{t("statusNormal")}</span>;
+    return <span className="shrink-0 text-sm font-medium text-[#00915f] dark:text-[#5ee0a8]">{t("statusNormal")}</span>;
   if (status === "down")
-    return <span className="shrink-0 text-sm font-semibold text-[#b91c1c] dark:text-[#f87171]">{t("statusDownWord")}</span>;
+    return <span className="shrink-0 text-sm font-semibold text-[#d92d20] dark:text-[#ff9d97]">{t("statusDownWord")}</span>;
   return <span className="shrink-0 text-sm text-[var(--dim)]">{t("statusUnknown")}</span>;
 }
 
@@ -1806,20 +1812,20 @@ function StatusChip({
   }
   const cls =
     downNames.length > 0
-      ? "bg-[#dc2626]/20 text-[#b91c1c] dark:text-[#fca5a5]"
+      ? "bg-[#f53f3f]/20 text-[#d92d20] dark:text-[#fca5a5]"
       : !data
         ? "bg-[var(--header-chip)] text-[var(--header-dim)]"
         : hasUnknown
           ? "bg-[var(--header-chip)] text-[var(--header-text)]"
-          : "bg-emerald-400/15 text-emerald-700 dark:text-emerald-300";
+          : "bg-[#00b578]/15 text-[#00754b] dark:text-[#5ee0a8]";
   const dotCls =
     downNames.length > 0
-      ? "bg-[#f87171]"
+      ? "bg-[#ff9d97]"
       : !data
         ? "bg-[var(--header-dim)]"
         : hasUnknown
           ? "bg-[var(--header-dim)]"
-          : "bg-emerald-400";
+          : "bg-[#00b578]";
   return (
     <button
       type="button"
@@ -1865,14 +1871,14 @@ function PageTabs({
 }) {
   const tabCls = (active: boolean) =>
     active
-      ? "h-7 whitespace-nowrap rounded-full bg-[var(--accent)] px-3 text-[13px] font-semibold text-white shadow-sm transition"
-      : "h-7 whitespace-nowrap rounded-full px-3 text-[13px] font-medium text-[var(--dim)] transition hover:text-[var(--text)]";
+      ? "h-8 whitespace-nowrap rounded-[6px] bg-[var(--surface)] px-3 text-[13px] font-semibold text-[var(--accent)] shadow-[0_1px_4px_rgba(28,31,35,0.14)] transition"
+      : "h-8 whitespace-nowrap rounded-[6px] px-3 text-[13px] font-medium text-[var(--dim)] transition hover:text-[var(--text)]";
   return (
     <div className="mt-2">
       <div
         role="tablist"
         aria-label={t("tabsAria")}
-        className="inline-flex rounded-full border border-[var(--border)] bg-[var(--surface)] p-1 shadow-[0_1px_2px_rgba(16,24,40,0.05)]"
+        className="inline-flex max-w-full overflow-x-auto rounded-[8px] border border-[var(--border)] bg-[var(--fill)] p-[3px]"
       >
         <button
           type="button"
@@ -2005,7 +2011,7 @@ function AddChinaForm({
   const [detail, setDetail] = useState("");
   return (
     <form
-      className="mb-3 space-y-2 rounded-lg border border-[var(--border)] bg-[var(--bg)] p-3"
+      className="mb-3 space-y-2 rounded-[8px] border border-[var(--border)] bg-[var(--fill)] p-3"
       onSubmit={(e) => {
         e.preventDefault();
         if (!title.trim()) return;
@@ -2030,14 +2036,14 @@ function AddChinaForm({
         <button
           type="submit"
           disabled={!title.trim() || pending}
-          className="h-10 flex-1 rounded-lg bg-[var(--accent)] text-[15px] font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
+          className="h-10 flex-1 rounded-[6px] bg-[var(--accent)] text-[15px] font-semibold text-white transition hover:bg-[var(--accent-hover)] active:bg-[var(--accent-active)] disabled:opacity-50"
         >
           {pending ? t("adding") : t("add")}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="h-10 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 text-[15px] font-medium text-[var(--text)]"
+          className="h-10 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-4 text-[15px] font-medium text-[var(--text)] transition hover:bg-[var(--fill)]"
         >
           {t("cancel")}
         </button>
@@ -2092,18 +2098,18 @@ const STATUS_LABELS: Record<string, { zh: string; en: string }> = {
 
 function StatusPill({ status }: { status: string }) {
   if (!status) return null;
-  let cls = "bg-[var(--bg)] text-[var(--dim)]";
+  let cls = "bg-[var(--fill)] text-[var(--dim)]";
   if (status === "进行中") {
-    cls = "bg-blue-600/10 text-blue-700 dark:text-blue-300";
+    cls = "bg-[#0077fa]/10 text-[#0063d1] dark:bg-[#4d9fff]/15 dark:text-[#8fbeff]";
   } else if (/完成|已发|已录/.test(status)) {
-    cls = "bg-emerald-600/10 text-emerald-700 dark:text-emerald-300";
+    cls = "bg-[#00b578]/10 text-[#00754b] dark:text-[#5ee0a8]";
   } else if (/注意|异常|过期|卡/.test(status)) {
-    cls = "bg-amber-500/15 text-amber-700 dark:text-amber-300";
+    cls = "bg-[#ff9d0a]/15 text-[#a15e00] dark:text-[#ffc65c]";
   }
   const label = STATUS_LABELS[status]?.[activeLang] ?? status;
   return (
     <span
-      className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}
+      className={`shrink-0 rounded-[6px] px-2 py-0.5 text-xs font-medium ${cls}`}
     >
       {status === "进行中" ? "● " : ""}
       {label}
@@ -2123,8 +2129,8 @@ function SectionHeading({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-1.5 flex items-center justify-between gap-3">
-      <h2 className="flex items-center gap-2 text-[15px] font-semibold tracking-tight text-[var(--text)]">
+    <div className="mb-2 flex items-center justify-between gap-3">
+      <h2 className="flex items-center gap-2 text-base font-semibold tracking-tight text-[var(--text)]">
         {icon}
         {children}
       </h2>
@@ -2143,7 +2149,7 @@ function EmptyLine({ text }: { text: string }) {
     <div className="flex flex-col items-center gap-2 py-4 text-center">
       <span
         aria-hidden="true"
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bg)]"
+        className="flex h-10 w-10 items-center justify-center rounded-[8px] bg-[var(--fill)]"
       >
         <SvgIcon color="var(--dim)" size={20} className="shrink-0">
           <path d="M22 12h-6l-2 3h-4l-2-3H2" />
@@ -2161,7 +2167,7 @@ function EmptyLineCompact({ text }: { text: string }) {
     <div className="flex items-center gap-2 py-1 text-left">
       <span
         aria-hidden="true"
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--bg)]"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[6px] bg-[var(--fill)]"
       >
         <SvgIcon color="var(--dim)" size={15} className="shrink-0">
           <path d="M22 12h-6l-2 3h-4l-2-3H2" />
@@ -2177,28 +2183,28 @@ function VerdictMark({ verdict }: { verdict: Verdict }) {
   return verdict === "yes" ? (
     <span className="font-semibold text-[var(--accent)]">{t("approved")}</span>
   ) : (
-    <span className="font-semibold text-[#b91c1c] dark:text-[#f87171]">{t("rejected")}</span>
+    <span className="font-semibold text-[#d92d20] dark:text-[#ff9d97]">{t("rejected")}</span>
   );
 }
 
 function DeadlineChip({ left }: { left: number }) {
   if (left < 0) {
     return (
-      <span className="rounded-full bg-[#b91c1c] px-2 py-0.5 text-xs font-medium text-white">
+      <span className="rounded-[6px] bg-[#f53f3f] px-2 py-0.5 text-xs font-medium text-white">
         {activeLang === "zh" ? `已过期 ${-left} 天` : `${-left} d overdue`}
       </span>
     );
   }
   if (left === 0) {
     return (
-      <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-xs font-medium text-white">
+      <span className="rounded-[6px] bg-[var(--accent)] px-2 py-0.5 text-xs font-medium text-white">
         {t("dueTodayChip")}
       </span>
     );
   }
   if (left <= 3) {
     return (
-      <span className="rounded-full bg-[#fef3c7] px-2 py-0.5 text-xs font-medium text-[#92400e] dark:bg-[#451a03] dark:text-[#fcd34d]">
+      <span className="rounded-[6px] bg-[#ff9d0a]/15 px-2 py-0.5 text-xs font-medium text-[#a15e00] dark:text-[#ffc65c]">
         {activeLang === "zh" ? `还有 ${left} 天` : `in ${left} days`}
       </span>
     );
@@ -2246,7 +2252,7 @@ function DecisionItem({
       ) : null}
 
       {answered ? (
-        <div className="mt-3 flex items-center justify-between gap-3 rounded-lg bg-[var(--bg)] px-3 py-2.5">
+        <div className="mt-3 flex items-center justify-between gap-3 rounded-[8px] bg-[var(--fill)] px-3 py-2.5">
           <p className="text-[15px] text-[var(--text)]">
             {t("markDecided")}：<VerdictMark verdict={answered.verdict} />
             <span className="ml-2 text-sm text-[var(--dim)]">
@@ -2271,7 +2277,7 @@ function DecisionItem({
               disabled={pending || dismissPending}
               onClick={() => onAnswer("yes")}
               aria-label={`${activeLang === "zh" ? "同意" : "Approve"}：${item.title}`}
-              className="h-12 flex-1 rounded-xl bg-[var(--accent)] text-base font-semibold text-white shadow-sm transition hover:brightness-110 active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50"
+              className="h-11 flex-1 rounded-[8px] bg-[var(--accent)] text-base font-semibold text-white shadow-sm transition hover:bg-[var(--accent-hover)] active:bg-[var(--accent-active)] active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50"
             >
               {pending ? t("submitting") : t("yes")}
             </button>
@@ -2280,7 +2286,7 @@ function DecisionItem({
               disabled={pending || dismissPending}
               onClick={() => onAnswer("no")}
               aria-label={`${activeLang === "zh" ? "否决" : "Reject"}：${item.title}`}
-              className="h-12 flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-base font-semibold text-[var(--text)] transition hover:bg-[var(--bg)] active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50"
+              className="h-11 flex-1 rounded-[8px] border border-[var(--border)] bg-[var(--surface)] text-base font-semibold text-[var(--text)] transition hover:bg-[var(--fill)] active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50"
             >
               {t("no")}
             </button>
@@ -2295,8 +2301,8 @@ function DecisionItem({
               }
               className={
                 dismissArmed
-                  ? "h-12 shrink-0 rounded-xl border border-[#b91c1c] bg-[#b91c1c]/10 px-4 text-base font-semibold text-[#b91c1c] transition disabled:opacity-50 dark:text-[#f87171]"
-                  : "h-12 shrink-0 rounded-xl px-3 text-base font-medium text-[var(--dim)] underline-offset-2 transition hover:underline disabled:opacity-50"
+                  ? "h-11 shrink-0 rounded-[8px] border border-[#d92d20] bg-[#d92d20]/10 px-4 text-base font-semibold text-[#d92d20] transition disabled:opacity-50 dark:text-[#ff9d97]"
+                  : "h-11 shrink-0 rounded-[8px] px-3 text-base font-medium text-[var(--dim)] underline-offset-2 transition hover:underline disabled:opacity-50"
               }
             >
               {dismissPending ? t("shelving") : dismissArmed ? t("shelveConfirm") : t("shelve")}
@@ -2305,7 +2311,7 @@ function DecisionItem({
           {failed ? (
             <div
               role="alert"
-              className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-[#b91c1c] px-3 py-2 text-sm text-[#b91c1c] dark:text-[#f87171]"
+              className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-[#d92d20] px-3 py-2 text-sm text-[#d92d20] dark:text-[#ff9d97]"
             >
               <span>{t("answerFailed")}</span>
               <button
@@ -2341,10 +2347,10 @@ function HeaderStat({ value, label, accent }: { value: number; label: string; ac
 }
 
 const INPUT_CLASS =
-  "h-11 w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 text-[15px] text-[var(--text)] placeholder:text-[var(--dim)]";
+  "h-10 w-full rounded-[6px] border border-[var(--border)] bg-[var(--fill)] px-3 text-[15px] text-[var(--text)] placeholder:text-[var(--dim)] transition focus:border-[var(--accent)] focus:bg-[var(--surface)] focus:shadow-[0_0_0_3px_var(--accent-ring)] focus:outline-none";
 
 const SMALL_BTN_CLASS =
-  "h-7 rounded-md px-2 text-[13px] font-medium text-[var(--dim)] transition hover:bg-[var(--bg)] hover:text-[var(--text)] disabled:opacity-50";
+  "h-7 rounded-[6px] px-2 text-[13px] font-medium text-[var(--dim)] transition hover:bg-[var(--fill)] hover:text-[var(--text)] disabled:opacity-50";
 
 /** One open lane item with inline edit / done / delete controls. */
 function LaneRow({
@@ -2410,14 +2416,14 @@ function LaneRow({
                 onSave({ title: title.trim(), detail: detail.trim(), status: status.trim() });
                 setEditing(false);
               }}
-              className="h-10 flex-1 rounded-lg bg-[var(--accent)] text-[15px] font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
+              className="h-10 flex-1 rounded-[6px] bg-[var(--accent)] text-[15px] font-semibold text-white transition hover:bg-[var(--accent-hover)] active:bg-[var(--accent-active)] disabled:opacity-50"
             >
               {t("save")}
             </button>
             <button
               type="button"
               onClick={() => setEditing(false)}
-              className="h-10 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 text-[15px] font-medium text-[var(--text)]"
+              className="h-10 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-4 text-[15px] font-medium text-[var(--text)] transition hover:bg-[var(--fill)]"
             >
               {t("cancel")}
             </button>
@@ -2483,7 +2489,7 @@ function LaneRow({
               }
               className={
                 deleteArmed
-                  ? "h-8 rounded-md border border-[#b91c1c] bg-[#b91c1c]/10 px-2 text-sm font-semibold text-[#b91c1c] transition disabled:opacity-50 dark:text-[#f87171]"
+                  ? "h-8 rounded-md border border-[#d92d20] bg-[#d92d20]/10 px-2 text-sm font-semibold text-[#d92d20] transition disabled:opacity-50 dark:text-[#ff9d97]"
                   : SMALL_BTN_CLASS
               }
             >
@@ -2513,7 +2519,7 @@ function AddLaneForm({
   const lane = laneChoice === "其他" ? customLane.trim() || "其他" : laneChoice;
   return (
     <form
-      className="mb-3 space-y-2 rounded-lg border border-[var(--border)] bg-[var(--bg)] p-3"
+      className="mb-3 space-y-2 rounded-[8px] border border-[var(--border)] bg-[var(--fill)] p-3"
       onSubmit={(e) => {
         e.preventDefault();
         if (!title.trim()) return;
@@ -2528,7 +2534,7 @@ function AddLaneForm({
           id="new-lane-select"
           value={laneChoice}
           onChange={(e) => setLaneChoice(e.target.value)}
-          className="h-11 flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2 text-[15px] text-[var(--text)]"
+          className="h-10 flex-1 rounded-[6px] border border-[var(--border)] bg-[var(--fill)] px-2 text-[15px] text-[var(--text)] transition focus:border-[var(--accent)] focus:bg-[var(--surface)] focus:shadow-[0_0_0_3px_var(--accent-ring)] focus:outline-none"
         >
           {LANE_ORDER.map((l) => (
             <option key={l} value={l}>
@@ -2565,14 +2571,14 @@ function AddLaneForm({
         <button
           type="submit"
           disabled={!title.trim() || pending}
-          className="h-10 flex-1 rounded-lg bg-[var(--accent)] text-[15px] font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
+          className="h-10 flex-1 rounded-[6px] bg-[var(--accent)] text-[15px] font-semibold text-white transition hover:bg-[var(--accent-hover)] active:bg-[var(--accent-active)] disabled:opacity-50"
         >
           {pending ? t("adding") : t("add")}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="h-10 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 text-[15px] font-medium text-[var(--text)]"
+          className="h-10 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-4 text-[15px] font-medium text-[var(--text)] transition hover:bg-[var(--fill)]"
         >
           {t("cancel")}
         </button>
@@ -2596,8 +2602,8 @@ function PrefsControls({
 }) {
   const btnCls = (active: boolean) =>
     active
-      ? "h-7 rounded-full bg-[var(--header-text)] px-2.5 text-xs font-semibold text-[var(--header-bg)] transition"
-      : "h-7 rounded-full px-2.5 text-xs font-medium text-[var(--header-dim)] transition hover:text-[var(--header-text)]";
+      ? "h-7 rounded-[6px] bg-[var(--surface)] px-2.5 text-xs font-semibold text-[var(--text)] shadow-[0_1px_4px_rgba(28,31,35,0.16)] transition"
+      : "h-7 rounded-[6px] px-2.5 text-xs font-medium text-[var(--header-dim)] transition hover:text-[var(--header-text)]";
   const themeOptions: { mode: ThemeMode; label: string }[] = [
     { mode: "system", label: t("themeSystem") },
     { mode: "light", label: t("themeLight") },
@@ -2608,7 +2614,7 @@ function PrefsControls({
       <div
         role="group"
         aria-label={t("themeAria")}
-        className="flex items-center rounded-full bg-[var(--header-chip)] p-0.5"
+        className="flex items-center rounded-[8px] bg-[var(--header-chip)] p-0.5"
       >
         {themeOptions.map((opt) => (
           <button
@@ -2625,7 +2631,7 @@ function PrefsControls({
       <div
         role="group"
         aria-label={t("langAria")}
-        className="flex items-center rounded-full bg-[var(--header-chip)] p-0.5"
+        className="flex items-center rounded-[8px] bg-[var(--header-chip)] p-0.5"
       >
         <button
           type="button"
@@ -2694,7 +2700,7 @@ export function App() {
       // Storage unavailable (private mode): preferences just don't persist.
     }
   }, [resolvedTheme, themeMode, lang]);
-  const scrimColor = resolvedTheme === "dark" ? "#17181c" : "#fffefb";
+  const scrimColor = resolvedTheme === "dark" ? "#1c2027" : "#ffffff";
   const board = useQuery({
     queryKey: ["board"],
     queryFn: () => api.getBoard({}),
@@ -2971,7 +2977,7 @@ export function App() {
           <button
             type="button"
             onClick={() => board.refetch()}
-            className="mt-4 h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-5 text-[15px] text-[var(--text)]"
+            className="mt-4 h-10 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-5 text-[15px] font-medium text-[var(--text)] transition hover:bg-[var(--fill)]"
           >
             {t("retry")}
           </button>
@@ -3116,7 +3122,7 @@ export function App() {
                   onClick={refreshAll}
                   disabled={refreshing}
                   aria-label={t("refreshAria")}
-                  className="h-8 shrink-0 rounded-lg bg-[var(--header-chip)] px-3 text-sm font-medium text-[var(--header-text)] transition hover:brightness-110 active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50"
+                  className="h-8 shrink-0 rounded-[6px] bg-[var(--header-chip)] px-3 text-sm font-medium text-[var(--header-text)] transition hover:brightness-110 active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50"
                 >
                   {refreshing ? t("refreshing") : t("refresh")}
                 </button>
@@ -3192,7 +3198,7 @@ export function App() {
                     </span>
                   </button>
                   {heroOpen ? (
-                    <div className="absolute left-1/2 top-full z-50 mt-1 w-[min(430px,92vw)] -translate-x-1/2 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-1.5 text-left shadow-[0_12px_32px_rgba(16,24,40,0.22)]">
+                    <div className="absolute left-1/2 top-full z-50 mt-1 w-[min(430px,92vw)] -translate-x-1/2 rounded-[10px] border border-[var(--border)] bg-[var(--surface)] p-1.5 text-left shadow-[0_0_1px_rgba(28,31,35,0.08),0_8px_28px_rgba(28,31,35,0.16)]">
                       <ul className="max-h-[50vh] divide-y divide-[var(--border)] overflow-y-auto">
                         {actionEntries.map((entry) => (
                           <li key={`${entry.tag}-${entry.item.id}`}>
@@ -3200,9 +3206,9 @@ export function App() {
                               type="button"
                               onClick={() => jumpToItem(entry.item.id)}
                               aria-label={`${entry.displayTitle} · ${entry.tag}`}
-                              className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition hover:bg-[var(--bg)]"
+                              className="flex w-full items-center gap-2 rounded-[6px] px-2 py-2 text-left transition hover:bg-[var(--fill)]"
                             >
-                              <span className="shrink-0 rounded-full bg-[var(--accent)]/10 px-2 py-0.5 text-[11px] font-semibold text-[var(--accent)]">
+                              <span className="shrink-0 rounded-[6px] bg-[var(--accent)]/10 px-2 py-0.5 text-[11px] font-semibold text-[var(--accent)]">
                                 {entry.tag}
                               </span>
                               <span className="min-w-0 flex-1 truncate text-sm font-medium text-[var(--text)]">
@@ -3222,9 +3228,9 @@ export function App() {
                 <p className="flex items-center justify-center gap-2 leading-none">
                   <span
                     aria-hidden="true"
-                    className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-400/15"
+                    className="flex h-6 w-6 items-center justify-center rounded-full bg-[#00b578]/15"
                   >
-                    <SvgIcon color="#34d399" size={14} className="shrink-0">
+                    <SvgIcon color="#00b578" size={14} className="shrink-0">
                       <polyline points="20 6 9 17 4 12" />
                     </SvgIcon>
                   </span>
@@ -3306,7 +3312,7 @@ export function App() {
                     }}
                     disabled={statusQuery.isFetching}
                     aria-label={t("recheckAria")}
-                    className="h-10 rounded-lg bg-[var(--accent)] px-4 text-[15px] font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
+                    className="h-10 rounded-[6px] bg-[var(--accent)] px-4 text-[15px] font-semibold text-white transition hover:bg-[var(--accent-hover)] active:bg-[var(--accent-active)] disabled:opacity-50"
                   >
                     {statusQuery.isFetching ? t("checking") : t("recheck")}
                   </button>
@@ -3334,7 +3340,7 @@ export function App() {
               </span>
               <span className="text-sm tabular-nums text-[var(--dim)]">{t("chinaTripLine")}</span>
               {data.china.length > 0 ? (
-                <span className="ml-auto shrink-0 rounded-full bg-[var(--bg)] px-2 py-0.5 text-xs font-medium tabular-nums text-[var(--dim)]">
+                <span className="ml-auto shrink-0 rounded-[6px] bg-[var(--fill)] px-2 py-0.5 text-xs font-medium tabular-nums text-[var(--dim)]">
                   {t("chinaProgress")} {data.china.filter((i) => i.status === "done").length}/{data.china.length}
                 </span>
               ) : null}
@@ -3355,7 +3361,7 @@ export function App() {
                   {fmtSunTime(weatherQuery.data.destination.sunrise) || fmtSunTime(weatherQuery.data.destination.sunset) ? <span className="text-[13px] tabular-nums text-[var(--dim)]">{t("sunriseLabel")} {fmtSunTime(weatherQuery.data.destination.sunrise) ?? "—"} · {t("sunsetLabel")} {fmtSunTime(weatherQuery.data.destination.sunset) ?? "—"}</span> : null}
                   {tomorrowLine(weatherQuery.data.destination) ? <span className="text-[13px] text-[var(--dim)]">{t("tomorrow")}：{tomorrowLine(weatherQuery.data.destination)}</span> : null}
                   {weatherQuery.data.destination.stale ? <span className="text-[13px] text-[var(--dim)]">{t("staleData")}</span> : null}
-                  {weatherQuery.data.destination.alerts.length > 0 ? <span className="text-[13px] font-medium text-amber-700 dark:text-amber-300">⚠ {weatherQuery.data.destination.alerts.join("；")}</span> : null}
+                  {weatherQuery.data.destination.alerts.length > 0 ? <span className="text-[13px] font-medium text-[#a15e00] dark:text-[#ffc65c]">⚠ {weatherQuery.data.destination.alerts.join("；")}</span> : null}
                 </div>
                 {weatherQuery.data.destination.forecast.length > 0 ? (
                   <div className="mt-2.5 border-t border-[var(--border)] pt-2.5">
@@ -3364,7 +3370,7 @@ export function App() {
                       {weatherQuery.data.destination.forecast.slice(0, 7).map((day, idx) => {
                         const label = forecastDayLabel(day.date, idx);
                         return (
-                          <li key={`${day.date ?? "day"}-${idx}`} className="min-w-0 rounded-lg bg-[var(--bg)] px-2 py-1.5 text-center">
+                          <li key={`${day.date ?? "day"}-${idx}`} className="min-w-0 rounded-[8px] bg-[var(--fill)] px-2 py-2 text-center">
                             <p className="truncate text-xs font-medium text-[var(--dim)]">{label.weekday}{label.md ? ` ${label.md}` : ""}</p>
                             <p className="mt-0.5 truncate text-[13px] font-medium text-[var(--text)]" title={day.summary ?? undefined}>{forecastCondition(day.summary) ?? "—"}</p>
                             <p className="mt-0.5 text-[13px] tabular-nums text-[var(--text)]">{day.low !== null ? `${Math.round(day.low)}°` : "—"}<span className="text-[var(--dim)]"> / </span>{day.high !== null ? `${Math.round(day.high)}°` : "—"}</p>
@@ -3390,7 +3396,7 @@ export function App() {
                     onClick={() => setShowChinaAddForm((v) => !v)}
                     aria-expanded={showChinaAddForm}
                     aria-label={t("chinaAddItemAria")}
-                    className="h-8 shrink-0 rounded-lg bg-[var(--accent)] px-3 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 active:scale-[0.98] motion-reduce:transition-none"
+                    className="h-8 shrink-0 rounded-[6px] bg-[var(--accent)] px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--accent-hover)] active:bg-[var(--accent-active)] active:scale-[0.98] motion-reduce:transition-none"
                   >
                     {showChinaAddForm ? t("collapse") : t("addNew")}
                   </button>
@@ -3401,7 +3407,7 @@ export function App() {
               {chinaError ? (
                 <p
                   role="alert"
-                  className="mb-2 rounded-lg border border-[#b91c1c] px-3 py-2 text-sm text-[#b91c1c] dark:text-[#f87171]"
+                  className="mb-2 rounded-lg border border-[#d92d20] px-3 py-2 text-sm text-[#d92d20] dark:text-[#ff9d97]"
                 >
                   {chinaError}
                 </p>
@@ -3520,13 +3526,13 @@ export function App() {
               ) : null}
             </div>
           ) : (
-          <div className="rounded-xl border-2 border-[var(--accent)] bg-[var(--surface)] p-3 shadow-[0_1px_2px_rgba(16,24,40,0.05),0_4px_16px_rgba(16,24,40,0.05)] sm:p-4">
+          <div className="rounded-[10px] border border-[var(--accent)] bg-[var(--surface)] p-4 shadow-[0_0_0_1px_var(--accent),0_4px_14px_rgba(28,31,35,0.06)]">
             <div className="flex items-center justify-between gap-3">
               <h2 className="flex items-center gap-2.5 text-base font-semibold tracking-tight text-[var(--text)]">
                 <SectionTile kind="decisions" />
                 {t("decisionsTitle")}
               </h2>
-              <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-xs font-semibold text-white">
+              <span className="rounded-[6px] bg-[var(--accent)] px-2 py-0.5 text-xs font-semibold text-white">
                 {activeLang === "zh"
                   ? `${data.decisions.length} 件待决`
                   : `${data.decisions.length} pending`}
@@ -3597,7 +3603,7 @@ export function App() {
         <DoneTodayStrip count={data.doneToday.length} onOpen={() => setPage("history")} />
 
         {/* 宽屏三列：今日时间线 | 到期 | Lane（等高一排，副屏一屏放下） */}
-        <div className="mt-2 grid items-stretch gap-2 md:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0 [@media(max-height:949px)]:mt-1.5 [@media(max-height:949px)]:gap-1.5">
+        <div className="mt-3 grid items-stretch gap-3 md:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0 [@media(max-height:949px)]:mt-1.5 [@media(max-height:949px)]:gap-1.5">
         {/* 2. 今日定时与动态 — 时间轴 */}
         <section aria-label={t("todayTitle")} className={`${CARD_CLASS} h-full`}>
           <SectionHeading hint={t("torontoTime")} icon={<SectionTile kind="today" />}>
@@ -3660,7 +3666,7 @@ export function App() {
                           {past ? <span className="ml-1.5 text-xs text-[var(--dim)]">✓</span> : null}
                         </span>
                         {isNext ? (
-                          <span className="shrink-0 rounded-full bg-[var(--accent)] px-1.5 py-0.5 text-[11px] font-medium text-white">
+                          <span className="shrink-0 rounded-[6px] bg-[var(--accent)] px-1.5 py-0.5 text-[11px] font-medium text-white">
                             {t("nextUp")}
                           </span>
                         ) : null}
@@ -3691,7 +3697,7 @@ export function App() {
                   ? "查看 14 天后到期的事项（第 2 页）"
                   : "View items due after 14 days (page 2)"
               }
-              className="mt-3 w-full rounded-lg bg-[var(--bg)] px-3 py-2 text-sm font-medium text-[var(--dim)] transition hover:text-[var(--text)]"
+              className="mt-3 w-full rounded-[6px] bg-[var(--fill)] px-3 py-2 text-sm font-medium text-[var(--dim)] transition hover:text-[var(--text)]"
             >
               {activeLang === "zh"
                 ? `14 天后还有 ${farDeadlines.length} 件到期 → 第 2 页`
@@ -3710,7 +3716,7 @@ export function App() {
                 onClick={() => setShowAddForm((v) => !v)}
                 aria-expanded={showAddForm}
                 aria-label={t("addItemAria")}
-                className="h-8 shrink-0 rounded-lg bg-[var(--accent)] px-3 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 active:scale-[0.98] motion-reduce:transition-none"
+                className="h-8 shrink-0 rounded-[6px] bg-[var(--accent)] px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--accent-hover)] active:bg-[var(--accent-active)] active:scale-[0.98] motion-reduce:transition-none"
               >
                 {showAddForm ? t("collapse") : t("addNew")}
               </button>
@@ -3721,7 +3727,7 @@ export function App() {
           {crudError ? (
             <p
               role="alert"
-              className="mb-2 rounded-lg border border-[#b91c1c] px-3 py-2 text-sm text-[#b91c1c] dark:text-[#f87171]"
+              className="mb-2 rounded-lg border border-[#d92d20] px-3 py-2 text-sm text-[#d92d20] dark:text-[#ff9d97]"
             >
               {crudError}
             </p>
@@ -3756,7 +3762,7 @@ export function App() {
                       style={{ backgroundColor: LANE_DOT[lane] ?? "#6d6a61" }}
                     />
                     {laneDisplay(lane)}
-                    <span className="ml-2 rounded-full bg-[var(--bg)] px-1.5 py-0.5 text-xs font-normal text-[var(--dim)]">
+                    <span className="ml-2 rounded-[6px] bg-[var(--fill)] px-1.5 py-0.5 text-xs font-normal text-[var(--dim)]">
                       {activeLang === "zh"
                         ? `${laneGroups.get(lane)?.length ?? 0} 件`
                         : `${laneGroups.get(lane)?.length ?? 0}`}

@@ -58,7 +58,7 @@ The page also carries a destination weather card (new in v1.6.0) with a 7-day fo
 ## Design principles
 
 - **One screen, no scroll** at 1920×1080; a height-based compact tier kicks in under ~950 px viewport height (e.g. 125% display scaling).
-- **Chinese workbench style** （飞书/钉钉-like): card grid, colored icon tiles, pill status tags, friendly empty states — warm and dense, not minimal-grey.
+- **Chinese workbench style**, rebuilt on **Semi Design** tokens in v1.7.0 (Semi blue primary, soft semantic tags, layered soft shadows): card grid, colored icon tiles, pill status tags, friendly empty states — warm and dense, not minimal-grey.
 - **Calm technology**: a single transient probe failure never cries wolf; freshness is shown once ("data updated at …"), in one place.
 - **Toronto-time discipline** in the original: every timestamp follows the owner's working timezone, even when travelling.
 

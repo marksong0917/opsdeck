@@ -1,8 +1,8 @@
-/* Web-font slot: uncomment the line below and put your font there. A web-font
-   @import must come before the Tailwind import — an @import placed after any
-   other rule is a build error, and it is reported against a line number in the
-   expanded Tailwind output, far past the end of this file, so the message
-   cannot point you at the mistake. */
+/* Semi Design language (ByteDance) applied to the board: system font
+   stack in Semi's spirit — native PingFang / YaHei render the Chinese
+   UI on Mark's devices, Noto Sans SC stays as the fallback so other
+   environments still get clean CJK glyphs. The @import must come
+   before the Tailwind import. */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
 @import "tailwindcss";
 @import "tailwindcss-safe-area";
@@ -13,8 +13,9 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme {
-  --font-sans: "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, "PingFang SC",
-    "Microsoft YaHei", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue",
+    Arial, sans-serif;
   --text-xs: 12px;
   --text-xs--line-height: 16px;
   --text-sm: 14px;
@@ -35,23 +36,31 @@
   --text-5xl--line-height: 52px;
 }
 
-/* Light tokens (default). The header band follows the theme too: light
-   header on light pages, the familiar #17181c band on dark pages. */
+/* Semi light tokens: text on the rgba(28,31,35) scale, borders at 8%
+   ink, page background a cool light grey, cards pure white at one
+   elevation step up. Primary is Semi blue #0077FA; hover/active are
+   its lighter / darker steps. Semantic colors follow Semi's token
+   names (success #00B578, warning #FF9D0A, danger #F53F3F) and are
+   used as soft fills + colored text, never loud blocks. */
 :root {
   color-scheme: light;
-  --bg: #f5f4f0;
-  --surface: #fffefb;
-  --text: #1f2126;
-  --dim: #6d6a61;
-  --border: #e3e0d8;
-  --accent: #0f766e;
-  --radius: 12px;
-  --header-bg: #fffefb;
-  --header-text: #1f2126;
-  --header-dim: #6d6a61;
-  --header-border: #e3e0d8;
-  --header-accent: #0f766e;
-  --header-chip: rgba(31, 33, 38, 0.07);
+  --bg: #f2f3f5;
+  --surface: #ffffff;
+  --fill: rgba(28, 31, 35, 0.05);
+  --text: #1c1f23;
+  --dim: rgba(28, 31, 35, 0.6);
+  --border: rgba(28, 31, 35, 0.09);
+  --accent: #0077fa;
+  --accent-hover: #2e8bfb;
+  --accent-active: #0062d6;
+  --accent-ring: rgba(0, 119, 250, 0.18);
+  --radius: 10px;
+  --header-bg: #ffffff;
+  --header-text: #1c1f23;
+  --header-dim: rgba(28, 31, 35, 0.6);
+  --header-border: rgba(28, 31, 35, 0.09);
+  --header-accent: #0077fa;
+  --header-chip: rgba(28, 31, 35, 0.05);
   --space-surface: var(--surface);
   --space-surface-alt: var(--surface);
   --space-muted: var(--dim);
@@ -59,38 +68,51 @@
   --space-accent: var(--accent);
 }
 
+/* Semi dark tokens: deep neutral grey-blue, never pure black. Page
+   #16181d, header one step up, cards a clear step above the header,
+   inset fills a step above cards — elevation reads from the surface
+   steps, shadows stay quiet. Primary lightens to #4d9fff so it keeps
+   contrast on dark surfaces. */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #0f0f0f;
-  --surface: #1a1a1a;
-  --text: #f0f0f0;
-  --dim: #9ca3af;
-  --border: #2d2d2d;
-  --accent: #2dd4bf;
-  --header-bg: #17181c;
-  --header-text: #f2f0ea;
-  --header-dim: #a7a49b;
-  --header-border: rgba(255, 255, 255, 0.1);
-  --header-accent: #2dd4bf;
-  --header-chip: rgba(255, 255, 255, 0.1);
+  --bg: #16181d;
+  --surface: #23272f;
+  --fill: rgba(255, 255, 255, 0.07);
+  --text: #f2f3f5;
+  --dim: rgba(249, 249, 249, 0.6);
+  --border: rgba(255, 255, 255, 0.09);
+  --accent: #4d9fff;
+  --accent-hover: #6caeff;
+  --accent-active: #2e8bfb;
+  --accent-ring: rgba(77, 159, 255, 0.28);
+  --header-bg: #1c2027;
+  --header-text: #f2f3f5;
+  --header-dim: rgba(249, 249, 249, 0.6);
+  --header-border: rgba(255, 255, 255, 0.09);
+  --header-accent: #4d9fff;
+  --header-chip: rgba(255, 255, 255, 0.08);
 }
 
 /* Before the client script sets data-theme (first paint), follow the OS. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     color-scheme: dark;
-    --bg: #0f0f0f;
-    --surface: #1a1a1a;
-    --text: #f0f0f0;
-    --dim: #9ca3af;
-    --border: #2d2d2d;
-    --accent: #2dd4bf;
-    --header-bg: #17181c;
-    --header-text: #f2f0ea;
-    --header-dim: #a7a49b;
-    --header-border: rgba(255, 255, 255, 0.1);
-    --header-accent: #2dd4bf;
-    --header-chip: rgba(255, 255, 255, 0.1);
+    --bg: #16181d;
+    --surface: #23272f;
+    --fill: rgba(255, 255, 255, 0.07);
+    --text: #f2f3f5;
+    --dim: rgba(249, 249, 249, 0.6);
+    --border: rgba(255, 255, 255, 0.09);
+    --accent: #4d9fff;
+    --accent-hover: #6caeff;
+    --accent-active: #2e8bfb;
+    --accent-ring: rgba(77, 159, 255, 0.28);
+    --header-bg: #1c2027;
+    --header-text: #f2f3f5;
+    --header-dim: rgba(249, 249, 249, 0.6);
+    --header-border: rgba(255, 255, 255, 0.09);
+    --header-accent: #4d9fff;
+    --header-chip: rgba(255, 255, 255, 0.08);
   }
 }
 
@@ -105,6 +127,15 @@
   html,
   body {
     overflow-x: clip;
+  }
+  /* Semi-style focus: a primary ring, never the browser default box.
+     Text inputs draw their own ring via utility classes. */
+  :focus-visible:not(input):not(select):not(textarea) {
+    outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+    outline-offset: 1px;
+  }
+  ::selection {
+    background: var(--accent-ring);
   }
 }
 
