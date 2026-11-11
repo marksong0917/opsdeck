@@ -89,7 +89,7 @@ const STR = {
     historyYesterdayLabel: "昨天",
     historyItemsUnit: "件",
     decisionsTitle: "待 Mark 拍板",
-    decisionsEmpty: "暂时没有等你决定的事，Tina 都盯着呢，放心忙你的。",
+    decisionsEmpty: "暂无待决",
     recentVerdict: "最近拍板",
     undo: "撤销",
     undoing: "撤销中…",
@@ -260,7 +260,7 @@ const STR = {
     historyYesterdayLabel: "Yesterday",
     historyItemsUnit: "items",
     decisionsTitle: "Awaiting Mark's call",
-    decisionsEmpty: "Nothing needs your decision right now.",
+    decisionsEmpty: "Nothing pending",
     recentVerdict: "Latest call",
     undo: "Undo",
     undoing: "Undoing…",
@@ -434,7 +434,7 @@ function uiLocale(): string {
  * longer masquerade as pending decisions ("件等你跟进" when no decision
  * is pending); small CSS tidy (softer card shadow, section-heading
  * hierarchy, header weather/FX spacing rhythm, antialiased text). */
-const BOARD_VERSION = "v1.7.0";
+const BOARD_VERSION = "v1.7.1";
 const BOARD_VERSION_DATE = "2026-11-11";
 
 const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
@@ -3492,20 +3492,18 @@ export function App() {
           onRetry={() => void spotifyQuery.refetch()}
         />
 
-        {/* 1. 待 Mark 拍板 — 永远置顶；为空时缩成一条细条（与今日已完成同量级） */}
+        {/* 1. 待 Mark 拍板 — 永远置顶。为空时只留一条紧凑状态行（标题 +
+            「暂无待决」）：「Tina 都盯着」这层意思顶部状态行已经说了，这里
+            不再整卡重复；最近拍板 + 撤销仍挂在这一行右侧。 */}
         <section aria-label={t("decisionsTitle")} className="mt-2 [@media(max-height:949px)]:mt-1.5">
           {data.decisions.length === 0 ? (
-            <div className={`${CARD_CLASS} flex flex-wrap items-center gap-x-3 gap-y-1`}>
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 px-1">
               <span className="flex shrink-0 items-center gap-2 text-[13px] font-semibold text-[var(--text)]">
                 <SectionTile kind="decisions" />
                 {t("decisionsTitle")}
               </span>
-              <span className="flex min-w-0 items-center gap-1.5 text-[13px] text-[var(--dim)]">
-                <SvgIcon color="var(--accent)" size={14} className="shrink-0">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                  <polyline points="22 4 12 14.01 9 11.01" />
-                </SvgIcon>
-                <span className="truncate">{t("decisionsEmpty")}</span>
+              <span className="min-w-0 truncate text-[13px] text-[var(--dim)]">
+                {t("decisionsEmpty")}
               </span>
               {lastVerdict && !lastVerdictStillListed ? (
                 <span className="ml-auto flex shrink-0 items-center gap-2 text-xs text-[var(--dim)]">
