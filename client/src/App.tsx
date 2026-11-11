@@ -56,6 +56,15 @@ const STR = {
     weatherUnavailable: "天气暂时取不到",
     destinationLoading: "目的地天气加载中…",
     destinationUnavailable: "目的地天气暂时取不到",
+    fxLabel: "汇率 CAD→CNY",
+    fxLoading: "汇率加载中…",
+    fxUnavailable: "汇率暂时取不到",
+    fxUpdated: "更新",
+    fxSource: "来源 open.er-api.com",
+    forecastWeek: "未来一周",
+    aqiLabel: "空气",
+    uvLabel: "紫外线",
+    forecastToday: "今天",
     tripCountdownTitle: "回国倒计时",
     tripNotStarted: "距出发",
     tripInProgress: "目的地行程中 · 距回程",
@@ -218,6 +227,15 @@ const STR = {
     weatherUnavailable: "Weather unavailable",
     destinationLoading: "Loading destination-city weather…",
     destinationUnavailable: "Destination-city weather unavailable",
+    fxLabel: "FX CAD→CNY",
+    fxLoading: "Loading FX…",
+    fxUnavailable: "FX unavailable",
+    fxUpdated: "Updated",
+    fxSource: "Source open.er-api.com",
+    forecastWeek: "Next 7 days",
+    aqiLabel: "AQI",
+    uvLabel: "UV",
+    forecastToday: "Today",
     tripCountdownTitle: "China trip countdown",
     tripNotStarted: "Depart in",
     tripInProgress: "At the destination · return in",
@@ -392,8 +410,14 @@ function uiLocale(): string {
  * header (dual-city, cached separately), plus a dual-city glance strip
  * on page 1: China-trip countdown to the departure / return dates,
  * Toronto vs destination temperature difference, and sunrise/sunset for
- * both cities when the weather source provides them. */
-const BOARD_VERSION = "v1.5.0";
+ * both cities when the weather source provides them;
+ * v1.6.0 = CAD→CNY rate in the header next to the weather (open.er-api.com,
+ * 6 h cache, source date shown, stale flagged on failure); page 3's
+ * destination card gains a 7-day forecast grid (weekday + high/low +
+ * condition per day) from the same weather source's forecast_days; the
+ * same payload's destination air-quality / UV (when the source provides
+ * them) shows on page 3 and in the dual-city strip. */
+const BOARD_VERSION = "v1.6.0";
 const BOARD_VERSION_DATE = "2026-11-11";
 
 const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
@@ -799,6 +823,15 @@ const WX_ZH: Record<string, string> = {
   Wind: "有风",
   Windy: "大风",
   "Sunny/Wind": "晴·有风",
+  Sunshine: "晴",
+  "Mainly Clear": "晴",
+  "Plenty Of Sun": "晴",
+  "More Sun Than Clouds": "晴间多云",
+  "Mix Of Sun And Clouds": "晴间多云",
+  "Times Of Sun And Clouds": "晴间多云",
+  "Considerable Cloudiness": "多云",
+  "Snow Showers In The Morning": "上午阵雪",
+  "Showers In The Vicinity": "附近阵雨",
 };
 
 /**
@@ -883,6 +916,136 @@ function WeatherLine({
   );
 }
 
+type Fx = ApiResponse<typeof api, "getFx">["fx"];
+
+/** Header FX line: today's CAD→CNY rate next to the weather lines.
+ * Compact at phone width: rate + the 100-CAD equivalent + source date. */
+function FxLine({
+  fx,
+  pending,
+  onRetry,
+}: {
+  fx: Fx;
+  pending: boolean;
+  onRetry: () => void;
+}) {
+  if (!fx) {
+    if (pending)
+      return (
+        <p className="text-xs text-[var(--header-dim)] sm:text-right">
+          {t("fxLoading")}
+        </p>
+      );
+    return (
+      <p className="text-xs text-[var(--header-dim)] sm:text-right">
+        {t("fxUnavailable")}
+        <button
+          type="button"
+          onClick={onRetry}
+          aria-label={t("retry")}
+          className="ml-2 font-medium text-[var(--header-text)] underline underline-offset-2"
+        >
+          {t("retry")}
+        </button>
+      </p>
+    );
+  }
+  return (
+    <p
+      className="flex flex-wrap items-center justify-start gap-x-1.5 text-xs tabular-nums text-[var(--header-dim)] sm:flex-nowrap sm:justify-end sm:whitespace-nowrap"
+      title={`${t("fxSource")} · 1 CNY ≈ $${fx.inverse.toFixed(3)} CAD${fx.sourceUpdatedUtc ? ` · ${fx.sourceUpdatedUtc}` : ""}`}
+    >
+      <span aria-hidden="true" className="text-[13px] leading-none">💱</span>
+      <span className="font-medium text-[var(--header-text)]">{t("fxLabel")}</span>
+      <span className="text-sm font-bold tabular-nums text-[var(--header-text)]">
+        {activeLang === "zh"
+          ? `1 加币 ≈ ¥${fx.rate.toFixed(2)}`
+          : `1 CAD ≈ ¥${fx.rate.toFixed(2)}`}
+      </span>
+      <span>
+        {activeLang === "zh"
+          ? `· 100 加币 ≈ ¥${Math.round(fx.rate * 100)}`
+          : `· 100 CAD ≈ ¥${Math.round(fx.rate * 100)}`}
+        {fx.sourceDate
+          ? ` · ${t("fxUpdated")} ${formatDateLabel(fx.sourceDate)}`
+          : ""}
+        {fx.stale ? ` · ${t("staleData")}` : ""}
+      </span>
+    </p>
+  );
+}
+
+/** Weekday + date label for one forecast day. The source date may be an
+ * ISO date or another parseable string; unparseable dates fall back to
+ * the day's offset from today (today / tomorrow / +N days). */
+function forecastDayLabel(
+  date: string | null,
+  index: number,
+): { weekday: string; md: string } {
+  const fallback =
+    index === 0
+      ? { weekday: t("forecastToday"), md: "" }
+      : index === 1
+        ? { weekday: t("tomorrow"), md: "" }
+        : { weekday: `+${index}${activeLang === "zh" ? "天" : "d"}`, md: "" };
+  if (!date) return fallback;
+  const iso = /^\d{4}-\d{2}-\d{2}/.exec(date)?.[0] ?? null;
+  const d = iso
+    ? new Date(`${iso}T12:00:00Z`)
+    : new Date(date.replace(" ", "T"));
+  if (Number.isNaN(d.getTime())) return fallback;
+  const weekday = new Intl.DateTimeFormat(uiLocale(), {
+    timeZone: iso ? "UTC" : undefined,
+    weekday: "short",
+  }).format(d);
+  if (iso) {
+    return { weekday, md: `${d.getUTCMonth() + 1}/${d.getUTCDate()}` };
+  }
+  return { weekday, md: `${d.getMonth() + 1}/${d.getDate()}` };
+}
+
+/** Forecast summaries arrive as full sentences ("Sunshine. Highs 17 to
+ * 19C…"); the grid shows just the leading condition phrase, localized. */
+function forecastCondition(summary: string | null): string | null {
+  if (!summary) return null;
+  const phrase = summary.split(".")[0]?.trim() ?? "";
+  if (!phrase) return null;
+  return activeLang === "zh" ? wxZh(phrase) : phrase;
+}
+
+const AQI_ZH: Record<string, string> = {
+  Good: "良好",
+  Moderate: "中等",
+  "Unhealthy for Sensitive Groups": "敏感人群不佳",
+  Unhealthy: "不佳",
+  "Very Unhealthy": "很差",
+  Hazardous: "有害",
+};
+
+function aqiDesc(description: string): string {
+  if (activeLang !== "zh") return description;
+  return AQI_ZH[description] ?? description;
+}
+
+/** Destination-city air-quality text from the weather payload, when present. */
+function aqiText(w: Weather): string | null {
+  if (!w) return null;
+  if (w.airQualityIndex !== null) {
+    return `${t("aqiLabel")} ${Math.round(w.airQualityIndex)}${w.airQualityDescription ? ` · ${aqiDesc(w.airQualityDescription)}` : ""}`;
+  }
+  return w.airQualityDescription
+    ? `${t("aqiLabel")} ${aqiDesc(w.airQualityDescription)}`
+    : null;
+}
+
+function uvText(w: Weather): string | null {
+  if (!w) return null;
+  if (w.uvIndex !== null) {
+    return `${t("uvLabel")} ${Math.round(w.uvIndex)}${w.uvDescription ? ` · ${w.uvDescription}` : ""}`;
+  }
+  return w.uvDescription ? `${t("uvLabel")} ${w.uvDescription}` : null;
+}
+
 /** Trip countdown derived from the fixed trip dates on page 3. */
 function tripCountdown(nowKey: string): { label: string; days: number | null } {
   const dep = "2027-02-01";
@@ -911,6 +1074,7 @@ function DualCityStrip({ toronto, destination, onOpenChina }: { toronto: Weather
       {toronto?.sunrise || toronto?.sunset ? <span className="text-[13px] text-[var(--dim)]">{t("toronto")} {t("sunriseLabel")} {toronto.sunrise ?? "—"} · {t("sunsetLabel")} {toronto.sunset ?? "—"}</span> : null}
       {destination?.sunrise || destination?.sunset ? <span className="text-[13px] text-[var(--dim)]">{t("destination")} {t("sunriseLabel")} {destination.sunrise ?? "—"} · {t("sunsetLabel")} {destination.sunset ?? "—"}</span> : null}
       {destination?.tomorrowSummary ? <span className="min-w-0 truncate text-[13px] text-[var(--dim)]">{t("destination")} {t("tomorrow")}：{activeLang === "zh" ? wxZh(destination.tomorrowSummary) : destination.tomorrowSummary}{destination.tomorrowLow !== null && destination.tomorrowHigh !== null ? ` ${Math.round(destination.tomorrowLow)}–${Math.round(destination.tomorrowHigh)}°` : ""}</span> : null}
+      {aqiText(destination) ? <span className="text-[13px] text-[var(--dim)]">{t("destination")} {aqiText(destination)}</span> : null}
     </div>
   );
 }
@@ -924,11 +1088,17 @@ function HeaderClockWeather({
   destination,
   weatherPending,
   onRetryWeather,
+  fx,
+  fxPending,
+  onRetryFx,
 }: {
   weather: Weather;
   destination: Weather;
   weatherPending: boolean;
   onRetryWeather: () => void;
+  fx: Fx;
+  fxPending: boolean;
+  onRetryFx: () => void;
 }) {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
@@ -973,6 +1143,7 @@ function HeaderClockWeather({
       <div className="mt-1 space-y-0.5">
         <WeatherLine label={t("weatherToday")} weather={weather} pending={weatherPending} loadingText={t("weatherLoading")} unavailableText={t("weatherUnavailable")} onRetry={onRetryWeather} />
         <WeatherLine label={`${t("weatherDestination")}`} weather={destination} pending={weatherPending} loadingText={t("destinationLoading")} unavailableText={t("destinationUnavailable")} onRetry={onRetryWeather} />
+        <FxLine fx={fx} pending={fxPending} onRetry={onRetryFx} />
       </div>
     </div>
   );
@@ -2476,6 +2647,11 @@ export function App() {
     queryFn: () => api.getWeather({}),
     refetchInterval: 30 * 60_000,
   });
+  const fxQuery = useQuery({
+    queryKey: ["fx"],
+    queryFn: () => api.getFx({}),
+    refetchInterval: 60 * 60_000,
+  });
   const statusForceRef = useRef(false);
   const statusQuery = useQuery({
     queryKey: ["status"],
@@ -2507,11 +2683,15 @@ export function App() {
     statusForceRef.current = true;
     void board.refetch();
     void weatherQuery.refetch();
+    void fxQuery.refetch();
     void statusQuery.refetch();
     void spotifyQuery.refetch();
   };
   const refreshing =
-    board.isFetching || weatherQuery.isFetching || statusQuery.isFetching;
+    board.isFetching ||
+    weatherQuery.isFetching ||
+    fxQuery.isFetching ||
+    statusQuery.isFetching;
 
   // Board pagination: page 1 is the one-screen workbench; page 2 holds
   // deadlines due beyond 14 days plus the full status detail lists.
@@ -2988,6 +3168,9 @@ export function App() {
                 destination={weatherQuery.data?.destination ?? null}
                 weatherPending={weatherQuery.isPending}
                 onRetryWeather={() => void weatherQuery.refetch()}
+                fx={fxQuery.data?.fx ?? null}
+                fxPending={fxQuery.isPending}
+                onRetryFx={() => void fxQuery.refetch()}
               />
             </div>
           </div>
@@ -3082,17 +3265,40 @@ export function App() {
               ) : null}
             </div>
 
-            {/* 目的地当地天气（回国目的地） */}
+            {/* 目的地当地天气（回国目的地）+ 未来一周预报 */}
             {weatherQuery.data?.destination ? (
-              <div className={`${CARD_CLASS} mt-3 flex flex-wrap items-center gap-x-4 gap-y-1`}>
-                <span className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text)]"><WeatherGlyph />{t("destination")}</span>
-                <span className="text-sm tabular-nums text-[var(--text)]"><span className="text-base font-bold">{fmtTemp(weatherQuery.data.destination.temperature)}</span> {activeLang === "zh" ? wxZh(weatherQuery.data.destination.description) : weatherQuery.data.destination.description}</span>
-                {weatherQuery.data.destination.high !== null || weatherQuery.data.destination.low !== null ? <span className="text-[13px] tabular-nums text-[var(--dim)]">{t("wxHigh")} {fmtTemp(weatherQuery.data.destination.high)} · {t("wxLow")} {fmtTemp(weatherQuery.data.destination.low)}</span> : null}
-                {weatherQuery.data.destination.feelsLike !== null ? <span className="text-[13px] text-[var(--dim)]">{t("feelsLike")} {fmtTemp(weatherQuery.data.destination.feelsLike)}</span> : null}
-                {weatherQuery.data.destination.humidity !== null ? <span className="text-[13px] text-[var(--dim)]">{t("humidityLabel")} {Math.round(weatherQuery.data.destination.humidity)}%</span> : null}
-                {weatherQuery.data.destination.wind ? <span className="text-[13px] text-[var(--dim)]">{t("windLabel")} {weatherQuery.data.destination.wind}</span> : null}
-                {weatherQuery.data.destination.tomorrowHigh !== null && weatherQuery.data.destination.tomorrowLow !== null ? <span className="text-[13px] text-[var(--dim)]">{t("tomorrow")} {Math.round(weatherQuery.data.destination.tomorrowLow)}–{Math.round(weatherQuery.data.destination.tomorrowHigh)}°{weatherQuery.data.destination.tomorrowSummary ? ` · ${activeLang === "zh" ? wxZh(weatherQuery.data.destination.tomorrowSummary) : weatherQuery.data.destination.tomorrowSummary}` : ""}</span> : null}
-                {weatherQuery.data.destination.alerts.length > 0 ? <span className="text-[13px] font-medium text-amber-700 dark:text-amber-300">⚠ {weatherQuery.data.destination.alerts.join("；")}</span> : null}
+              <div className={`${CARD_CLASS} mt-3`}>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <span className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text)]"><WeatherGlyph />{t("destination")}</span>
+                  <span className="text-sm tabular-nums text-[var(--text)]"><span className="text-base font-bold">{fmtTemp(weatherQuery.data.destination.temperature)}</span> {activeLang === "zh" ? wxZh(weatherQuery.data.destination.description) : weatherQuery.data.destination.description}</span>
+                  {weatherQuery.data.destination.high !== null || weatherQuery.data.destination.low !== null ? <span className="text-[13px] tabular-nums text-[var(--dim)]">{t("wxHigh")} {fmtTemp(weatherQuery.data.destination.high)} · {t("wxLow")} {fmtTemp(weatherQuery.data.destination.low)}</span> : null}
+                  {weatherQuery.data.destination.feelsLike !== null ? <span className="text-[13px] text-[var(--dim)]">{t("feelsLike")} {fmtTemp(weatherQuery.data.destination.feelsLike)}</span> : null}
+                  {weatherQuery.data.destination.humidity !== null ? <span className="text-[13px] text-[var(--dim)]">{t("humidityLabel")} {Math.round(weatherQuery.data.destination.humidity)}%</span> : null}
+                  {weatherQuery.data.destination.wind ? <span className="text-[13px] text-[var(--dim)]">{t("windLabel")} {weatherQuery.data.destination.wind}</span> : null}
+                  {aqiText(weatherQuery.data.destination) ? <span className="text-[13px] text-[var(--dim)]">{aqiText(weatherQuery.data.destination)}</span> : null}
+                  {uvText(weatherQuery.data.destination) ? <span className="text-[13px] text-[var(--dim)]">{uvText(weatherQuery.data.destination)}</span> : null}
+                  {weatherQuery.data.destination.tomorrowHigh !== null && weatherQuery.data.destination.tomorrowLow !== null ? <span className="text-[13px] text-[var(--dim)]">{t("tomorrow")} {Math.round(weatherQuery.data.destination.tomorrowLow)}–{Math.round(weatherQuery.data.destination.tomorrowHigh)}°{weatherQuery.data.destination.tomorrowSummary ? ` · ${activeLang === "zh" ? wxZh(weatherQuery.data.destination.tomorrowSummary) : weatherQuery.data.destination.tomorrowSummary}` : ""}</span> : null}
+                  {weatherQuery.data.destination.stale ? <span className="text-[13px] text-[var(--dim)]">{t("staleData")}</span> : null}
+                  {weatherQuery.data.destination.alerts.length > 0 ? <span className="text-[13px] font-medium text-amber-700 dark:text-amber-300">⚠ {weatherQuery.data.destination.alerts.join("；")}</span> : null}
+                </div>
+                {weatherQuery.data.destination.forecast.length > 0 ? (
+                  <div className="mt-2.5 border-t border-[var(--border)] pt-2.5">
+                    <p className="text-[13px] font-semibold text-[var(--text)]">{t("destination")} · {t("forecastWeek")}</p>
+                    <ul className="mt-1.5 grid grid-cols-2 gap-1.5 min-[420px]:grid-cols-4 lg:grid-cols-7" aria-label={`${t("destination")} ${t("forecastWeek")}`}>
+                      {weatherQuery.data.destination.forecast.slice(0, 7).map((day, idx) => {
+                        const label = forecastDayLabel(day.date, idx);
+                        return (
+                          <li key={`${day.date ?? "day"}-${idx}`} className="min-w-0 rounded-lg bg-[var(--bg)] px-2 py-1.5 text-center">
+                            <p className="truncate text-xs font-medium text-[var(--dim)]">{label.weekday}{label.md ? ` ${label.md}` : ""}</p>
+                            <p className="mt-0.5 truncate text-[13px] font-medium text-[var(--text)]" title={day.summary ?? undefined}>{forecastCondition(day.summary) ?? "—"}</p>
+                            <p className="mt-0.5 text-[13px] tabular-nums text-[var(--text)]">{day.low !== null ? `${Math.round(day.low)}°` : "—"}<span className="text-[var(--dim)]"> / </span>{day.high !== null ? `${Math.round(day.high)}°` : "—"}</p>
+                            {day.precipitationChance !== null ? <p className="text-[11px] tabular-nums text-[var(--dim)]">{t("precip")} {Math.round(day.precipitationChance)}%</p> : null}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ) : null}
               </div>
             ) : (
               <div className={`${CARD_CLASS} mt-3 text-[13px] text-[var(--dim)]`}>{weatherQuery.isPending ? t("destinationLoading") : t("destinationUnavailable")}</div>

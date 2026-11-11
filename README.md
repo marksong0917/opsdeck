@@ -39,15 +39,17 @@ The board is maintained *by* the assistant, not by you: the assistant pushes its
 - **Open items by lane** — work streams (bookkeeping, product, outreach, …) with full CRUD: add, edit inline, mark done, delete with a two-tap confirm.
 - **Status chip** — "6/6 all normal" as one compact fraction; turns red only on a *confirmed* outage (probes retry once before declaring down). Full detail on page 2.
 - **Assistant pulse** — a "Tina is currently…" status line and a "Done today" strip, both fed by the assistant.
-- **Dual-city glance strip** (new in v1.5.0) — home vs destination weather side by side on page 1: the China-trip countdown, the temperature difference between the two cities, and sunrise/sunset for both.
-- **Header** — dual-city weather (home + destination) and dual clocks (home + second city), off-work countdown chip, one-tap refresh, quick links to your daily tools.
+- **Dual-city glance strip** (new in v1.5.0) — home vs destination weather side by side on page 1: the China-trip countdown, the temperature difference between the two cities, sunrise/sunset for both, and the destination's air quality.
+- **Header** — dual-city weather (home + destination), the CAD→CNY exchange rate, and dual clocks (home + second city), off-work countdown chip, one-tap refresh, quick links to your daily tools.
 - **Dark / light themes** and a **中文 / English** UI toggle, both persisted.
 
 **Page 2 — the back office**: deadlines beyond 14 days, and full status detail for every monitored site and server.
 
 **Page 3 — China Trip checklist** (new in v1.3.0): a check-off to-do list for a trip home — tick an item and it is marked done in place (stays visible, struck through, untick to undo), and new items can be added right on the page.
 
-第 3 页「回国待办」（v1.3.0 新增）：回国行程的勾选清单——点一下复选框就标记完成（条目留在原地、划线显示，再点可取消），也能直接在页面上新增条目。
+The page also carries a destination weather card (new in v1.6.0) with a 7-day forecast plus air-quality and UV readings.
+
+第 3 页「回国待办」（v1.3.0 新增）：回国行程的勾选清单——点一下复选框就标记完成（条目留在原地、划线显示，再点可取消），也能直接在页面上新增条目。本页还有目的地天气卡（v1.6.0 新增）：未来 7 天预报，外加空气质量与紫外线。
 
 **Page 4 — History** (new in v1.4.0): the "Done today" strip grew into a read-only 7-day archive of completions, grouped by day; page 1 keeps a slim one-line count that links here. Each night an archive action rolls the day's completions into history and prunes anything older than 7 days.
 
@@ -75,6 +77,7 @@ Built as a **Muse Space** (TypeScript web artifact): React client + typed server
 | `archiveDoneToday` | assistant (nightly job) | Rolls the done-today list into the 7-day history archive (page 4), clears it, and prunes buckets older than 7 days |
 | `getStatus` / `recordServerCheck` | server / assistant | HTTPS probes for public sites; inspection records for private servers |
 | `getWeather` | server | Cached dual-city weather (1 h TTL, stale-flagged fallback) |
+| `getFx` | server | Cached CAD→CNY rate for the header (6 h TTL, stale-flagged fallback) |
 | `seedBoard` | first run | Demo data so a fresh board shows its layout |
 
 ## Notes

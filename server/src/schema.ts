@@ -54,6 +54,15 @@ export const weatherCache = sqliteTable("weather_cache", {
   fetchedAt: integer("fetched_at", { mode: "timestamp_ms" }).notNull(),
 });
 
+// Single-row table (id = 1) caching the latest CAD→CNY rate fetched
+// from open.er-api.com, so header loads stay fast and a failed refresh
+// can fall back to the stale snapshot flagged as such.
+export const fxCache = sqliteTable("fx_cache", {
+  id: integer("id").primaryKey(),
+  payload: text("payload").notNull(),
+  fetchedAt: integer("fetched_at", { mode: "timestamp_ms" }).notNull(),
+});
+
 // Single-row table (id = 1) holding the board's last-updated instant,
 // plus the most recent decision Mark answered on the board itself, so
 // Tina can report it back in chat even after the item has scrolled off.

@@ -50,6 +50,13 @@
       "when": 1794339688845,
       "tag": "0007_add_done_history",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1794418294508,
+      "tag": "0008_add_fx_cache",
+      "breakpoints": true
     }
   ]
 }

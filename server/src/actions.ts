@@ -117,6 +117,14 @@ function torontoDateKey(instant: Date): string {
   }).format(instant);
 }
 
+const forecastDayShape = z.object({
+  date: z.string().nullable(),
+  summary: z.string().nullable(),
+  high: z.number().nullable(),
+  low: z.number().nullable(),
+  precipitationChance: z.number().nullable(),
+});
+
 const weatherShape = z.object({
   location: z.string(),
   temperature: z.number().nullable(),
@@ -133,10 +141,29 @@ const weatherShape = z.object({
   tomorrowSummary: z.string().nullable(),
   tomorrowHigh: z.number().nullable(),
   tomorrowLow: z.number().nullable(),
+  uvIndex: z.number().nullable(),
+  uvDescription: z.string().nullable(),
+  airQualityIndex: z.number().nullable(),
+  airQualityDescription: z.string().nullable(),
+  forecast: z.array(forecastDayShape),
   alerts: z.array(z.string()),
   fetchedAt: z.string(),
   stale: z.boolean(),
 });
+
+const fxShape = z.object({
+  rate: z.number(),
+  inverse: z.number(),
+  sourceDate: z.string().nullable(),
+  sourceUpdatedUtc: z.string().nullable(),
+  fetchedAt: z.string(),
+  stale: z.boolean(),
+});
+
+type FxPayload = Omit<z.infer<typeof fxShape>, "fetchedAt" | "stale">;
+
+const FX_TTL_MS = 6 * 60 * 60 * 1000;
+const FX_URL = "https://open.er-api.com/v6/latest/CAD";
 
 type WeatherPayload = Omit<z.infer<typeof weatherShape>, "fetchedAt" | "stale">;
 
@@ -385,8 +412,20 @@ export const Actions = {
         let cachedPayload: WeatherPayload | null = null;
         if (cached) {
           try {
-            const parsed = JSON.parse(cached.payload) as WeatherPayload;
-            if (parsed.temperature !== null) cachedPayload = parsed;
+            const parsed = JSON.parse(cached.payload) as Partial<WeatherPayload> &
+              WeatherPayload;
+            if (parsed.temperature !== null && parsed.temperature !== undefined) {
+              // Snapshots cached before v1.6.0 lack forecast/UV/AQI —
+              // normalize so the response schema always holds.
+              cachedPayload = {
+                ...parsed,
+                uvIndex: parsed.uvIndex ?? null,
+                uvDescription: parsed.uvDescription ?? null,
+                airQualityIndex: parsed.airQualityIndex ?? null,
+                airQualityDescription: parsed.airQualityDescription ?? null,
+                forecast: Array.isArray(parsed.forecast) ? parsed.forecast : [],
+              };
+            }
           } catch {
             cachedPayload = null;
           }
@@ -394,6 +433,10 @@ export const Actions = {
         if (
           cached &&
           cachedPayload &&
+          // Snapshots cached before v1.6.0 carry no forecast array —
+          // treat those as expired so the 7-day forecast lands on the
+          // first load after the upgrade instead of an hour later.
+          cachedPayload.forecast.length > 0 &&
           Date.now() - cached.fetchedAt.getTime() < WEATHER_TTL_MS
         ) {
           return {
@@ -429,6 +472,17 @@ export const Actions = {
             tomorrowSummary: tomorrow?.summary ?? null,
             tomorrowHigh: tomorrow?.high ?? null,
             tomorrowLow: tomorrow?.low ?? null,
+            uvIndex: w.conditions.uv_index ?? null,
+            uvDescription: w.conditions.uv_description ?? null,
+            airQualityIndex: w.conditions.air_quality_index ?? null,
+            airQualityDescription: w.conditions.air_quality_description ?? null,
+            forecast: (w.forecast_days ?? []).slice(0, 7).map((d) => ({
+              date: d.date ?? null,
+              summary: d.summary ?? null,
+              high: d.high ?? null,
+              low: d.low ?? null,
+              precipitationChance: d.precipitation_chance ?? null,
+            })),
             alerts: w.alerts ?? [],
           };
           const now = new Date();
@@ -456,6 +510,110 @@ export const Actions = {
         loadCity(2, "Destination City weather today"),
       ]);
       return { weather: toronto, destination };
+    },
+  }),
+
+  getFx: defineAction({
+    description:
+      "Returns the latest CAD→CNY exchange rate from open.er-api.com (ExchangeRate-API free endpoint, no key), cached for 6 hours in fx_cache; on refresh failure returns the stale cached rate flagged stale, or null when no rate has ever been fetched.",
+    request: z.object({}),
+    response: z.object({ fx: fxShape.nullable() }),
+    handler: async (ctx): Promise<{ fx: z.infer<typeof fxShape> | null }> => {
+      const db = ctx.db<typeof schema>();
+      const cachedRows = await db
+        .select()
+        .from(schema.fxCache)
+        .where(eq(schema.fxCache.id, 1))
+        .limit(1);
+      const cached = cachedRows[0];
+      let cachedPayload: FxPayload | null = null;
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached.payload) as FxPayload;
+          if (typeof parsed.rate === "number" && parsed.rate > 0) {
+            cachedPayload = parsed;
+          }
+        } catch {
+          cachedPayload = null;
+        }
+      }
+      if (
+        cached &&
+        cachedPayload &&
+        Date.now() - cached.fetchedAt.getTime() < FX_TTL_MS
+      ) {
+        return {
+          fx: {
+            ...cachedPayload,
+            fetchedAt: cached.fetchedAt.toISOString(),
+            stale: false,
+          },
+        };
+      }
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 10_000);
+        let data: unknown;
+        try {
+          const res = await fetch(FX_URL, {
+            signal: controller.signal,
+            headers: { "user-agent": "TinaOpsBoard/1.0 (fx check)" },
+          });
+          if (!res.ok) throw new Error(`fx fetch ${res.status}`);
+          data = await res.json();
+        } finally {
+          clearTimeout(timer);
+        }
+        const rec =
+          typeof data === "object" && data !== null
+            ? (data as Record<string, unknown>)
+            : null;
+        const rates =
+          typeof rec?.rates === "object" && rec.rates !== null
+            ? (rec.rates as Record<string, unknown>)
+            : null;
+        const rate = typeof rates?.CNY === "number" ? rates.CNY : null;
+        if (!rec || rec.result !== "success" || rate === null || rate <= 0) {
+          throw new Error("fx payload missing CNY rate");
+        }
+        const updatedUtc =
+          typeof rec.time_last_update_utc === "string"
+            ? rec.time_last_update_utc
+            : null;
+        const payload: FxPayload = {
+          rate,
+          inverse: 1 / rate,
+          sourceDate: updatedUtc
+            ? (() => {
+                const d = new Date(updatedUtc);
+                return Number.isNaN(d.getTime())
+                  ? null
+                  : d.toISOString().slice(0, 10);
+              })()
+            : null,
+          sourceUpdatedUtc: updatedUtc,
+        };
+        const now = new Date();
+        await db
+          .insert(schema.fxCache)
+          .values({ id: 1, payload: JSON.stringify(payload), fetchedAt: now })
+          .onConflictDoUpdate({
+            target: schema.fxCache.id,
+            set: { payload: JSON.stringify(payload), fetchedAt: now },
+          });
+        return { fx: { ...payload, fetchedAt: now.toISOString(), stale: false } };
+      } catch {
+        if (cached && cachedPayload) {
+          return {
+            fx: {
+              ...cachedPayload,
+              fetchedAt: cached.fetchedAt.toISOString(),
+              stale: true,
+            },
+          };
+        }
+        return { fx: null };
+      }
     },
   }),
 
