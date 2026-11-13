@@ -267,6 +267,10 @@ const STR = {
     progConfirmGo: "已喊话，登记请求",
     progConfirmCancel: "再等等",
     progRequestFailed: "请求没登记成功，再试一次。",
+    statusGoDeadlines: "在状态页查看全部到期事项",
+    statusGoChina: "查看回国页",
+    expandDay: "展开",
+    collapseDay: "收起",
   },
   en: {
     loading: "Loading…",
@@ -516,6 +520,10 @@ const STR = {
     progConfirmGo: "Announced — register request",
     progConfirmCancel: "Not yet",
     progRequestFailed: "Couldn't register the request — try again.",
+    statusGoDeadlines: "View all deadlines on the status page",
+    statusGoChina: "View the China page",
+    expandDay: "Expand",
+    collapseDay: "Collapse",
   },
 } as const;
 
@@ -714,8 +722,29 @@ function uiLocale(): string {
  * the same request/report path. All prior red lines hold: the done
  * write-back chain, today-page behaviors, jason feed conventions, the
  * dormant money pipeline, the growth Founding seed, china items,
- * getStatus probes, and every section key are unchanged. */
-const BOARD_VERSION = "v2.0";
+ * getStatus probes, and every section key are unchanged.
+ * v2.1 = polish pass (Mark: "消息不要重复出现，keep it consistent and
+ * clean" + "compact — dead space 太多"): (1) ONE HOME PER DATUM — the
+ * deadlines list lives ONLY on the status page now (today page keeps
+ * a one-line link row with the count + nearest item); the trip strip
+ * on page 1 is a single line (label + days + link) and the china page
+ * is the trip's only home; weather / FX / Spotify render only on the
+ * status page (the header keeps just the dataless status chip that
+ * links there); the china page's ad-hoc Destination City weather strip is
+ * replaced by the shared WeatherCardLine so Destination City renders in
+ * exactly one shape (its 7-day forecast grid stays — it exists
+ * nowhere else). (2) Status page order: status cards → 程序 →
+ * deadlines → weather/FX/Spotify at the bottom. (3) History page:
+ * day groups fold shut by default (date + count + one-line summary),
+ * expanded days are calm plain rows — the green chip wall is gone.
+ * (4) Consistency: ONE SectionHeading (mb on the spacing scale), ONE
+ * badge spec (BADGE_CLASS) for every chip, program group subheads
+ * unified. (5) COMPACT: one spacing scale in theme.css (--space-*)
+ * applied board-wide via CARD_CLASS and the stack/gap utilities; the
+ * page-1 three-column grid no longer equal-height-stretches its cards
+ * (items-start, no h-full) so card height hugs content. Data, action
+ * contracts and program-button behavior are untouched. */
+const BOARD_VERSION = "v2.1";
 
 const LANE_ORDER = ["QuickBooks", "Foxuma", "General Ops", "外联", "设备与机器", "Mir2"];
 
@@ -924,7 +953,13 @@ function SectionTile({ kind }: { kind: SectionKind }) {
 }
 
 const CARD_CLASS =
-  "rounded-[10px] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 shadow-[0_0_1px_rgba(28,31,35,0.07),0_4px_14px_rgba(28,31,35,0.05)] [@media(max-height:949px)]:py-2";
+  "rounded-[10px] border border-[var(--border)] bg-[var(--surface)] px-[var(--space-card-x)] py-[var(--space-card-y)] shadow-[0_0_1px_rgba(28,31,35,0.07),0_4px_14px_rgba(28,31,35,0.05)] [@media(max-height:949px)]:py-[var(--space-card-y-dense)]";
+
+/** THE badge spec (v2.1 consistency pass): every chip on the board —
+ * status pills, deadline chips, drag counters, pending markers, count
+ * badges — is this exact box; only the color classes vary. */
+const BADGE_CLASS =
+  "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[6px] px-2 py-0.5 text-xs";
 
 /** Shared small line icons (v2.0: one icon language board-wide — these
  * replace the framework's old text glyphs ✓ ▾ ▸ › → ↻ in buttons and
@@ -1500,39 +1535,6 @@ function fmtSunTime(raw: string | null): string | null {
   return null;
 }
 
-/** Tomorrow's line for one city, fully localized: the source summary is
- * an English sentence ("Sunshine. Highs 17 to 19C and lows 2 to 4C."),
- * so the Chinese board renders condition + ranges in Chinese format
- * ("晴 · 高 17–19° 低 2–4°") and never the raw sentence. When the
- * sentence's ranges can't be parsed, fall back to the numeric
- * tomorrow low–high, the same shape Toronto's header line uses. */
-function tomorrowLine(w: Weather): string | null {
-  if (!w) return null;
-  const cond = w.tomorrowSummary ? forecastCondition(w.tomorrowSummary) : null;
-  if (activeLang === "zh" && w.tomorrowSummary) {
-    const hi = /highs?\s+(-?\d+)\s*(?:to|–|-)\s*(-?\d+)/i.exec(w.tomorrowSummary);
-    const lo = /lows?\s+(-?\d+)\s*(?:to|–|-)\s*(-?\d+)/i.exec(w.tomorrowSummary);
-    if (hi && lo) {
-      const ranges = `高 ${hi[1]}–${hi[2]}° 低 ${lo[1]}–${lo[2]}°`;
-      return cond ? `${cond} · ${ranges}` : ranges;
-    }
-    if (hi) {
-      const range = `高 ${hi[1]}–${hi[2]}°`;
-      return cond ? `${cond} · ${range}` : range;
-    }
-    if (lo) {
-      const range = `低 ${lo[1]}–${lo[2]}°`;
-      return cond ? `${cond} · ${range}` : range;
-    }
-  }
-  const range =
-    w.tomorrowLow !== null && w.tomorrowHigh !== null
-      ? `${Math.round(w.tomorrowLow)}–${Math.round(w.tomorrowHigh)}°`
-      : null;
-  if (cond && range) return `${cond} ${range}`;
-  return cond ?? range;
-}
-
 const AQI_ZH: Record<string, string> = {
   Good: "良好",
   Moderate: "中等",
@@ -1576,53 +1578,44 @@ function tripCountdown(nowKey: string): { label: string; days: number | null } {
   return { label: t("tripDone"), days: null };
 }
 
-/** Page-1 trip countdown strip. Through v1.9.x this also carried both
- * cities' weather; v2.0 moves weather to the status page's info card,
- * so the strip is the countdown alone — the days number stays the
- * visual anchor (v1.8.2) and the whole strip still clicks through to
- * page 3 (the button stays as the keyboard target). */
+/** Page-1 trip countdown strip (v2.1 dedup): the china page is the
+ * trip's only home, so page 1 keeps the minimum — ONE line: the
+ * label, the days count (still the visual anchor), and a link into
+ * the china page. The flight dates no longer repeat here; they live
+ * on the china page's flight card and key-dates strip. The whole
+ * strip is the button. */
 function TripCountdownStrip({ onOpenChina }: { onOpenChina: () => void }) {
   const todayKey = torontoTodayKey(new Date());
   const trip = tripCountdown(todayKey);
   return (
-    <div
+    <button
+      type="button"
       onClick={onOpenChina}
-      className={`${CARD_CLASS} group mt-2 flex cursor-pointer flex-wrap items-center gap-x-5 gap-y-1.5 transition hover:border-[var(--accent)] [@media(max-height:949px)]:mt-1.5`}
-      aria-label={t("tripCountdownTitle")}
-      title={t("page3")}
+      aria-label={t("page3")}
+      className={`${CARD_CLASS} group mt-2 flex w-full flex-wrap items-center gap-x-3 gap-y-1 text-left transition hover:border-[var(--accent)] [@media(max-height:949px)]:mt-1.5`}
     >
       <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[var(--text)]">
         <SvgIcon color="#f53f3f" size={14} className="shrink-0"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" /></SvgIcon>
         {t("tripCountdownTitle")}
       </span>
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onOpenChina();
-        }}
-        className="flex items-baseline gap-1.5 text-[13px] font-medium text-[var(--accent)] underline-offset-2 hover:underline"
-        aria-label={t("page3")}
-      >
-        {trip.days !== null ? (
-          <>
-            <span>{trip.label}</span>
-            <span className="text-[26px] font-extrabold leading-none tracking-tight">
-              {trip.days}
-            </span>
-            <span className="font-semibold">{t("daysUnit")}</span>
-            <span className="flex items-center gap-1 font-normal text-[var(--dim)]">
-              · 2027-01-15 <ArrowRightIcon size={12} /> 2027-03-01
-            </span>
-          </>
-        ) : (
-          trip.label
-        )}
-      </button>
-      <span aria-hidden="true" className="ml-auto flex shrink-0 text-[var(--dim)] transition group-hover:text-[var(--accent)]">
-        <ChevronRightIcon size={18} />
+      {trip.days !== null ? (
+        <span className="flex items-baseline gap-1.5 text-[13px] text-[var(--dim)]">
+          {trip.label}
+          <span className="text-[22px] font-extrabold leading-none tracking-tight text-[var(--accent)]">
+            {trip.days}
+          </span>
+          <span className="font-semibold text-[var(--text)]">{t("daysUnit")}</span>
+        </span>
+      ) : (
+        <span className="text-[13px] text-[var(--dim)]">{trip.label}</span>
+      )}
+      <span className="ml-auto flex shrink-0 items-center gap-1 text-[13px] font-medium text-[var(--accent)]">
+        {t("statusGoChina")}
+        <span aria-hidden="true" className="flex text-[var(--dim)] transition group-hover:text-[var(--accent)]">
+          <ChevronRightIcon size={16} />
+        </span>
       </span>
-    </div>
+    </button>
   );
 }
 
@@ -1818,44 +1811,82 @@ function buildDoneGroups(
   return groups;
 }
 
-/** History page: read-only archive of completions, grouped by day. */
+/** History page (v2.1 density pass): read-only archive of
+ * completions, grouped by day — each day FOLDS shut by default and
+ * shows only its date, its count, and a one-line summary (the day's
+ * first entries). Expanding a day reveals calm plain rows; the old
+ * full-width wall of green check chips is gone. */
 function DoneHistoryPage({ groups }: { groups: DoneGroup[] }) {
+  const [openDays, setOpenDays] = useState<ReadonlySet<string>>(new Set());
   if (groups.length === 0) {
     return (
-      <section aria-label={t("historyTitle")} className={`${CARD_CLASS} mt-3`}>
+      <section aria-label={t("historyTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
         <EmptyLine text={t("historyEmpty")} />
       </section>
     );
   }
+  const toggleDay = (date: string) =>
+    setOpenDays((prev) => {
+      const next = new Set(prev);
+      if (next.has(date)) next.delete(date);
+      else next.add(date);
+      return next;
+    });
   return (
-    <div className="mt-3 flex flex-col gap-3">
-      {groups.map((group) => (
-        <section
-          key={group.date}
-          aria-label={`${historyGroupLabel(group.date)} · ${group.date}`}
-          className={CARD_CLASS}
-        >
-          <div className="flex items-baseline justify-between gap-3">
-            <h3 className="text-[15px] font-semibold tracking-tight text-[var(--text)]">
-              {historyGroupLabel(group.date)}
-            </h3>
-            <span className="shrink-0 text-xs tabular-nums text-[var(--dim)]">
-              {group.items.length} {t("historyItemsUnit")}
-            </span>
-          </div>
-          <ul className="mt-1.5 flex flex-wrap items-center gap-1">
-            {group.items.map((entry, i) => (
-              <li
-                key={`${group.date}-${i}-${entry}`}
-                className="flex items-center gap-1 rounded-[6px] bg-[#00b578]/10 px-2 py-0.5 text-xs font-medium text-[#00754b] dark:text-[#5ee0a8]"
+    <div className="mt-[var(--space-stack)] flex flex-col gap-[var(--space-gap)]">
+      {groups.map((group) => {
+        const open = openDays.has(group.date);
+        const label = historyGroupLabel(group.date);
+        return (
+          <section
+            key={group.date}
+            aria-label={`${label} · ${group.date}`}
+            className={CARD_CLASS}
+          >
+            <button
+              type="button"
+              onClick={() => toggleDay(group.date)}
+              aria-expanded={open}
+              aria-label={`${open ? t("collapseDay") : t("expandDay")}：${label}`}
+              className="flex w-full items-center gap-2.5 text-left"
+            >
+              <span
+                aria-hidden="true"
+                className={`flex shrink-0 text-[var(--dim)] transition-transform ${open ? "rotate-90" : ""}`}
               >
-                <CheckIcon size={11} />
-                {entry}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+                <ChevronRightIcon size={15} />
+              </span>
+              <h3 className="shrink-0 text-[15px] font-semibold tracking-tight text-[var(--text)]">
+                {label}
+              </h3>
+              <span className="shrink-0 text-xs tabular-nums text-[var(--dim)]">
+                {group.items.length} {t("historyItemsUnit")}
+              </span>
+              {!open ? (
+                <span className="min-w-0 flex-1 truncate text-[13px] text-[var(--dim)]">
+                  {group.items.slice(0, 2).join(" · ")}
+                  {group.items.length > 2 ? " · …" : ""}
+                </span>
+              ) : null}
+            </button>
+            {open ? (
+              <ul className="mt-1 divide-y divide-[var(--border)]">
+                {group.items.map((entry, i) => (
+                  <li
+                    key={`${group.date}-${i}-${entry}`}
+                    className="flex items-start gap-2 py-[var(--space-row-y)] text-sm leading-relaxed text-[var(--text)]"
+                  >
+                    <span aria-hidden="true" className="mt-[3px] flex shrink-0 text-[#00b578]">
+                      <CheckIcon size={13} />
+                    </span>
+                    <span className="min-w-0">{entry}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </section>
+        );
+      })}
     </div>
   );
 }
@@ -1910,7 +1941,7 @@ function SpotifyStrip({
   return (
     <div
       aria-label={t("spotifyLabel")}
-      className={`${CARD_CLASS} mt-3 flex flex-wrap items-center gap-x-3 gap-y-1`}
+      className={`${CARD_CLASS} mt-[var(--space-stack)] flex flex-wrap items-center gap-x-3 gap-y-1`}
     >
       <span className="flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-[var(--text)]">
         <SpotifyGlyph />
@@ -2108,7 +2139,7 @@ function programActionText(action: string): string {
 function ProgramStateLine({ program }: { program: ProgramEntry }) {
   if (program.pending) {
     return (
-      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-[6px] bg-[#ff9d0a]/15 px-2 py-0.5 text-xs font-medium text-[#a15e00] dark:text-[#ffc65c]">
+      <span className={`${BADGE_CLASS} bg-[#ff9d0a]/15 font-medium text-[#a15e00] dark:text-[#ffc65c]`}>
         <span aria-hidden="true" className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#ff9d0a] motion-reduce:animate-none" />
         {t("progPending")} · {programActionText(program.pending.action)}
       </span>
@@ -2277,7 +2308,7 @@ function ProgramsSection() {
   };
   const proxyPending = data?.proxyPending ?? null;
   return (
-    <section aria-label={t("progTitle")} className={`${CARD_CLASS} mt-3 min-w-0`}>
+    <section aria-label={t("progTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)] min-w-0`}>
       <SectionHeading icon={<SectionTile kind="programs" />}>{t("progTitle")}</SectionHeading>
       <p className="-mt-1 text-[13px] leading-relaxed text-[var(--dim)]">{t("progSub")}</p>
       {requestError ? (
@@ -2306,14 +2337,14 @@ function ProgramsSection() {
             return (
               <div key={group.titleKey} className="mt-3 first:mt-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="text-[13px] font-semibold tracking-wide text-[var(--text)]">
+                  <h3 className="text-[13px] font-semibold text-[var(--text)]">
                     {t(group.titleKey)}
                   </h3>
                   {group.titleKey === "progGroupProxy" ? (
                     <span className="flex items-center gap-2">
                       <span className="text-xs font-medium text-[var(--dim)]">{t("progAutostart")}</span>
                       {proxyPending ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-[6px] bg-[#ff9d0a]/15 px-2 py-0.5 text-xs font-medium text-[#a15e00] dark:text-[#ffc65c]">
+                        <span className={`${BADGE_CLASS} bg-[#ff9d0a]/15 font-medium text-[#a15e00] dark:text-[#ffc65c]`}>
                           <span aria-hidden="true" className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#ff9d0a] motion-reduce:animate-none" />
                           {t("progPending")}
                         </span>
@@ -2355,7 +2386,7 @@ function ProgramsSection() {
             );
           })}
           <div className="mt-4 border-t border-[var(--border)] pt-3">
-            <h3 className="text-[13px] font-semibold tracking-wide text-[var(--text)]">
+            <h3 className="text-[13px] font-semibold text-[var(--text)]">
               {t("progAuditTitle")}
             </h3>
             {data.audit.length === 0 ? (
@@ -2475,7 +2506,7 @@ function StatusCards({
   checking: boolean;
 }) {
   return (
-    <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2">
+    <div className="grid min-w-0 gap-[var(--space-gap)] sm:grid-cols-2">
       <section aria-label={t("siteStatus")} className={`${CARD_CLASS} min-w-0`}>
         <SectionHeading
           icon={<SectionTile kind="sites" />}
@@ -2696,7 +2727,7 @@ function RailNav({
       ref={listRef}
       role="tablist"
       aria-label={t("navAria")}
-      className="flex max-w-full items-center gap-1 overflow-x-auto px-4 pb-1 pt-2 lg:max-h-none lg:flex-col lg:items-stretch lg:gap-0 lg:overflow-visible lg:px-0 lg:pb-0 lg:pt-0"
+      className="flex max-w-full items-center gap-1 overflow-x-auto px-4 pb-1 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:max-h-none lg:flex-col lg:items-stretch lg:gap-0 lg:overflow-visible lg:px-0 lg:pb-0 lg:pt-0"
     >
       {groups.map((group, gi) => (
         <div
@@ -2705,7 +2736,7 @@ function RailNav({
         >
           <span
             aria-hidden="true"
-            className={`shrink-0 select-none whitespace-nowrap px-1 text-[11px] font-semibold tracking-wide text-[var(--dim)] lg:px-2.5 lg:pb-1.5 ${gi > 0 ? "ml-2 lg:ml-0" : ""}`}
+            className={`hidden shrink-0 select-none whitespace-nowrap px-1 text-[11px] font-semibold tracking-wide text-[var(--dim)] lg:block lg:px-2.5 lg:pb-1.5 ${gi > 0 ? "ml-2 lg:ml-0" : ""}`}
           >
             {group.caption}
           </span>
@@ -2762,7 +2793,7 @@ function ChinaRow({
   return (
     <li
       id={`board-item-${item.id}`}
-      className="flex scroll-mt-24 items-start gap-3 py-2.5"
+      className="flex scroll-mt-24 items-start gap-3 py-2"
     >
       <input
         type="checkbox"
@@ -2977,7 +3008,7 @@ function StatusPill({ status }: { status: string }) {
   const label = STATUS_LABELS[status]?.[activeLang] ?? status;
   return (
     <span
-      className={`inline-flex shrink-0 items-center gap-1.5 rounded-[6px] px-2 py-0.5 text-xs font-medium ${cls}`}
+      className={`${BADGE_CLASS} font-medium ${cls}`}
     >
       {status === "进行中" ? (
         <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
@@ -2999,7 +3030,7 @@ function SectionHeading({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-2 flex items-center justify-between gap-3">
+    <div className="mb-1.5 flex items-center justify-between gap-3">
       <h2 className="flex items-center gap-2 text-base font-semibold tracking-tight text-[var(--text)]">
         {icon}
         {children}
@@ -3016,7 +3047,7 @@ function SectionHeading({
 
 function EmptyLine({ text }: { text: string }) {
   return (
-    <div className="flex flex-col items-center gap-2 py-4 text-center">
+    <div className="flex flex-col items-center gap-2 py-3 text-center">
       <span
         aria-hidden="true"
         className="flex h-10 w-10 items-center justify-center rounded-[8px] bg-[var(--fill)]"
@@ -3063,7 +3094,7 @@ function VerdictMark({ verdict }: { verdict: Verdict }) {
 function DeadlineChip({ left }: { left: number }) {
   if (left < 0) {
     return (
-      <span className="rounded-[6px] bg-[#f53f3f] px-2 py-0.5 text-xs font-medium text-white">
+      <span className={`${BADGE_CLASS} bg-[#f53f3f] font-medium text-white`}>
         {activeLang === "zh" ? `已过期 ${-left} 天` : `${-left} d overdue`}
       </span>
     );
@@ -3072,14 +3103,14 @@ function DeadlineChip({ left }: { left: number }) {
     // Due today gets its own orange-red badge (v1.8.2) — louder than
     // the ≤3-day amber, distinct from the pure-red overdue chip.
     return (
-      <span className="rounded-[6px] bg-[#fa541c] px-2 py-0.5 text-xs font-semibold text-white">
+      <span className={`${BADGE_CLASS} bg-[#fa541c] font-semibold text-white`}>
         {t("dueTodayChip")}
       </span>
     );
   }
   if (left <= 3) {
     return (
-      <span className="rounded-[6px] bg-[#ff9d0a]/15 px-2 py-0.5 text-xs font-medium text-[#a15e00] dark:text-[#ffc65c]">
+      <span className={`${BADGE_CLASS} bg-[#ff9d0a]/15 font-medium text-[#a15e00] dark:text-[#ffc65c]`}>
         {activeLang === "zh" ? `还有 ${left} 天` : `in ${left} days`}
       </span>
     );
@@ -3126,7 +3157,7 @@ function NewPageHeader({
     null,
   );
   return (
-    <div className={`${CARD_CLASS} mt-3 flex flex-wrap items-center gap-x-3 gap-y-1`}>
+    <div className={`${CARD_CLASS} mt-[var(--space-stack)] flex flex-wrap items-center gap-x-3 gap-y-1`}>
       <span className="flex shrink-0 items-center gap-2 text-sm font-semibold text-[var(--text)]">
         <SectionTile kind={kind} />
         {title}
@@ -3170,7 +3201,7 @@ function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
           ? "bg-[#ff9d0a]/15 text-[#a15e00] dark:text-[#ffc65c] font-medium"
           : "bg-[var(--fill)] text-[var(--dim)] font-medium";
     return (
-      <span className={`shrink-0 rounded-[6px] px-2 py-0.5 text-xs tabular-nums ${cls}`}>
+      <span className={`${BADGE_CLASS} tabular-nums ${cls}`}>
         {t("jasonDragPrefix")} {drag} {t("jasonDragDays")}
       </span>
     );
@@ -3183,7 +3214,7 @@ function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
         sub={t("jasonSub")}
         items={[...open, ...cleared]}
       />
-      <section aria-label={t("jasonTitle")} className={`${CARD_CLASS} mt-3`}>
+      <section aria-label={t("jasonTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
         {ordered.length === 0 ? (
           <EmptyLine text={cleared.length > 0 ? t("jasonNoneOpen") : t("jasonEmpty")} />
         ) : (
@@ -3194,7 +3225,7 @@ function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
                 ? item.status.trim()
                 : null;
               return (
-                <li key={item.id} id={`board-item-${item.id}`} className="scroll-mt-24 py-2.5">
+                <li key={item.id} id={`board-item-${item.id}`} className="scroll-mt-24 py-2">
                   <div className="flex items-start justify-between gap-3">
                     <p className="min-w-0 text-[15px] font-medium leading-snug text-[var(--text)]">
                       {item.title}
@@ -3225,7 +3256,7 @@ function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
           </ul>
         )}
       </section>
-      <section aria-label={t("jasonClearedTitle")} className={`${CARD_CLASS} mt-3`}>
+      <section aria-label={t("jasonClearedTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
         <SectionHeading icon={<SectionTile kind="jason" />}>
           {t("jasonClearedTitle")}
         </SectionHeading>
@@ -3267,7 +3298,7 @@ function GrowthPage({ items }: { items: Item[] }) {
   const valueRows = (rows: Item[]) => (
     <ul className="divide-y divide-[var(--border)]">
       {rows.map((item) => (
-        <li key={item.id} id={`board-item-${item.id}`} className="flex scroll-mt-24 items-baseline gap-3 py-2">
+        <li key={item.id} id={`board-item-${item.id}`} className="flex scroll-mt-24 items-baseline gap-3 py-1.5">
           <span className="min-w-0 flex-1">
             <span className="block text-sm font-medium leading-snug text-[var(--text)]">{item.title}</span>
             {item.detail ? (
@@ -3284,14 +3315,14 @@ function GrowthPage({ items }: { items: Item[] }) {
   return (
     <>
       <NewPageHeader kind="growth" title={t("growthTitle")} sub={t("growthSub")} items={items} />
-      <section aria-label={t("foundingTitle")} className={`${CARD_CLASS} mt-3`}>
+      <section aria-label={t("foundingTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
         <SectionHeading icon={<SectionTile kind="growth" />}>{t("foundingTitle")}</SectionHeading>
         {founding.length === 0 ? (
           <EmptyLineCompact text={t("growthEmpty")} />
         ) : (
           <ul className="divide-y divide-[var(--border)]">
             {founding.map((item) => (
-              <li key={item.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-0.5 py-2">
+              <li key={item.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-0.5 py-1.5">
                 {item.status ? (
                   <span className="text-[26px] font-extrabold leading-none tabular-nums text-[var(--accent)]">
                     {item.status}
@@ -3308,11 +3339,11 @@ function GrowthPage({ items }: { items: Item[] }) {
           </ul>
         )}
       </section>
-      <section aria-label={t("funnelTitle")} className={`${CARD_CLASS} mt-3`}>
+      <section aria-label={t("funnelTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
         <SectionHeading icon={<SectionTile kind="growth" />}>{t("funnelTitle")}</SectionHeading>
         {funnel.length === 0 ? <EmptyLineCompact text={t("growthEmpty")} /> : valueRows(funnel)}
       </section>
-      <section aria-label={t("outreachTitle")} className={`${CARD_CLASS} mt-3`}>
+      <section aria-label={t("outreachTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
         <SectionHeading icon={<SectionTile kind="growth" />}>{t("outreachTitle")}</SectionHeading>
         {outreach.length === 0 ? <EmptyLineCompact text={t("growthEmpty")} /> : valueRows(outreach)}
       </section>
@@ -3346,7 +3377,7 @@ function DecisionItem({
   onDismiss: () => void;
 }) {
   return (
-    <li id={`board-item-${item.id}`} className="scroll-mt-24 py-3 first:pt-1 last:pb-0">
+    <li id={`board-item-${item.id}`} className="scroll-mt-24 py-2.5 first:pt-1 last:pb-0">
       <div className="flex items-start justify-between gap-3">
         <p className="text-base font-medium leading-relaxed text-[var(--text)]">{item.title}</p>
         <StatusPill status={item.status} />
@@ -4383,9 +4414,9 @@ export function App() {
         <main className="min-w-0 flex-1 px-4 pb-3 sm:px-5 lg:px-0 lg:py-1">
         {page === "more" ? (
           <>
-            {/* 状态页 (v2.0)：状态详情打头，其后是自顶栏 / 今天页首屏移入的
-                信息卡（天气 · 汇率 · Spotify），再到 14 天后到期与程序区。 */}
-            <div className="mt-3 flex items-center justify-between gap-3">
+            {/* 状态页 (v2.1 重排)：网站/服务器状态 → 程序（控制面提前）
+                → 到期事项（全板唯一主场）→ 天气 / 汇率 / Spotify 垫底。 */}
+            <div className="mt-[var(--space-stack)] flex items-center justify-between gap-3">
               <h2 className="text-lg font-semibold tracking-tight text-[var(--text)]">
                 {t("statusDetail")}
               </h2>
@@ -4403,16 +4434,44 @@ export function App() {
                 {statusQuery.isFetching ? t("checking") : t("recheck")}
               </button>
             </div>
-            <StatusCards
-              data={statusQuery.data}
-              pending={statusQuery.isPending}
-              checking={statusQuery.isFetching}
-            />
-            <p className="mt-3 text-sm leading-relaxed text-[var(--dim)]">
+            <div className="mt-[var(--space-stack)]">
+              <StatusCards
+                data={statusQuery.data}
+                pending={statusQuery.isPending}
+                checking={statusQuery.isFetching}
+              />
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--dim)]">
               {t("statusFootnote")}
             </p>
 
-            <div className="mt-3 grid items-start gap-3 md:grid-cols-2">
+            {/* 程序区：注册表 + 核验状态 + 控制请求 / 回写（行为不变） */}
+            <ProgramsSection />
+
+            {/* 到期事项 — 全板唯一主场（v2.1 去重）：近 14 天 + 14 天后
+                同卡分区；今天页只留一行链接指到这里。 */}
+            <section aria-label={t("deadlinesTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)] min-w-0`}>
+              <SectionHeading icon={<SectionTile kind="deadlines" />}>
+                {t("deadlinesTitle")}
+              </SectionHeading>
+              {nearDeadlines.length === 0 ? (
+                <EmptyLineCompact text={t("deadlinesEmpty")} />
+              ) : (
+                <DeadlineGroups items={nearDeadlines} />
+              )}
+              {farDeadlines.length > 0 ? (
+                <>
+                  <h3 className="mb-1 mt-2.5 border-t border-[var(--border)] pt-2.5 text-[13px] font-semibold text-[var(--text)]">
+                    {t("farTitle")}
+                  </h3>
+                  <DeadlineGroups items={farDeadlines} />
+                </>
+              ) : null}
+            </section>
+
+            {/* 氛围件垫底：天气 / 汇率 / Spotify 只在本页出现（v2.0 起
+                自顶栏与今天页移入，v2.1 顺序沉底）。 */}
+            <div className="mt-[var(--space-stack)] grid items-start gap-[var(--space-gap)] md:grid-cols-2">
               <WeatherInfoCard
                 weather={weatherQuery.data?.weather ?? null}
                 destination={weatherQuery.data?.destination ?? null}
@@ -4426,7 +4485,6 @@ export function App() {
               />
             </div>
 
-            {/* Spotify 播放控制（v2.0 自今天页移入） */}
             <SpotifyStrip
               state={spotifyQuery.data?.spotify}
               pending={spotifyQuery.isPending}
@@ -4434,34 +4492,19 @@ export function App() {
               onControl={(args) => spotifyControlMutation.mutate(args)}
               onRetry={() => void spotifyQuery.refetch()}
             />
-
-            {/* 14 天后到期 */}
-            <section aria-label={t("farTitle")} className={`${CARD_CLASS} mt-3 min-w-0`}>
-              <SectionHeading icon={<SectionTile kind="deadlines" />}>
-                {t("farTitle")}
-              </SectionHeading>
-              {farDeadlines.length === 0 ? (
-                <EmptyLineCompact text={t("farEmpty")} />
-              ) : (
-                <DeadlineGroups items={farDeadlines} />
-              )}
-            </section>
-
-            {/* 程序区 (v2.0)：注册表 + 核验状态 + 控制请求 / 回写 */}
-            <ProgramsSection />
           </>
         ) : page === "china" ? (
           <>
             
             {/* 行程信息：静态一行 */}
-            <div className={`${CARD_CLASS} mt-3 flex flex-wrap items-center gap-x-3 gap-y-1`}>
+            <div className={`${CARD_CLASS} mt-[var(--space-stack)] flex flex-wrap items-center gap-x-3 gap-y-1`}>
               <span className="flex shrink-0 items-center gap-2 text-sm font-semibold text-[var(--text)]">
                 <SectionTile kind="china" />
                 {t("chinaTitle")}
               </span>
               <span className="text-sm tabular-nums text-[var(--dim)]">{t("chinaTripLine")}</span>
               {data.china.length > 0 ? (
-                <span className="ml-auto shrink-0 rounded-[6px] bg-[var(--fill)] px-2 py-0.5 text-xs font-medium tabular-nums text-[var(--dim)]">
+                <span className={`ml-auto ${BADGE_CLASS} bg-[var(--fill)] font-medium tabular-nums text-[var(--dim)]`}>
                   {t("chinaProgress")} {data.china.filter((i) => i.status === "done").length}/{data.china.length}
                 </span>
               ) : null}
@@ -4470,24 +4513,24 @@ export function App() {
             {/* 航班卡（v1.9.0）：行程定稿信息卡的演示版 — DEMO 101 去程 12A
                 靠窗 / DEMO 102 回程 12F 靠窗，座位盯梢开启；航班号、座位与
                 订座号均为虚构演示数据。 */}
-            <section aria-label={t("flightTitle")} className={`${CARD_CLASS} mt-3`}>
+            <section aria-label={t("flightTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
               <SectionHeading icon={<SectionTile kind="china" />}>{t("flightTitle")}</SectionHeading>
               <ul className="divide-y divide-[var(--border)]">
                 <li className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
-                  <span className="shrink-0 rounded-[6px] bg-[#0077fa]/10 px-2 py-0.5 text-xs font-semibold text-[#0063d1] dark:bg-[#4d9fff]/15 dark:text-[#8fbeff]">{t("flightOut")}</span>
+                  <span className={`${BADGE_CLASS} bg-[#0077fa]/10 font-semibold text-[#0063d1] dark:bg-[#4d9fff]/15 dark:text-[#8fbeff]`}>{t("flightOut")}</span>
                   <span className="text-[15px] font-bold tabular-nums text-[var(--text)]">DEMO 101</span>
                   <span className="text-sm tabular-nums text-[var(--text)]">{formatDateLabel("2027-01-15")}</span>
                   <span className="text-sm text-[var(--dim)]">{activeLang === "zh" ? "多伦多 → 目的地 · 09:00 起飞 · 座位 12A · 靠窗" : "Toronto → Destination City · departs 09:00 · Seat 12A · window"}</span>
                 </li>
                 <li className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
-                  <span className="shrink-0 rounded-[6px] bg-[#0077fa]/10 px-2 py-0.5 text-xs font-semibold text-[#0063d1] dark:bg-[#4d9fff]/15 dark:text-[#8fbeff]">{t("flightBack")}</span>
+                  <span className={`${BADGE_CLASS} bg-[#0077fa]/10 font-semibold text-[#0063d1] dark:bg-[#4d9fff]/15 dark:text-[#8fbeff]`}>{t("flightBack")}</span>
                   <span className="text-[15px] font-bold tabular-nums text-[var(--text)]">DEMO 102</span>
                   <span className="text-sm tabular-nums text-[var(--text)]">{formatDateLabel("2027-03-01")}</span>
                   <span className="text-sm text-[var(--dim)]">{activeLang === "zh" ? "座位 12F · 靠窗" : "Seat 12F · window"}</span>
                 </li>
               </ul>
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 border-t border-[var(--border)] pt-2.5">
-                <span className="shrink-0 rounded-[6px] bg-[#00b578]/10 px-2 py-0.5 text-xs font-medium text-[#00754b] dark:text-[#5ee0a8]">{t("seatWatchTag")}</span>
+                <span className={`${BADGE_CLASS} bg-[#00b578]/10 font-medium text-[#00754b] dark:text-[#5ee0a8]`}>{t("seatWatchTag")}</span>
                 <span className="text-[13px] text-[var(--dim)]">{t("seatWatchNote")} · {t("seatsHeldFree")}</span>
                 <span className="ml-auto shrink-0 text-[13px] tabular-nums text-[var(--dim)]">
                   {t("flightBookingRef")}：DEMO01
@@ -4497,7 +4540,7 @@ export function App() {
 
             {/* 关键日期条（v1.9.0）：出发前带硬日期的清尾节点，徽章口径
                 与到期清单一致（DeadlineChip）。日期为定稿静态信息。 */}
-            <section aria-label={t("hardDatesTitle")} className={`${CARD_CLASS} mt-3`}>
+            <section aria-label={t("hardDatesTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
               <SectionHeading icon={<SectionTile kind="deadlines" />}>{t("hardDatesTitle")}</SectionHeading>
               <ul className="divide-y divide-[var(--border)]">
                 {[
@@ -4519,23 +4562,26 @@ export function App() {
               </ul>
             </section>
 
-            {/* 目的地当地天气（回国目的地）+ 未来一周预报 */}
+            {/* 目的地当地天气（v2.1 一致性）：当前天气改用与状态页天气卡
+                完全相同的 WeatherCardLine 行式，不再另起一套排版；
+                AQI / UV / 日出日落一行小字保留，未来一周预报只在本页有。 */}
             {weatherQuery.data?.destination ? (
-              <div className={`${CARD_CLASS} mt-3`}>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                  <span className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text)]"><WeatherGlyph />{t("destination")} · 河北</span>
-                  <span className="text-sm tabular-nums text-[var(--text)]"><span className="text-base font-bold">{fmtTemp(weatherQuery.data.destination.temperature)}</span> {activeLang === "zh" ? wxZh(weatherQuery.data.destination.description) : weatherQuery.data.destination.description}</span>
-                  {weatherQuery.data.destination.high !== null || weatherQuery.data.destination.low !== null ? <span className="text-[13px] tabular-nums text-[var(--dim)]">{t("wxHigh")} {fmtTemp(weatherQuery.data.destination.high)} · {t("wxLow")} {fmtTemp(weatherQuery.data.destination.low)}</span> : null}
-                  {weatherQuery.data.destination.feelsLike !== null ? <span className="text-[13px] text-[var(--dim)]">{t("feelsLike")} {fmtTemp(weatherQuery.data.destination.feelsLike)}</span> : null}
-                  {weatherQuery.data.destination.humidity !== null ? <span className="text-[13px] text-[var(--dim)]">{t("humidityLabel")} {Math.round(weatherQuery.data.destination.humidity)}%</span> : null}
-                  {weatherQuery.data.destination.wind ? <span className="text-[13px] text-[var(--dim)]">{t("windLabel")} {weatherQuery.data.destination.wind}</span> : null}
-                  {aqiText(weatherQuery.data.destination) ? <span className="text-[13px] text-[var(--dim)]">{aqiText(weatherQuery.data.destination)}</span> : null}
-                  {uvText(weatherQuery.data.destination) ? <span className="text-[13px] text-[var(--dim)]">{uvText(weatherQuery.data.destination)}</span> : null}
-                  {fmtSunTime(weatherQuery.data.destination.sunrise) || fmtSunTime(weatherQuery.data.destination.sunset) ? <span className="text-[13px] tabular-nums text-[var(--dim)]">{t("sunriseLabel")} {fmtSunTime(weatherQuery.data.destination.sunrise) ?? "—"} · {t("sunsetLabel")} {fmtSunTime(weatherQuery.data.destination.sunset) ?? "—"}</span> : null}
-                  {tomorrowLine(weatherQuery.data.destination) ? <span className="text-[13px] text-[var(--dim)]">{t("tomorrow")}：{tomorrowLine(weatherQuery.data.destination)}</span> : null}
-                  {weatherQuery.data.destination.stale ? <span className="text-[13px] text-[var(--dim)]">{t("staleData")}</span> : null}
-                  {weatherQuery.data.destination.alerts.length > 0 ? <span className="text-[13px] font-medium text-[#a15e00] dark:text-[#ffc65c]">{weatherQuery.data.destination.alerts.join("；")}</span> : null}
-                </div>
+              <div className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
+                <WeatherCardLine
+                  w={weatherQuery.data.destination}
+                  label={`${t("weatherDestination")} · 河北`}
+                  pending={weatherQuery.isPending}
+                  loadingText={t("destinationLoading")}
+                  unavailableText={t("destinationUnavailable")}
+                  onRetry={() => void weatherQuery.refetch()}
+                />
+                {aqiText(weatherQuery.data.destination) || uvText(weatherQuery.data.destination) || fmtSunTime(weatherQuery.data.destination.sunrise) || fmtSunTime(weatherQuery.data.destination.sunset) ? (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    {aqiText(weatherQuery.data.destination) ? <span className="text-[13px] text-[var(--dim)]">{aqiText(weatherQuery.data.destination)}</span> : null}
+                    {uvText(weatherQuery.data.destination) ? <span className="text-[13px] text-[var(--dim)]">{uvText(weatherQuery.data.destination)}</span> : null}
+                    {fmtSunTime(weatherQuery.data.destination.sunrise) || fmtSunTime(weatherQuery.data.destination.sunset) ? <span className="text-[13px] tabular-nums text-[var(--dim)]">{t("sunriseLabel")} {fmtSunTime(weatherQuery.data.destination.sunrise) ?? "—"} · {t("sunsetLabel")} {fmtSunTime(weatherQuery.data.destination.sunset) ?? "—"}</span> : null}
+                  </div>
+                ) : null}
                 {weatherQuery.data.destination.forecast.length > 0 ? (
                   <div className="mt-2.5 border-t border-[var(--border)] pt-2.5">
                     <p className="text-[13px] font-semibold text-[var(--text)]">{t("destination")} · {t("forecastWeek")}</p>
@@ -4556,11 +4602,11 @@ export function App() {
                 ) : null}
               </div>
             ) : (
-              <div className={`${CARD_CLASS} mt-3 text-[13px] text-[var(--dim)]`}>{weatherQuery.isPending ? t("destinationLoading") : t("destinationUnavailable")}</div>
+              <div className={`${CARD_CLASS} mt-[var(--space-stack)] text-[13px] text-[var(--dim)]`}>{weatherQuery.isPending ? t("destinationLoading") : t("destinationUnavailable")}</div>
             )}
 
             {/* 待办清单：勾选完成 / 取消恢复 + 新增 */}
-            <section aria-label={t("chinaTitle")} className={`${CARD_CLASS} mt-3`}>
+            <section aria-label={t("chinaTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
               <SectionHeading
                 icon={<SectionTile kind="china" />}
                 action={
@@ -4611,7 +4657,7 @@ export function App() {
               )}
             </section>
 
-            <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
+            <footer className="mt-[var(--space-stack)] border-t border-[var(--border)] pt-2 text-center">
               <p className="text-xs text-[var(--dim)]">
                 OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
               </p>
@@ -4620,7 +4666,7 @@ export function App() {
         ) : page === "history" ? (
           <>
             
-            <div className={`${CARD_CLASS} mt-3 flex flex-wrap items-center gap-x-3 gap-y-1`}>
+            <div className={`${CARD_CLASS} mt-[var(--space-stack)] flex flex-wrap items-center gap-x-3 gap-y-1`}>
               <span className="flex shrink-0 items-center gap-2 text-sm font-semibold text-[var(--text)]">
                 <SvgIcon color="var(--accent)" size={16} className="shrink-0">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
@@ -4635,7 +4681,7 @@ export function App() {
 
             <DoneHistoryPage groups={buildDoneGroups(data.doneToday, data.doneHistory)} />
 
-            <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
+            <footer className="mt-[var(--space-stack)] border-t border-[var(--border)] pt-2 text-center">
               <p className="text-xs text-[var(--dim)]">
                 OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
               </p>
@@ -4644,7 +4690,7 @@ export function App() {
         ) : page === "jason" ? (
           <>
                         <JasonPage open={data.jasonOpen} cleared={data.jasonCleared} />
-            <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
+            <footer className="mt-[var(--space-stack)] border-t border-[var(--border)] pt-2 text-center">
               <p className="text-xs text-[var(--dim)]">
                 OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
               </p>
@@ -4653,7 +4699,7 @@ export function App() {
         ) : page === "growth" ? (
           <>
                         <GrowthPage items={data.growth} />
-            <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
+            <footer className="mt-[var(--space-stack)] border-t border-[var(--border)] pt-2 text-center">
               <p className="text-xs text-[var(--dim)]">
                 OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
               </p>
@@ -4673,13 +4719,13 @@ export function App() {
             可撤销的最近拍板时，留一条只含 最近拍板 + 撤销 的细行。 */}
         {data.decisions.length > 0 ? (
         <section aria-label={t("decisionsTitle")} className="mt-2 [@media(max-height:949px)]:mt-1.5">
-          <div className="rounded-[10px] border border-[var(--accent)] bg-[var(--surface)] p-4 shadow-[0_0_0_1px_var(--accent),0_4px_14px_rgba(28,31,35,0.06)]">
+          <div className="rounded-[10px] border border-[var(--accent)] bg-[var(--surface)] px-[var(--space-card-x)] py-[var(--space-card-y)] shadow-[0_0_0_1px_var(--accent),0_4px_14px_rgba(28,31,35,0.06)]">
             <div className="flex items-center justify-between gap-3">
               <h2 className="flex items-center gap-2.5 text-base font-semibold tracking-tight text-[var(--text)]">
                 <SectionTile kind="decisions" />
                 {t("decisionsTitle")}
               </h2>
-              <span className="rounded-[6px] bg-[var(--accent)] px-2 py-0.5 text-xs font-semibold text-white">
+              <span className={`${BADGE_CLASS} bg-[var(--accent)] font-semibold text-white`}>
                 {activeLang === "zh"
                   ? `${data.decisions.length} 件待拍板`
                   : `${data.decisions.length} pending`}
@@ -4767,10 +4813,11 @@ export function App() {
         {/* 今日已完成 — 瘦身摘要行，点进第 4 页看 7 天归档 */}
         <DoneTodayStrip count={data.doneToday.length} onOpen={() => setPage("history")} />
 
-        {/* 宽屏三列：今日时间线 | 到期 | Lane（等高一排，副屏一屏放下） */}
-        <div className="mt-3 grid items-stretch gap-3 md:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0 [@media(max-height:949px)]:mt-1.5 [@media(max-height:949px)]:gap-1.5">
+        {/* 宽屏三列：今日时间线 | 到期链接行 | Lane。v2.1 COMPACT：
+            items-start + 无 h-full — 卡高贴内容走，不再等高拉伸。 */}
+        <div className="mt-[var(--space-stack)] grid items-start gap-[var(--space-gap)] md:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0">
         {/* 2. 今日定时与动态 — 时间轴 */}
-        <section aria-label={t("todayTitle")} className={`${CARD_CLASS} h-full`}>
+        <section aria-label={t("todayTitle")} className={CARD_CLASS}>
           <SectionHeading hint={t("torontoTime")} icon={<SectionTile kind="today" />}>
             {t("todayTitle")}
           </SectionHeading>
@@ -4857,36 +4904,52 @@ export function App() {
           )}
         </section>
 
-        {/* 3. 未来 14 天到期 — 按天分组 + 倒计时；14 天后的在第 2 页 */}
-        <section aria-label={t("deadlinesTitle")} className={`${CARD_CLASS} h-full`}>
+        {/* 3. 到期事项 — v2.1 去重后只留一行链接：清单的唯一主场在
+            状态页，这里只报总数 + 最近一件，点整行过去。 */}
+        <section aria-label={t("deadlinesTitle")} className={CARD_CLASS}>
           <SectionHeading icon={<SectionTile kind="deadlines" />}>{t("deadlinesTitle")}</SectionHeading>
-          {nearDeadlines.length === 0 ? (
-            <EmptyLine text={t("deadlinesEmpty")} />
-          ) : (
-            <DeadlineGroups items={nearDeadlines} />
-          )}
-          {farDeadlines.length > 0 ? (
-            <button
-              type="button"
-              onClick={() => setPage("more")}
-              aria-label={
-                activeLang === "zh"
-                  ? "查看 14 天后到期的事项（第 2 页）"
-                  : "View items due after 14 days (page 2)"
-              }
-              className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-[6px] bg-[var(--fill)] px-3 py-2 text-sm font-medium text-[var(--dim)] transition hover:text-[var(--text)]"
-            >
-              {activeLang === "zh"
-                ? `14 天后还有 ${farDeadlines.length} 件到期`
-                : `${farDeadlines.length} more due after 14 days`}
-              <ArrowRightIcon size={13} />
-              {activeLang === "zh" ? "状态页" : "Status page"}
-            </button>
-          ) : null}
+          <button
+            type="button"
+            onClick={() => setPage("more")}
+            aria-label={t("statusGoDeadlines")}
+            className="group flex w-full items-center gap-2 text-left"
+          >
+            {data.deadlines.length === 0 ? (
+              <span className="min-w-0 flex-1 text-[13px] leading-snug text-[var(--dim)]">
+                {t("deadlinesEmpty")}
+              </span>
+            ) : (
+              <span className="min-w-0 flex-1 text-[13px] leading-snug text-[var(--dim)]">
+                <span className="font-medium text-[var(--text)]">
+                  {activeLang === "zh"
+                    ? `共 ${data.deadlines.length} 件`
+                    : `${data.deadlines.length} total`}
+                </span>
+                {(() => {
+                  const first =
+                    [...nearDeadlines, ...farDeadlines].find((i) => i.dueDate) ??
+                    data.deadlines[0];
+                  return first ? (
+                    <>
+                      {" · "}
+                      {activeLang === "zh" ? "最近：" : "Next: "}
+                      {first.title}
+                      {first.dueDate
+                        ? ` · ${formatDateLabel(first.dueDate)}`
+                        : ""}
+                    </>
+                  ) : null;
+                })()}
+              </span>
+            )}
+            <span aria-hidden="true" className="flex shrink-0 text-[var(--dim)] transition group-hover:text-[var(--accent)]">
+              <ChevronRightIcon size={16} />
+            </span>
+          </button>
         </section>
 
         {/* 4. 各 Lane 开放事项 — 可增删改 */}
-        <section aria-label={t("lanesTitle")} className={`${CARD_CLASS} h-full`}>
+        <section aria-label={t("lanesTitle")} className={CARD_CLASS}>
           <SectionHeading
             icon={<SectionTile kind="lanes" />}
             action={
@@ -4941,7 +5004,7 @@ export function App() {
                       style={{ backgroundColor: LANE_DOT[lane] ?? "#6d6a61" }}
                     />
                     {laneDisplay(lane)}
-                    <span className="ml-2 rounded-[6px] bg-[var(--fill)] px-1.5 py-0.5 text-xs font-normal text-[var(--dim)]">
+                    <span className={`ml-2 ${BADGE_CLASS} bg-[var(--fill)] font-normal text-[var(--dim)]`}>
                       {activeLang === "zh"
                         ? `${laneGroups.get(lane)?.length ?? 0} 件`
                         : `${laneGroups.get(lane)?.length ?? 0}`}
@@ -4972,7 +5035,7 @@ export function App() {
         </section>
         </div>
 
-        <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
+        <footer className="mt-[var(--space-stack)] border-t border-[var(--border)] pt-2 text-center">
           <p className="text-xs text-[var(--dim)]">
             OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
             {" · "}
@@ -4995,7 +5058,7 @@ export function App() {
             </a>
             {" · "}
             <a
-              href="https://marksong0917.github.io/typebook-zh/"
+              href="https://yourname.github.io/typebook-zh/"
               target="_blank"
               rel="noreferrer"
               className="text-[var(--accent)] underline underline-offset-2 decoration-[var(--accent)]/40 transition-colors hover:text-[var(--text)] hover:decoration-[var(--accent)]"

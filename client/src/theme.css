@@ -44,6 +44,16 @@
    used as soft fills + colored text, never loud blocks. */
 :root {
   color-scheme: light;
+  /* v2.1 compact spacing scale — ONE rhythm board-wide. Cards pad with
+     --space-card-x/y, stack with --space-stack between them, grids gap
+     with --space-gap, list rows breathe with --space-row-y. Nothing
+     outside this scale sets card padding or inter-card margins. */
+  --space-card-x: 12px;
+  --space-card-y: 10px;
+  --space-card-y-dense: 8px;
+  --space-stack: 10px;
+  --space-gap: 10px;
+  --space-row-y: 4px;
   --bg: #f2f3f5;
   --surface: #ffffff;
   --fill: rgba(28, 31, 35, 0.05);

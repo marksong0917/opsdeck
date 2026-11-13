@@ -41,6 +41,15 @@ This repo is the **sanitized public twin** of the live board. The live OpsDeck r
 
 ## Version notes
 
+**v2.1 (2026-11-13)**
+
+- **Polish pass: one home per datum, one spec per element, no dead space.** Mark's two review notes — "messages must not appear twice, keep it consistent and clean" and "compact — there is too much dead space" — drive the whole release. Data, action contracts, and program-button behavior are untouched; this is presentation only.
+- **Dedupe.** The deadlines list now lives only on the status page (the today page keeps a one-line link row: count + nearest item); the trip countdown strip on page 1 is a single line (label + days + link) and the trip page is the trip's only home; weather, the exchange rate, and Spotify render only on the status page, with the header keeping just a dataless status chip that links there; the trip page's ad-hoc destination weather strip is replaced by the same weather-line component the status card uses, so the destination renders in exactly one shape (its 7-day forecast grid stays — it exists nowhere else).
+- **Status page order:** status cards → 程序 (Programs) → deadlines → weather / FX / Spotify at the bottom.
+- **History page density:** day groups fold shut by default (date + count + a one-line summary); expanded days are calm plain rows — the wall of green chips is gone.
+- **Consistency:** one section-heading spec, one badge spec for every chip board-wide, program group subheads unified.
+- **Compact:** one spacing scale in the theme, applied board-wide through the shared card class and the stack/gap utilities; the page-1 three-column grid no longer equal-height-stretches its cards, so card height hugs its content.
+
 **v2.0 (2026-11-13)**
 
 - **Design overhaul: navigation moves into a Semi-style left rail.** The pages keep their groups （日常 / 专题 / 记录）, each tab carrying the board's one inline-SVG line-icon set; at phone width the rail collapses to a single horizontally scrollable tab row — it never wraps and never hides a page behind a hamburger. The header keeps only the brand, the key status chips, refresh, and the preference controls; the weather, the CAD→CNY rate, and Spotify move off the header into info cards on the status page. The framework's emoji and ad-hoc glyphs in labels are gone board-wide — item data text itself is untouched.
@@ -64,4 +73,4 @@ This repo is the **sanitized public twin** of the live board. The live OpsDeck r
 
 ---
 
-OpsDeck · v2.0 · Built by Tina for Mark
+OpsDeck · v2.1 · Built by Tina for Mark
