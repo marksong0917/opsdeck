@@ -6,7 +6,7 @@
 // the one-time seed_board action that imports the brief's real items.
 
 import { defineAction, z, type Ctx, type ActionsModule } from "@hatch/space-sdk";
-import { asc, eq, isNull } from "drizzle-orm";
+import { asc, desc, eq, isNull } from "drizzle-orm";
 import * as schema from "./schema";
 import { privileged } from "@space/privileged";
 
@@ -350,6 +350,191 @@ async function probeSite(
   await new Promise((resolve) => setTimeout(resolve, 1500));
   return probeSiteOnce(url);
 }
+
+// ---------------------------------------------------------------------------
+// v2.0 「程序」区 registry (status page). HARD-CODED BY DESIGN: Mark's
+// classification (2026-11-13) is a structural red line — which programs
+// may expose which controls is decided here in code, never by data, so
+// no feed or row can ever widen a program's control surface.
+//   readonly — 🔴 status only: the client renders NO buttons, and
+//     requestProgramControl rejects every action for these ids.
+//   always   — 🟢 must stay on: restart only (or run-now for scheduled
+//     tasks, via runLabel); never a stop control anywhere.
+//   proxy    — 🟢 proxy pair: restart + ONE group-level 默认自启 toggle
+//     (pseudo-id "proxy-group", action autostart-toggle).
+//   info     — 📖 read-only information rows (not red-line, still no
+//     buttons: hosted third-party shell, supervisor, the websites).
+//   toggle   — 🟡 on-demand: start/stop + restart. The FoxShare group
+//     is ONE row (foxshare) — one switch drives the whole group.
+//   device   — device rows: restart only, never power-off. The cloud server /
+//     TV-123 / Redmi are "device-status" instead: status only.
+// confirm: "shout" marks rows whose stop/restart must pass the UI's
+// in-game-announcement confirmation step first (Mir2 + Surface).
+// ---------------------------------------------------------------------------
+
+const programCategoryEnum = z.enum([
+  "readonly",
+  "always",
+  "proxy",
+  "info",
+  "toggle",
+  "foxshare",
+  "device",
+  "device-status",
+]);
+
+const programActionEnum = z.enum([
+  "start",
+  "stop",
+  "restart",
+  "run",
+  "autostart-toggle",
+]);
+
+type ProgramAction = z.infer<typeof programActionEnum>;
+type ProgramCategory = z.infer<typeof programCategoryEnum>;
+
+type ProgramDef = {
+  id: string;
+  name: string;
+  nameEn: string;
+  device: string;
+  category: ProgramCategory;
+  note: string;
+  noteEn: string;
+  runLabel: boolean;
+  confirm: boolean;
+};
+
+const PROXY_GROUP_ID = "proxy-group";
+
+const PROGRAM_REGISTRY: ProgramDef[] = [
+  // 🔴 状态只读 · 无钮
+  { id: "tailscale", name: "Tailscale", nameEn: "Tailscale", device: "全部设备", category: "readonly", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "sshd", name: "sshd", nameEn: "sshd", device: "各 Windows 机", category: "readonly", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "frps", name: "frps", nameEn: "frps", device: "cloud server", category: "readonly", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "frpc", name: "frpc", nameEn: "frpc", device: "Mini PC", category: "readonly", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "cloudflared-mini", name: "Cloudflared 隧道", nameEn: "Cloudflared tunnel", device: "Mini PC", category: "readonly", note: "Hub 的公开门", noteEn: "The Hub's public door", runLabel: false, confirm: false },
+  { id: "derper", name: "derper", nameEn: "derper", device: "cloud server", category: "readonly", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "caddy", name: "Caddy", nameEn: "Caddy", device: "cloud server", category: "readonly", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "teamviewer", name: "TeamViewer", nameEn: "TeamViewer", device: "各机", category: "readonly", note: "", noteEn: "", runLabel: false, confirm: false },
+  // 🟢 必须常开 · 仅重启键（计划任务为「立即运行」）
+  { id: "hub", name: "Hub 本体", nameEn: "Hub", device: "Mini PC", category: "always", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "ollama-mini", name: "Ollama", nameEn: "Ollama", device: "Mini PC", category: "always", note: "本地模型运行时", noteEn: "Local model runtime", runLabel: false, confirm: false },
+  { id: "ollama-office", name: "Ollama", nameEn: "Ollama", device: "office server", category: "always", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "gdrive-mini", name: "Google Drive FS 主镜像", nameEn: "Google Drive FS (primary mirror)", device: "Mini PC", category: "always", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "hub-backup-sync", name: "Hub 备份同步任务", nameEn: "Hub backup sync task", device: "Mini PC", category: "always", note: "", noteEn: "", runLabel: true, confirm: false },
+  { id: "docker-mini", name: "Docker 引擎", nameEn: "Docker engine", device: "Mini PC", category: "always", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "docker-office", name: "Docker 引擎", nameEn: "Docker engine", device: "office server", category: "always", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "uptime-kuma", name: "uptime-kuma 容器", nameEn: "uptime-kuma container", device: "Mini PC", category: "always", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "mir-backup", name: "Mir 夜间备份任务", nameEn: "Mir nightly backup task", device: "Surface", category: "always", note: "", noteEn: "", runLabel: true, confirm: false },
+  // 🟢 代理组 · 重启键 + 组级「默认自启」开关
+  { id: "proxy-cloud", name: "云端代理（Xray REALITY + Hysteria2）", nameEn: "Cloud proxy (Xray REALITY + Hysteria2)", device: "cloud server", category: "proxy", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "proxy-mini", name: "Mini PC 家用代理节点", nameEn: "Mini PC home proxy node", device: "Mini PC", category: "proxy", note: "", noteEn: "", runLabel: false, confirm: false },
+  // 📖 纯只读 · 非红线
+  { id: "closet-studio", name: "Closet Studio 托管壳", nameEn: "Closet Studio hosted shell", device: "Mini PC", category: "info", note: "别人家的产品，我们只托管", noteEn: "Third-party product — we only host it", runLabel: false, confirm: false },
+  { id: "ollama-supervisor", name: "Ollama 守护进程", nameEn: "Ollama supervisor", device: "office server", category: "info", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "site-main", name: "example.com 网站本体", nameEn: "example.com site", device: "网站", category: "info", note: "部署时间见审计行", noteEn: "Deploy time in the audit line", runLabel: false, confirm: false },
+  { id: "site-shop", name: "shop.example.com 网站本体", nameEn: "shop.example.com site", device: "网站", category: "info", note: "部署时间见审计行", noteEn: "Deploy time in the audit line", runLabel: false, confirm: false },
+  { id: "site-blog", name: "blog.example.com 网站本体", nameEn: "blog.example.com site", device: "网站", category: "info", note: "部署时间见审计行", noteEn: "Deploy time in the audit line", runLabel: false, confirm: false },
+  // 🟡 可按需开关 · 开关键 + 重启键
+  { id: "foxshare", name: "FoxShare 组", nameEn: "FoxShare group", device: "cloud server + Mini PC + office server", category: "foxshare", note: "一个开关管全组：云端中继 · 办公 PC 客户端 · 办公室服务器备份通道 · TURN 容器", noteEn: "One switch for the whole group: cloud relay · office PC client · office server backup leg · TURN container", runLabel: false, confirm: false },
+  { id: "paperless", name: "Paperless-ngx", nameEn: "Paperless-ngx", device: "office server", category: "toggle", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "open-webui", name: "Open WebUI", nameEn: "Open WebUI", device: "Mini PC 容器", category: "toggle", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "stirling-pdf", name: "Stirling PDF", nameEn: "Stirling PDF", device: "Mini PC 容器", category: "toggle", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "hub-standby", name: "Foxuma 备用 Hub", nameEn: "Foxuma standby Hub", device: "office server", category: "toggle", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "docker-desktop-mini", name: "Docker Desktop 界面", nameEn: "Docker Desktop UI", device: "Mini PC", category: "toggle", note: "仅界面，引擎不动", noteEn: "UI only — the engine is untouched", runLabel: false, confirm: false },
+  { id: "docker-desktop-office", name: "Docker Desktop 界面", nameEn: "Docker Desktop UI", device: "office server", category: "toggle", note: "仅界面，引擎不动", noteEn: "UI only — the engine is untouched", runLabel: false, confirm: false },
+  { id: "gdrive-redmi", name: "Drive 备份镜像", nameEn: "Drive backup mirror", device: "Redmi（Google Drive FS）", category: "toggle", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "wechat-redmi", name: "微信", nameEn: "WeChat", device: "Redmi", category: "toggle", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "douyin-redmi", name: "抖音", nameEn: "Douyin", device: "Redmi", category: "toggle", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "mir2", name: "Mir2 游戏服全套", nameEn: "Mir2 game server (full set)", device: "Surface", category: "toggle", note: "停止 / 重启前先在游戏内喊话公告", noteEn: "Announce in-game before stopping / restarting", runLabel: false, confirm: true },
+  // 设备行 · 仅重启键（云服务器 / TV-123 / Redmi 例外：仅状态）
+  { id: "dev-mini-pc", name: "Mini PC", nameEn: "Mini PC", device: "设备", category: "device", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "dev-office", name: "Office server", nameEn: "Office server", device: "设备", category: "device", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "dev-surface", name: "Surface", nameEn: "Surface", device: "设备", category: "device", note: "重启前先在游戏内喊话公告", noteEn: "Announce in-game before restarting", runLabel: false, confirm: true },
+  { id: "dev-cloud", name: "Cloud server", nameEn: "Cloud server", device: "设备", category: "device-status", note: "经云厂商面板重启", noteEn: "Restart via the cloud vendor console", runLabel: false, confirm: false },
+  { id: "dev-tv123", name: "TV-123", nameEn: "TV-123", device: "设备", category: "device-status", note: "", noteEn: "", runLabel: false, confirm: false },
+  { id: "dev-redmi", name: "Redmi 笔记本", nameEn: "Redmi laptop", device: "设备", category: "device-status", note: "", noteEn: "", runLabel: false, confirm: false },
+];
+
+const PROGRAM_BY_ID = new Map(PROGRAM_REGISTRY.map((p) => [p.id, p]));
+
+/** The control actions a program may ever receive — enforced
+ * server-side, mirroring exactly what the client renders. */
+function allowedProgramActions(programId: string): ProgramAction[] {
+  if (programId === PROXY_GROUP_ID) return ["autostart-toggle"];
+  const def = PROGRAM_BY_ID.get(programId);
+  if (!def) return [];
+  switch (def.category) {
+    case "always":
+      return [def.runLabel ? "run" : "restart"];
+    case "proxy":
+      return ["restart"];
+    case "toggle":
+    case "foxshare":
+      return ["start", "stop", "restart"];
+    case "device":
+      return ["restart"];
+    default:
+      return [];
+  }
+}
+
+function programNameOf(programId: string): string {
+  if (programId === PROXY_GROUP_ID) return "代理组（默认自启）";
+  return PROGRAM_BY_ID.get(programId)?.name ?? programId;
+}
+
+function programActionLabel(action: string): string {
+  switch (action) {
+    case "start":
+      return "启动";
+    case "stop":
+      return "停止";
+    case "restart":
+      return "重启";
+    case "run":
+      return "立即运行";
+    case "autostart-toggle":
+      return "默认自启设置";
+    default:
+      return "核验";
+  }
+}
+
+const programShape = z.object({
+  id: z.string(),
+  name: z.string(),
+  nameEn: z.string(),
+  device: z.string(),
+  category: programCategoryEnum,
+  note: z.string(),
+  noteEn: z.string(),
+  runLabel: z.boolean(),
+  confirm: z.boolean(),
+  state: z
+    .object({
+      status: z.enum(["up", "down"]),
+      verifiedAt: z.string().nullable(),
+      evidence: z.string(),
+    })
+    .nullable(),
+  pending: z
+    .object({ action: z.string(), requestedAt: z.string() })
+    .nullable(),
+  lastAudit: z.object({ text: z.string(), at: z.string() }).nullable(),
+});
+
+const programAuditShape = z.object({
+  id: z.number(),
+  programId: z.string(),
+  programName: z.string(),
+  kind: z.string(),
+  action: z.string(),
+  text: z.string(),
+  at: z.string(),
+});
 
 export const Actions = {
   getStatus: defineAction({
@@ -1495,6 +1680,228 @@ export const Actions = {
       await touchMeta(ctx);
       ctx.invalidateQueries();
       return { seeded: seeds.length };
+    },
+  }),
+
+  getPrograms: defineAction({
+    description:
+      "Returns the v2.0 程序 (programs) registry for the status page — the full hard-coded catalogue with each entry's category and the control actions its category allows — plus every program's latest verified state (status / Toronto-rendered verified-at instant / evidence, all written only by reportProgramResult), any pending control requests, the proxy group's 默认自启 preference, and the audit trail (newest 30 entries). Programs never verified return a null state and must render as 未核验.",
+    request: z.object({}),
+    response: z.object({
+      programs: z.array(programShape),
+      audit: z.array(programAuditShape),
+      proxyAutostart: z.boolean(),
+      proxyPending: z
+        .object({ action: z.string(), requestedAt: z.string() })
+        .nullable(),
+    }),
+    handler: async (
+      ctx,
+    ): Promise<{
+      programs: z.infer<typeof programShape>[];
+      audit: z.infer<typeof programAuditShape>[];
+      proxyAutostart: boolean;
+      proxyPending: { action: string; requestedAt: string } | null;
+    }> => {
+      const db = ctx.db<typeof schema>();
+      const [states, pending, auditRows, prefsRows] = await Promise.all([
+        db.select().from(schema.programState),
+        db
+          .select()
+          .from(schema.programRequests)
+          .where(eq(schema.programRequests.status, "pending"))
+          .orderBy(asc(schema.programRequests.requestedAt)),
+        db
+          .select()
+          .from(schema.programAudit)
+          .orderBy(desc(schema.programAudit.id))
+          .limit(30),
+        db
+          .select()
+          .from(schema.programPrefs)
+          .where(eq(schema.programPrefs.id, 1))
+          .limit(1),
+      ]);
+      const stateById = new Map(states.map((s) => [s.programId, s]));
+      const pendingById = new Map<string, (typeof pending)[number]>();
+      for (const req of pending) {
+        if (!pendingById.has(req.programId)) pendingById.set(req.programId, req);
+      }
+      const audit = auditRows.map((row) => ({
+        id: row.id,
+        programId: row.programId,
+        programName: programNameOf(row.programId),
+        kind: row.kind,
+        action: row.action,
+        text: row.text,
+        at: row.at.toISOString(),
+      }));
+      const auditByProgram = new Map<string, (typeof audit)[number]>();
+      for (const entry of audit) {
+        if (!auditByProgram.has(entry.programId)) {
+          auditByProgram.set(entry.programId, entry);
+        }
+      }
+      return {
+        programs: PROGRAM_REGISTRY.map((def) => {
+          const state = stateById.get(def.id);
+          const req = pendingById.get(def.id);
+          const last = auditByProgram.get(def.id);
+          return {
+            ...def,
+            state: state
+              ? {
+                  status: state.status === "down" ? "down" : "up",
+                  verifiedAt: state.verifiedAt
+                    ? state.verifiedAt.toISOString()
+                    : null,
+                  evidence: state.evidence,
+                }
+              : null,
+            pending: req
+              ? {
+                  action: req.action,
+                  requestedAt: req.requestedAt.toISOString(),
+                }
+              : null,
+            lastAudit: last
+              ? { text: last.text, at: last.at }
+              : null,
+          };
+        }),
+        audit,
+        proxyAutostart: prefsRows[0]?.proxyAutostart ?? true,
+        proxyPending: (() => {
+          const req = pending.find((r) => r.programId === PROXY_GROUP_ID);
+          return req
+            ? {
+                action: req.action,
+                requestedAt: req.requestedAt.toISOString(),
+              }
+            : null;
+        })(),
+      };
+    },
+  }),
+
+  requestProgramControl: defineAction({
+    description:
+      "Registers a control request for one program in the v2.0 程序区. The board runtime cannot reach the tailnet machines, so this does NOT execute anything: it files a pending request (programId, action, request time) and appends a 登记 audit row; Tina's lane executes over SSH and reports back via reportProgramResult, and only that report may change the program's displayed state. The action is validated against the hard-coded registry — categories that render no buttons (readonly / info / status-only devices) reject every action, always-on programs accept only restart/run, devices only restart, and autostart-toggle is accepted only for the proxy group. A second request for a program that already has one pending is refused.",
+    request: z.object({
+      programId: z.string().min(1),
+      action: programActionEnum,
+    }),
+    response: z.object({ ok: z.boolean(), reason: z.string() }),
+    handler: async (
+      ctx,
+      args,
+    ): Promise<{ ok: boolean; reason: string }> => {
+      const db = ctx.db<typeof schema>();
+      const allowed = allowedProgramActions(args.programId);
+      if (!allowed.includes(args.action)) {
+        return {
+          ok: false,
+          reason: `action ${args.action} is not allowed for program ${args.programId}`,
+        };
+      }
+      const mine = await db
+        .select()
+        .from(schema.programRequests)
+        .where(eq(schema.programRequests.programId, args.programId));
+      if (mine.some((r) => r.status === "pending")) {
+        return {
+          ok: false,
+          reason: "a request is already pending for this program",
+        };
+      }
+      const now = new Date();
+      await db.insert(schema.programRequests).values({
+        programId: args.programId,
+        action: args.action,
+        status: "pending",
+        requestedAt: now,
+      });
+      await db.insert(schema.programAudit).values({
+        programId: args.programId,
+        kind: "request",
+        action: args.action,
+        text: `登记${programActionLabel(args.action)}请求 · 待 Tina 经 SSH 执行`,
+        at: now,
+      });
+      ctx.invalidateQueries();
+      return { ok: true, reason: "" };
+    },
+  }),
+
+  reportProgramResult: defineAction({
+    description:
+      "Reports the real outcome of a program control request (or a fresh verification) after Tina's lane executed it over SSH: closes the program's pending request, writes the verified state (up/down + one-line evidence + verification instant) that the board then displays, appends a 回写 audit row, and — for the proxy group's autostart-toggle — stores the new 默认自启 preference when `autostart` is provided. This is the ONLY write path for a program's displayed state.",
+    request: z.object({
+      programId: z.string().min(1),
+      outcome: z.enum(["done", "failed"]),
+      status: z.enum(["up", "down"]),
+      evidence: z.string().default(""),
+      action: programActionEnum.nullable().default(null),
+      autostart: z.boolean().nullable().default(null),
+    }),
+    response: okResponse,
+    handler: async (ctx, args): Promise<z.infer<typeof okResponse>> => {
+      const db = ctx.db<typeof schema>();
+      if (!PROGRAM_BY_ID.has(args.programId) && args.programId !== PROXY_GROUP_ID) {
+        throw new Error(`unknown programId: ${args.programId}`);
+      }
+      const now = new Date();
+      const pendingRows = await db
+        .select()
+        .from(schema.programRequests)
+        .where(eq(schema.programRequests.programId, args.programId));
+      const pending = pendingRows
+        .filter((r) => r.status === "pending")
+        .sort((a, b) => a.requestedAt.getTime() - b.requestedAt.getTime())[0];
+      const action = args.action ?? pending?.action ?? "verify";
+      if (pending) {
+        await db
+          .update(schema.programRequests)
+          .set({ status: "closed", closedAt: now })
+          .where(eq(schema.programRequests.id, pending.id));
+      }
+      await db
+        .insert(schema.programState)
+        .values({
+          programId: args.programId,
+          status: args.status,
+          evidence: args.evidence,
+          verifiedAt: now,
+        })
+        .onConflictDoUpdate({
+          target: schema.programState.programId,
+          set: {
+            status: args.status,
+            evidence: args.evidence,
+            verifiedAt: now,
+          },
+        });
+      if (args.programId === PROXY_GROUP_ID && args.autostart !== null) {
+        await db
+          .insert(schema.programPrefs)
+          .values({ id: 1, proxyAutostart: args.autostart })
+          .onConflictDoUpdate({
+            target: schema.programPrefs.id,
+            set: { proxyAutostart: args.autostart },
+          });
+      }
+      await db.insert(schema.programAudit).values({
+        programId: args.programId,
+        kind: "result",
+        action,
+        text:
+          args.outcome === "done"
+            ? `回写：${programActionLabel(action)}已执行 · 核验${args.status === "up" ? "在跑" : "不在"}${args.evidence ? ` · ${args.evidence}` : ""}`
+            : `回写：${programActionLabel(action)}执行失败 · 核验${args.status === "up" ? "在跑" : "不在"}${args.evidence ? ` · ${args.evidence}` : ""}`,
+        at: now,
+      });
+      ctx.invalidateQueries();
+      return { ok: true };
     },
   }),
 } satisfies ActionsModule;

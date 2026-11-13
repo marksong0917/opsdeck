@@ -6,13 +6,13 @@ It is built for one person to run a small company with an AI operator: Mark deci
 
 ## The six pages
 
-Grouped, Semi-style tabs — daily work first, topics second, records last:
+Grouped, Semi-style left rail — daily work first, topics second, records last:
 
 | Page | 这页回答什么问题 — what this page answers |
 | --- | --- |
 | **今天** Today | 今天要做什么、已经做完了什么 — What needs doing today, and what is already done |
 | **待拍板** Awaiting decisions | 哪些事卡在决策人那里、卡了多久 — What is blocked on a decision-maker, and for how many days |
-| **状态** Status | 四个网站和服务器还活着吗 — Are the websites and servers still alive |
+| **状态** Status | 四个网站和服务器还活着吗、舰队里的程序都在什么状态 — Are the websites and servers still alive, and what state is every program in the fleet in |
 | **增长** Growth | Foxuma 在长吗、Founding 还剩几席 — Is Foxuma growing, and how many Founding seats are left |
 | **回国** China trip | 走之前要清什么、在华要办什么、航班什么状态 — What to clear before departure, what to handle in China, and the flight status |
 | **历史** History | 做完的事去哪查、哪天做的 — Where finished work goes, and on which day it was done |
@@ -35,11 +35,16 @@ This repo is the **sanitized public twin** of the live board. The live OpsDeck r
 
 ## Tech
 
-- Client: React + TypeScript, with a Semi Design–informed component layer (grouped tabs, tables, tags, deadline chips), bilingual （中文 / English) throughout.
+- Client: React + TypeScript, with a Semi Design–informed component layer (grouped left rail, tables, tags, deadline chips), bilingual （中文 / English) throughout.
 - Server: typed action layer over a single SQLite database (Drizzle schema + migrations), Toronto-time day boundaries everywhere.
 - One artifact, one board: the six pages are tabs of a single app, not six apps.
 
 ## Version notes
+
+**v2.0 (2026-11-13)**
+
+- **Design overhaul: navigation moves into a Semi-style left rail.** The pages keep their groups （日常 / 专题 / 记录）, each tab carrying the board's one inline-SVG line-icon set; at phone width the rail collapses to a single horizontally scrollable tab row — it never wraps and never hides a page behind a hamburger. The header keeps only the brand, the key status chips, refresh, and the preference controls; the weather, the CAD→CNY rate, and Spotify move off the header into info cards on the status page. The framework's emoji and ad-hoc glyphs in labels are gone board-wide — item data text itself is untouched.
+- **The status page gains the 程序区 (Programs).** The fleet's program registry is hard-coded in server code: which controls a program may expose is a structural property of the code, never of the data, so no feed or row can widen a program's control surface. Read-only rows render no buttons at all; always-on programs get restart (or run-now for scheduled tasks) and never a stop; on-demand programs get start / stop / restart; devices get restart only, never power-off. A button press only *registers* a request (`requestProgramControl`) — the board runtime cannot reach the machines, so Tina's lane executes the request over SSH and `reportProgramResult` writes the verified state back; until that report lands, the row shows 已登记 · 待执行 and the displayed state does not move. Every request and every result is appended to an audit trail shown on the page, and the proxy pair shares one group-level 默认自启 (start-by-default) switch through the same request/report path. A program that has never been verified renders 未核验 — never a guessed state. Two programs whose restart can disturb people (a game server, and the machine hosting it) pass an announce-first confirmation before a request is even filed.
 
 **v1.9.2 (2026-11-13)**
 
@@ -59,4 +64,4 @@ This repo is the **sanitized public twin** of the live board. The live OpsDeck r
 
 ---
 
-OpsDeck · v1.9.2 · Built by Tina for Mark
+OpsDeck · v2.0 · Built by Tina for Mark

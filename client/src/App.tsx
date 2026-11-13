@@ -24,7 +24,7 @@ const STR = {
     loadFailed: "看板加载失败",
     retry: "重试",
     boardTitle: "OpsDeck",
-    refresh: "↻ 刷新",
+    refresh: "刷新",
     refreshing: "刷新中…",
     refreshAria: "刷新看板数据",
     updatedAt: "数据更新于",
@@ -94,11 +94,11 @@ const STR = {
     undo: "撤销",
     undoing: "撤销中…",
     markDecided: "Mark 已拍板",
-    approved: "✓ 已通过",
-    rejected: "✗ 已否决",
+    approved: "已通过",
+    rejected: "已否决",
     torontoTimeParen: "（多伦多时间）",
-    yes: "✓ 是",
-    no: "✗ 否",
+    yes: "是",
+    no: "否",
     submitting: "提交中…",
     shelve: "搁置",
     shelveConfirm: "确认搁置？",
@@ -119,7 +119,7 @@ const STR = {
     collapse: "收起",
     addItemAria: "新增开放事项",
     edit: "编辑",
-    done: "✓ 完成",
+    done: "完成",
     processing: "处理中…",
     delete: "删除",
     deleting: "删除中…",
@@ -197,7 +197,7 @@ const STR = {
     chinaMarkUndone: "取消完成",
     chinaProgress: "已完成",
     statusDetail: "状态详情",
-    recheck: "↻ 重新检测",
+    recheck: "重新检测",
     recheckAria: "重新检测状态",
     statusFootnote:
       "网站与 Mini PC 每 10 分钟自动检测一次（Mini PC 经主站公开入口判断）；办公室服务器没有公开入口，显示的是助理最近一次巡检记录。",
@@ -233,13 +233,47 @@ const STR = {
     playLabel: "播放",
     pauseLabel: "暂停",
     volumeLabel: "音量",
+    navAria: "主导航",
+    railTodayPage: "今天 · 工作台",
+    weatherCardTitle: "天气",
+    progTitle: "程序",
+    progSub:
+      "按钮只登记控制请求 — Tina 经 SSH 真实执行后回写结果，回写落地前状态不会变。状态均为最后一次核验结果，过期就显旧时间戳。",
+    progLoading: "程序状态加载中…",
+    progUnavailable: "程序状态暂时取不到",
+    progGroupReadonly: "状态只读",
+    progGroupAlways: "必须常开",
+    progGroupProxy: "代理组",
+    progGroupInfo: "只读信息",
+    progGroupToggle: "可按需开关",
+    progGroupDevices: "设备",
+    progRunning: "在跑",
+    progDown: "不在",
+    progUnverified: "未核验",
+    progVerifiedAt: "核验",
+    progPending: "已登记 · 待执行",
+    progStart: "启动",
+    progStop: "停止",
+    progRestart: "重启",
+    progRunNow: "立即运行",
+    progDeviceRestart: "重启设备",
+    progAutostart: "默认自启",
+    progAutostartAria: "代理组默认自启开关",
+    progAuditTitle: "审计流水",
+    progAuditEmpty: "还没有控制请求记录。",
+    progConfirmTitle: "先喊话，再执行",
+    progConfirmBody:
+      "执行前需在游戏内喊话公告，让在线玩家有准备。确认已喊话后再登记请求 — 登记后由 Tina 经 SSH 执行并回写结果。",
+    progConfirmGo: "已喊话，登记请求",
+    progConfirmCancel: "再等等",
+    progRequestFailed: "请求没登记成功，再试一次。",
   },
   en: {
     loading: "Loading…",
     loadFailed: "Board failed to load",
     retry: "Retry",
     boardTitle: "OpsDeck",
-    refresh: "↻ Refresh",
+    refresh: "Refresh",
     refreshing: "Refreshing…",
     refreshAria: "Refresh board data",
     updatedAt: "Updated",
@@ -309,11 +343,11 @@ const STR = {
     undo: "Undo",
     undoing: "Undoing…",
     markDecided: "Mark decided",
-    approved: "✓ Approved",
-    rejected: "✗ Rejected",
+    approved: "Approved",
+    rejected: "Rejected",
     torontoTimeParen: "(Toronto time)",
-    yes: "✓ Yes",
-    no: "✗ No",
+    yes: "Yes",
+    no: "No",
     submitting: "Submitting…",
     shelve: "Shelve",
     shelveConfirm: "Shelve it?",
@@ -334,7 +368,7 @@ const STR = {
     collapse: "Collapse",
     addItemAria: "Add an open item",
     edit: "Edit",
-    done: "✓ Done",
+    done: "Done",
     processing: "Working…",
     delete: "Delete",
     deleting: "Deleting…",
@@ -412,7 +446,7 @@ const STR = {
     chinaMarkUndone: "Mark not done",
     chinaProgress: "done",
     statusDetail: "Status detail",
-    recheck: "↻ Re-check",
+    recheck: "Re-check",
     recheckAria: "Re-check status",
     statusFootnote:
       "Sites and the Mini PC are checked every 10 minutes (the Mini PC is judged via the main site's public entry); the office server has no public entry, so the assistant's latest inspection record is shown.",
@@ -448,6 +482,40 @@ const STR = {
     playLabel: "Play",
     pauseLabel: "Pause",
     volumeLabel: "Volume",
+    navAria: "Main navigation",
+    railTodayPage: "Today · Workbench",
+    weatherCardTitle: "Weather",
+    progTitle: "Programs",
+    progSub:
+      "Buttons only register a control request — Tina executes over SSH and reports the result back; the shown state never changes before that report lands. Every state is the latest verified result, shown with its real timestamp even when stale.",
+    progLoading: "Loading program states…",
+    progUnavailable: "Program states unavailable right now",
+    progGroupReadonly: "Status only",
+    progGroupAlways: "Always on",
+    progGroupProxy: "Proxy group",
+    progGroupInfo: "Read-only info",
+    progGroupToggle: "On-demand",
+    progGroupDevices: "Devices",
+    progRunning: "Running",
+    progDown: "Not running",
+    progUnverified: "Not verified yet",
+    progVerifiedAt: "Verified",
+    progPending: "Registered · awaiting execution",
+    progStart: "Start",
+    progStop: "Stop",
+    progRestart: "Restart",
+    progRunNow: "Run now",
+    progDeviceRestart: "Restart device",
+    progAutostart: "Start by default",
+    progAutostartAria: "Proxy group start-by-default switch",
+    progAuditTitle: "Audit trail",
+    progAuditEmpty: "No control requests recorded yet.",
+    progConfirmTitle: "Announce first, then execute",
+    progConfirmBody:
+      "Announce in-game before executing, so players online get a warning. Register the request only after the announcement — Tina then executes over SSH and reports the result back.",
+    progConfirmGo: "Announced — register request",
+    progConfirmCancel: "Not yet",
+    progRequestFailed: "Couldn't register the request — try again.",
   },
 } as const;
 
@@ -496,7 +564,7 @@ function uiLocale(): string {
  * reading 上班中 with the full day left;
  * v1.5.0 = Destination City (Hebei) weather added alongside Toronto in the header
  * (dual-city, cached separately), plus a dual-city glance strip on page 1:
- * China-trip countdown to the departure / return dates, Toronto↔destination
+ * China-trip countdown to 2027-01-15 / return 2027-03-01, Toronto↔Destination City
  * temperature difference, and sunrise/sunset for both cities when the
  * weather source provides them;
  * v1.6.0 = CAD→CNY rate in the header next to the weather (open.er-api.com,
@@ -620,8 +688,34 @@ function uiLocale(): string {
  * updateItem accept it and getBoard's item shape returns it for
  * every section (null outside money). The QB room backfills existing
  * money rows' amounts from the ledger in one pass. No page changes —
- * the CFO page stays retired; this is data plumbing only. */
-const BOARD_VERSION = "v1.9.2";
+ * the CFO page stays retired; this is data plumbing only.
+ * v2.0 = design overhaul + 程序区 (Mark, 2026-11-13): navigation moves
+ * into a Semi-style left rail (grouped 日常/专题/记录 with one icon
+ * set; at phone width the rail collapses to ONE horizontally
+ * scrollable tab row — never wraps, no hamburger); the header keeps
+ * only the brand + key status chips (pending-decision count, follow-up
+ * count, overall status) + refresh + prefs — weather / FX / Spotify
+ * move off the header and the today page's first screen into info
+ * cards on the status page (same getWeather / getFx / getSpotify /
+ * spotifyControl actions, display only). One icon language board-wide:
+ * inline SVG line icons + CSS status dots; the framework's emoji and
+ * ad-hoc glyphs (💱 ⚠ ↻ ✓/✗ in labels, ●, text chevrons) are gone —
+ * item data text itself is untouched. The status page gains the 程序
+ * (programs) section: a registry hard-coded in server code per Mark's
+ * classification — 🔴 readonly rows render NO buttons at all, 🟢
+ * always-on rows get restart (or 立即运行) and never a stop, 🟡 rows
+ * get start/stop + restart, devices get restart only (cloud server / TV-123 /
+ * Redmi status-only), Mir2 stop/restart and Surface restart pass an
+ * in-game-announcement confirmation first. Buttons only REGISTER a
+ * control request (requestProgramControl); Tina's lane executes over
+ * SSH and reportProgramResult writes the verified state back — the UI
+ * shows 已登记 · 待执行 meanwhile and never pretends a state changed
+ * before the report lands. The proxy group's 默认自启 switch rides
+ * the same request/report path. All prior red lines hold: the done
+ * write-back chain, today-page behaviors, jason feed conventions, the
+ * dormant money pipeline, the growth Founding seed, china items,
+ * getStatus probes, and every section key are unchanged. */
+const BOARD_VERSION = "v2.0";
 
 const LANE_ORDER = ["QuickBooks", "Foxuma", "General Ops", "外联", "设备与机器", "Mir2"];
 
@@ -664,7 +758,7 @@ function SvgIcon({
   );
 }
 
-type SectionKind = "decisions" | "today" | "deadlines" | "lanes" | "sites" | "servers" | "china" | "jason" | "growth";
+type SectionKind = "decisions" | "today" | "deadlines" | "lanes" | "sites" | "servers" | "china" | "jason" | "growth" | "programs" | "history" | "weather" | "fx";
 
 function SectionGlyph({
   kind,
@@ -749,6 +843,44 @@ function SectionGlyph({
       </SvgIcon>
     );
   }
+  if (kind === "programs") {
+    // Terminal window: the 程序 (programs) section.
+    return (
+      <SvgIcon color={c} size={s} className="shrink-0">
+        <rect x="2" y="3" width="20" height="18" rx="2" />
+        <polyline points="7 9 10 12 7 15" />
+        <line x1="13" x2="17" y1="15" y2="15" />
+      </SvgIcon>
+    );
+  }
+  if (kind === "history") {
+    // Clock with a rewind arrow: the done-history archive.
+    return (
+      <SvgIcon color={c} size={s} className="shrink-0">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+        <path d="M3 3v5h5" />
+        <path d="M12 7v5l4 2" />
+      </SvgIcon>
+    );
+  }
+  if (kind === "weather") {
+    return (
+      <SvgIcon color={c} size={s} className="shrink-0">
+        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+      </SvgIcon>
+    );
+  }
+  if (kind === "fx") {
+    // Coins / exchange: the FX info card.
+    return (
+      <SvgIcon color={c} size={s} className="shrink-0">
+        <circle cx="8" cy="8" r="6" />
+        <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
+        <path d="M7 6h1v4" />
+        <path d="m16.71 13.88.7.71-2.82 2.82" />
+      </SvgIcon>
+    );
+  }
   return (
     <SvgIcon color={c} size={s} className="shrink-0">
       <polygon points="12 2 2 7 12 12 22 7 12 2" />
@@ -772,6 +904,10 @@ const TILE_STYLE: Record<SectionKind, { bg: string; fg: string }> = {
   china: { bg: "rgba(245,63,63,0.10)", fg: "#f53f3f" },
   jason: { bg: "rgba(255,157,10,0.12)", fg: "#fa7a08" },
   growth: { bg: "rgba(0,119,250,0.10)", fg: "#0077fa" },
+  programs: { bg: "rgba(0,165,255,0.10)", fg: "#00a5ff" },
+  history: { bg: "rgba(0,181,120,0.10)", fg: "#00a870" },
+  weather: { bg: "rgba(245,185,66,0.14)", fg: "#d9930d" },
+  fx: { bg: "rgba(0,168,112,0.10)", fg: "#00a870" },
 };
 
 function SectionTile({ kind }: { kind: SectionKind }) {
@@ -789,6 +925,108 @@ function SectionTile({ kind }: { kind: SectionKind }) {
 
 const CARD_CLASS =
   "rounded-[10px] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 shadow-[0_0_1px_rgba(28,31,35,0.07),0_4px_14px_rgba(28,31,35,0.05)] [@media(max-height:949px)]:py-2";
+
+/** Shared small line icons (v2.0: one icon language board-wide — these
+ * replace the framework's old text glyphs ✓ ▾ ▸ › → ↻ in buttons and
+ * chips; item data text is never touched). */
+function CheckIcon({ size, color, className }: { size?: number; color?: string; className?: string }) {
+  return (
+    <SvgIcon color={color ?? "currentColor"} size={size ?? 14} className={className ?? "shrink-0"}>
+      <polyline points="20 6 9 17 4 12" />
+    </SvgIcon>
+  );
+}
+
+function ChevronDownIcon({ size, className }: { size?: number; className?: string }) {
+  return (
+    <SvgIcon size={size ?? 14} className={className ?? "shrink-0"}>
+      <polyline points="6 9 12 15 18 9" />
+    </SvgIcon>
+  );
+}
+
+function ChevronRightIcon({ size, className }: { size?: number; className?: string }) {
+  return (
+    <SvgIcon size={size ?? 16} className={className ?? "shrink-0"}>
+      <polyline points="9 18 15 12 9 6" />
+    </SvgIcon>
+  );
+}
+
+function ArrowRightIcon({ size, className }: { size?: number; className?: string }) {
+  return (
+    <SvgIcon size={size ?? 14} className={className ?? "shrink-0"}>
+      <line x1="5" x2="19" y1="12" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </SvgIcon>
+  );
+}
+
+function RefreshIcon({ size, className }: { size?: number; className?: string }) {
+  return (
+    <SvgIcon size={size ?? 14} className={className ?? "shrink-0"}>
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+      <path d="M8 16H3v5" />
+    </SvgIcon>
+  );
+}
+
+/** Nav rail glyphs — the same line-icon set as the section tiles,
+ * keyed by page. Status uses an activity pulse; today a calendar. */
+function NavIcon({ page, size }: { page: BoardPage; size?: number }) {
+  const s = size ?? 17;
+  if (page === "main") {
+    return (
+      <SvgIcon size={s} className="shrink-0">
+        <rect x="3" y="4" width="18" height="18" rx="2" />
+        <line x1="16" x2="16" y1="2" y2="6" />
+        <line x1="8" x2="8" y1="2" y2="6" />
+        <line x1="3" x2="21" y1="10" y2="10" />
+      </SvgIcon>
+    );
+  }
+  if (page === "jason") {
+    return (
+      <SvgIcon size={s} className="shrink-0">
+        <path d="M5 22h14" />
+        <path d="M5 2h14" />
+        <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" />
+        <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
+      </SvgIcon>
+    );
+  }
+  if (page === "more") {
+    return (
+      <SvgIcon size={s} className="shrink-0">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+      </SvgIcon>
+    );
+  }
+  if (page === "growth") {
+    return (
+      <SvgIcon size={s} className="shrink-0">
+        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+        <polyline points="16 7 22 7 22 13" />
+      </SvgIcon>
+    );
+  }
+  if (page === "china") {
+    return (
+      <SvgIcon size={s} className="shrink-0">
+        <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" />
+      </SvgIcon>
+    );
+  }
+  return (
+    <SvgIcon size={s} className="shrink-0">
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+      <path d="M12 7v5l4 2" />
+    </SvgIcon>
+  );
+}
 
 function LaneGlyph({ lane }: { lane: string }) {
   // Row glyphs stay single-accent; color lives in the header tiles,
@@ -932,54 +1170,6 @@ function torontoNowMinutes(): number {
   return hour * 60 + minute;
 }
 
-/** Mark's workday is 08:00–18:00 Toronto. Live work state for the header:
- * before 08:00 it counts down to the start (not "上班中"), 08:00–18:00 it
- * counts down to 18:00, and from 18:00 on it reads 已下班. */
-function offWorkState(now: Date): { off: boolean; prefix: string; label: string } {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Toronto",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(now);
-  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? "0");
-  const nowSeconds = get("hour") * 3600 + get("minute") * 60 + get("second");
-  const workStart = 8 * 3600;
-  const workEnd = 18 * 3600;
-  const duration = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    if (activeLang === "en") {
-      return hours > 0 ? `${hours} h ${minutes} min` : `${minutes} min`;
-    }
-    return hours > 0 ? `${hours} 小时 ${minutes} 分` : `${minutes} 分`;
-  };
-  if (nowSeconds < workStart) {
-    const untilStart = duration(workStart - nowSeconds);
-    return {
-      off: true,
-      prefix: t("onWorkPrefix"),
-      label:
-        activeLang === "en"
-          ? `Not yet on · starts in ${untilStart}`
-          : `未上班 · 距上班还差 ${untilStart}`,
-    };
-  }
-  if (nowSeconds >= workEnd) {
-    return { off: true, prefix: t("offWorkPrefix"), label: t("offDone") };
-  }
-  const untilEnd = duration(workEnd - nowSeconds);
-  return {
-    off: false,
-    prefix: t("offWorkPrefix"),
-    label:
-      activeLang === "en"
-        ? `Working · ${untilEnd} left`
-        : `上班中 · 还差 ${untilEnd}`,
-  };
-}
-
 function formatTorontoTime(d: Date): string {
   return d.toLocaleString(uiLocale(), {
     timeZone: "America/Toronto",
@@ -989,27 +1179,6 @@ function formatTorontoTime(d: Date): string {
     minute: "2-digit",
     hour12: false,
   });
-}
-
-/** Live clock face (HH:MM:SS) for one fixed IANA timezone. */
-function formatClockTime(d: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat(uiLocale(), {
-    timeZone,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hourCycle: "h23",
-  }).format(d);
-}
-
-/** Short date label (M月D日 周X) for one fixed IANA timezone. */
-function formatZoneDate(d: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat(uiLocale(), {
-    timeZone,
-    month: "numeric",
-    day: "numeric",
-    weekday: "short",
-  }).format(d);
 }
 
 function WeatherGlyph() {
@@ -1090,27 +1259,10 @@ function fmtTemp(value: number | null): string {
   return value === null ? "—" : `${Math.round(value)}°`;
 }
 
-/** One city's current weather as compact strip text: temp + condition
- * + high/low (+ stale / alert flags). The full detail (feels-like,
- * humidity, precip, wind, sunrise/sunset) stays in the tooltip via
- * weatherTitle. Used by the page-1 dual-city strip. */
-function weatherSummary(w: NonNullable<Weather>): string {
-  const parts = [
-    `${fmtTemp(w.temperature)} ${activeLang === "zh" ? wxZh(w.description) : w.description}`,
-    w.high !== null || w.low !== null
-      ? `${t("wxHigh")} ${fmtTemp(w.high)} ${t("wxLow")} ${fmtTemp(w.low)}`
-      : null,
-    w.stale ? t("staleData") : null,
-    w.alerts.length > 0 ? `⚠ ${w.alerts.join("；")}` : null,
-  ];
-  return parts.filter((p): p is string => p !== null).join(" · ");
-}
-
-/** One city's weather as the header's fuller line (the v1.7.2 shape,
- * restored in v1.8.1): temp + condition + high/low + tomorrow's
- * low–high range + humidity, all visible — nothing essential is left
- * to the tooltip (weatherTitle still adds feels-like / precip / wind /
- * sunrise / sunset on hover). */
+/** One city's weather as the fuller summary line (the v1.7.2 shape):
+ * temp + condition + high/low + tomorrow's low–high range + humidity,
+ * all visible — nothing essential is left to the tooltip (weatherTitle
+ * still adds feels-like / precip / wind / sunrise / sunset on hover). */
 function headerWeatherSummary(w: NonNullable<Weather>): string {
   const parts = [
     `${fmtTemp(w.temperature)} ${activeLang === "zh" ? wxZh(w.description) : w.description}`,
@@ -1122,15 +1274,29 @@ function headerWeatherSummary(w: NonNullable<Weather>): string {
       : null,
     w.humidity !== null ? `${t("humidityLabel")} ${Math.round(w.humidity)}%` : null,
     w.stale ? t("staleData") : null,
-    w.alerts.length > 0 ? `⚠ ${w.alerts.join("；")}` : null,
+    w.alerts.length > 0 ? w.alerts.join("；") : null,
   ];
   return parts.filter((p): p is string => p !== null).join(" · ");
 }
 
-/** One weather line in the header's top-right block: glyph + city
- * label + the fuller summary. Loading / unavailable states keep the
- * same one-line footprint, with a retry affordance when data failed. */
-function HeaderWeatherLine({
+function weatherTitle(w: NonNullable<Weather>): string {
+  return [
+    w.feelsLike !== null ? `${t("feelsLike")} ${fmtTemp(w.feelsLike)}` : null,
+    w.humidity !== null ? `${t("humidityLabel")} ${Math.round(w.humidity)}%` : null,
+    w.precipitationChance !== null ? `${t("precip")} ${Math.round(w.precipitationChance)}%` : null,
+    w.wind ? `${t("windLabel")} ${w.wind}` : null,
+    fmtSunTime(w.sunrise) ? `${t("sunriseLabel")} ${fmtSunTime(w.sunrise)}` : null,
+    fmtSunTime(w.sunset) ? `${t("sunsetLabel")} ${fmtSunTime(w.sunset)}` : null,
+  ]
+    .filter((p): p is string => p !== null)
+    .join(" · ");
+}
+
+/** One weather line inside the status page's weather card (v2.0 —
+ * weather moved here from the header): glyph + city label + the fuller
+ * summary. Loading / unavailable states keep the same one-line
+ * footprint, with a retry affordance when data failed. */
+function WeatherCardLine({
   w,
   label,
   pending,
@@ -1148,18 +1314,16 @@ function HeaderWeatherLine({
   if (!w) {
     if (pending)
       return (
-        <span className="whitespace-nowrap text-[11px] text-[var(--header-dim)]">
-          {loadingText}
-        </span>
+        <span className="text-[13px] text-[var(--dim)]">{loadingText}</span>
       );
     return (
-      <span className="whitespace-nowrap text-[11px] text-[var(--header-dim)]">
+      <span className="text-[13px] text-[var(--dim)]">
         {unavailableText}
         <button
           type="button"
           onClick={onRetry}
           aria-label={t("retry")}
-          className="ml-2 font-medium text-[var(--header-text)] underline underline-offset-2"
+          className="ml-2 font-medium text-[var(--text)] underline underline-offset-2"
         >
           {t("retry")}
         </button>
@@ -1168,39 +1332,66 @@ function HeaderWeatherLine({
   }
   return (
     <span
-      className="flex min-w-0 max-w-full items-center gap-1.5 text-[11px] tabular-nums text-[var(--header-dim)]"
+      className="flex min-w-0 items-start gap-1.5 text-[13px] leading-relaxed tabular-nums text-[var(--dim)]"
       title={weatherTitle(w)}
     >
-      <WeatherGlyph />
-      <span className="min-w-0 truncate">
-        <span className="font-medium text-[var(--header-text)]">{label}</span>{" "}
+      <span className="mt-[1px] flex shrink-0">
+        <WeatherGlyph />
+      </span>
+      <span className="min-w-0">
+        <span className="font-medium text-[var(--text)]">{label}</span>{" "}
         {headerWeatherSummary(w)}
       </span>
     </span>
   );
 }
 
-function weatherTitle(w: NonNullable<Weather>): string {
-  return [
-    w.feelsLike !== null ? `${t("feelsLike")} ${fmtTemp(w.feelsLike)}` : null,
-    w.humidity !== null ? `${t("humidityLabel")} ${Math.round(w.humidity)}%` : null,
-    w.precipitationChance !== null ? `${t("precip")} ${Math.round(w.precipitationChance)}%` : null,
-    w.wind ? `${t("windLabel")} ${w.wind}` : null,
-    fmtSunTime(w.sunrise) ? `${t("sunriseLabel")} ${fmtSunTime(w.sunrise)}` : null,
-    fmtSunTime(w.sunset) ? `${t("sunsetLabel")} ${fmtSunTime(w.sunset)}` : null,
-  ]
-    .filter((p): p is string => p !== null)
-    .join(" · ");
+/** Status-page weather info card (v2.0): both cities, one card. */
+function WeatherInfoCard({
+  weather,
+  destination,
+  pending,
+  onRetry,
+}: {
+  weather: Weather;
+  destination: Weather;
+  pending: boolean;
+  onRetry: () => void;
+}) {
+  return (
+    <section aria-label={t("weatherCardTitle")} className={`${CARD_CLASS} min-w-0`}>
+      <SectionHeading icon={<SectionTile kind="weather" />}>
+        {t("weatherCardTitle")}
+      </SectionHeading>
+      <div className="flex flex-col gap-1.5">
+        <WeatherCardLine
+          w={weather}
+          label={t("weatherToday")}
+          pending={pending}
+          loadingText={t("weatherLoading")}
+          unavailableText={t("weatherUnavailable")}
+          onRetry={onRetry}
+        />
+        <WeatherCardLine
+          w={destination}
+          label={`${t("weatherDestination")} · 河北`}
+          pending={pending}
+          loadingText={t("destinationLoading")}
+          unavailableText={t("destinationUnavailable")}
+          onRetry={onRetry}
+        />
+      </div>
+    </section>
+  );
 }
 
 type Fx = ApiResponse<typeof api, "getFx">["fx"];
 
-/** Header FX line: today's CAD→CNY rate with the 100-CAD equivalent
- * and the source update date shown as visible text — the v1.7.2 shape,
- * restored in v1.8.1 after v1.8.0 compressed it to the rate alone and
- * hid the rest in a tooltip. The tooltip keeps only the extras
- * (source name, inverse rate, raw UTC stamp). */
-function FxSegment({
+/** Status-page FX info card (v2.0 — the rate moved here from the
+ * header): today's CAD→CNY rate with the 100-CAD equivalent and the
+ * source update date as visible text. The tooltip keeps only the
+ * extras (source name, inverse rate, raw UTC stamp). */
+function FxInfoCard({
   fx,
   pending,
   onRetry,
@@ -1209,54 +1400,49 @@ function FxSegment({
   pending: boolean;
   onRetry: () => void;
 }) {
-  if (!fx) {
-    if (pending)
-      return (
-        <span className="text-[11px] text-[var(--header-dim)]">
-          {t("fxLoading")}
-        </span>
-      );
-    return (
-      <span className="text-[11px] text-[var(--header-dim)]">
-        {t("fxUnavailable")}
-        <button
-          type="button"
-          onClick={onRetry}
-          aria-label={t("retry")}
-          className="ml-2 font-medium text-[var(--header-text)] underline underline-offset-2"
-        >
-          {t("retry")}
-        </button>
-      </span>
-    );
-  }
   return (
-    <span
-      className="flex min-w-0 max-w-full flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] tabular-nums text-[var(--header-dim)] lg:justify-end"
-      title={`${t("fxSource")} · 1 CNY ≈ $${fx.inverse.toFixed(3)} CAD${fx.sourceUpdatedUtc ? ` · ${fx.sourceUpdatedUtc}` : ""}`}
-    >
-      <span aria-hidden="true" className="shrink-0 text-[13px] leading-none">💱</span>
-      <span className="whitespace-nowrap">
-        <span className="font-medium text-[var(--header-text)]">{t("fxLabel")}</span>{" "}
-        <span className="text-sm font-bold tabular-nums text-[var(--header-text)]">
-          {activeLang === "zh"
-            ? `1 加币 ≈ ¥${fx.rate.toFixed(2)}`
-            : `1 CAD ≈ ¥${fx.rate.toFixed(2)}`}
-        </span>
-      </span>
-      <span className="whitespace-nowrap">
-        ·{" "}
-        {activeLang === "zh"
-          ? `100 加币 ≈ ¥${Math.round(fx.rate * 100)}`
-          : `100 CAD ≈ ¥${Math.round(fx.rate * 100)}`}
-      </span>
-      {fx.sourceDate ? (
-        <span className="whitespace-nowrap">
-          · {t("fxUpdated")} {formatDateLabel(fx.sourceDate)}
-        </span>
-      ) : null}
-      {fx.stale ? <span className="whitespace-nowrap">· {t("staleData")}</span> : null}
-    </span>
+    <section aria-label={t("fxLabel")} className={`${CARD_CLASS} min-w-0`}>
+      <SectionHeading icon={<SectionTile kind="fx" />}>{t("fxLabel")}</SectionHeading>
+      {!fx ? (
+        pending ? (
+          <p className="text-[13px] text-[var(--dim)]">{t("fxLoading")}</p>
+        ) : (
+          <p className="text-[13px] text-[var(--dim)]">
+            {t("fxUnavailable")}
+            <button
+              type="button"
+              onClick={onRetry}
+              aria-label={t("retry")}
+              className="ml-2 font-medium text-[var(--text)] underline underline-offset-2"
+            >
+              {t("retry")}
+            </button>
+          </p>
+        )
+      ) : (
+        <p
+          className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[13px] tabular-nums text-[var(--dim)]"
+          title={`${t("fxSource")} · 1 CNY ≈ $${fx.inverse.toFixed(3)} CAD${fx.sourceUpdatedUtc ? ` · ${fx.sourceUpdatedUtc}` : ""}`}
+        >
+          <span className="text-xl font-extrabold leading-none tabular-nums text-[var(--text)]">
+            {activeLang === "zh"
+              ? `1 加币 ≈ ¥${fx.rate.toFixed(2)}`
+              : `1 CAD ≈ ¥${fx.rate.toFixed(2)}`}
+          </span>
+          <span className="whitespace-nowrap">
+            {activeLang === "zh"
+              ? `100 加币 ≈ ¥${Math.round(fx.rate * 100)}`
+              : `100 CAD ≈ ¥${Math.round(fx.rate * 100)}`}
+          </span>
+          {fx.sourceDate ? (
+            <span className="whitespace-nowrap">
+              · {t("fxUpdated")} {formatDateLabel(fx.sourceDate)}
+            </span>
+          ) : null}
+          {fx.stale ? <span className="whitespace-nowrap">· {t("staleData")}</span> : null}
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -1390,26 +1576,25 @@ function tripCountdown(nowKey: string): { label: string; days: number | null } {
   return { label: t("tripDone"), days: null };
 }
 
-function DualCityStrip({ toronto, destination, weatherPending, onRetryWeather, onOpenChina }: { toronto: Weather; destination: Weather; weatherPending: boolean; onRetryWeather: () => void; onOpenChina: () => void }) {
+/** Page-1 trip countdown strip. Through v1.9.x this also carried both
+ * cities' weather; v2.0 moves weather to the status page's info card,
+ * so the strip is the countdown alone — the days number stays the
+ * visual anchor (v1.8.2) and the whole strip still clicks through to
+ * page 3 (the button stays as the keyboard target). */
+function TripCountdownStrip({ onOpenChina }: { onOpenChina: () => void }) {
   const todayKey = torontoTodayKey(new Date());
   const trip = tripCountdown(todayKey);
-  const diffTemp = toronto?.temperature != null && destination?.temperature != null ? Math.round(destination.temperature - toronto.temperature) : null;
-  const diffText = diffTemp === null ? null : diffTemp === 0 ? t("tempSame") : diffTemp > 0 ? `${t("destination")} ${t("tempWarmer")} ${diffTemp}°` : `${t("destination")} ${t("tempColder")} ${Math.abs(diffTemp)}°`;
   return (
     <div
       onClick={onOpenChina}
       className={`${CARD_CLASS} group mt-2 flex cursor-pointer flex-wrap items-center gap-x-5 gap-y-1.5 transition hover:border-[var(--accent)] [@media(max-height:949px)]:mt-1.5`}
-      aria-label={t("dualCityTitle")}
+      aria-label={t("tripCountdownTitle")}
       title={t("page3")}
     >
       <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[var(--text)]">
         <SvgIcon color="#f53f3f" size={14} className="shrink-0"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" /></SvgIcon>
         {t("tripCountdownTitle")}
       </span>
-      {/* v1.8.2: the days-to-departure number is the strip's visual
-          anchor — big, extra-bold, accent-colored; the label, unit
-          and date range stay small beside it. The whole strip clicks
-          through to page 3 (the button stays as the keyboard target). */}
       <button
         type="button"
         onClick={(e) => {
@@ -1426,138 +1611,17 @@ function DualCityStrip({ toronto, destination, weatherPending, onRetryWeather, o
               {trip.days}
             </span>
             <span className="font-semibold">{t("daysUnit")}</span>
-            <span className="font-normal text-[var(--dim)]">· 2027-01-15 → 2027-03-01</span>
+            <span className="flex items-center gap-1 font-normal text-[var(--dim)]">
+              · 2027-01-15 <ArrowRightIcon size={12} /> 2027-03-01
+            </span>
           </>
         ) : (
           trip.label
         )}
       </button>
-      {/* 双城当前天气 + 温差 + 目的地明日 + 目的地空气，一条扫完
-          （v1.8.1 起顶栏右上同样有双城天气，两处并存）。 */}
-      {toronto ? (
-        <span className="flex min-w-0 items-center gap-1.5 text-[13px] text-[var(--dim)]" title={weatherTitle(toronto)}>
-          <WeatherGlyph />
-          <span className="truncate"><span className="font-medium text-[var(--text)]">{t("weatherToday")}</span> {weatherSummary(toronto)}</span>
-        </span>
-      ) : weatherPending ? (
-        <span className="text-[13px] text-[var(--dim)]">{t("weatherLoading")}</span>
-      ) : (
-        <span className="text-[13px] text-[var(--dim)]">
-          {t("weatherUnavailable")}
-          <button type="button" onClick={(e) => { e.stopPropagation(); onRetryWeather(); }} aria-label={t("retry")} className="ml-1.5 font-medium text-[var(--accent)] underline underline-offset-2">{t("retry")}</button>
-        </span>
-      )}
-      {destination ? (
-        <span className="flex min-w-0 items-center gap-1.5 text-[13px] text-[var(--dim)]" title={weatherTitle(destination)}>
-          <WeatherGlyph />
-          <span className="truncate"><span className="font-medium text-[var(--text)]">{t("weatherDestination")}</span> {weatherSummary(destination)}</span>
-        </span>
-      ) : weatherPending ? (
-        <span className="text-[13px] text-[var(--dim)]">{t("destinationLoading")}</span>
-      ) : (
-        <span className="text-[13px] text-[var(--dim)]">
-          {t("destinationUnavailable")}
-          <button type="button" onClick={(e) => { e.stopPropagation(); onRetryWeather(); }} aria-label={t("retry")} className="ml-1.5 font-medium text-[var(--accent)] underline underline-offset-2">{t("retry")}</button>
-        </span>
-      )}
-      {diffText ? <span className="text-[13px] text-[var(--dim)]">{diffText}</span> : null}
-      {tomorrowLine(destination) ? <span className="min-w-0 truncate text-[13px] text-[var(--dim)]">{t("destination")} {t("tomorrow")}：{tomorrowLine(destination)}</span> : null}
-      {aqiText(destination) ? <span className="text-[13px] text-[var(--dim)]">{t("destination")} {aqiText(destination)}</span> : null}
-      {/* Click affordance: the chevron warms to the accent color with
-          the strip's hover border — the strip is a door to page 3,
-          not a hidden one. */}
-      <span aria-hidden="true" className="ml-auto shrink-0 text-lg leading-none text-[var(--dim)] transition group-hover:text-[var(--accent)]">›</span>
-    </div>
-  );
-}
-
-/**
- * Top-right header block in the fuller v1.7.2 layout, restored in
- * v1.8.1 (v1.8.0 had compressed it to a single line and dropped the
- * weather from here — Mark preferred the older, fuller use of the
- * space): a stacked, right-aligned column —
- *   row 1: work chip + live Toronto / Beijing clocks;
- *   row 2: Toronto weather (temp / condition / high-low / tomorrow /
- *          humidity, all visible);
- *   row 3: Destination City weather, same shape;
- *   row 4: CAD→CNY rate with the 100-CAD equivalent + update date.
- * The page-1 dual-city strip keeps its own weather lines too; this
- * header block is the canonical one. Ticks every second.
- */
-function HeaderMeta({
-  fx,
-  fxPending,
-  onRetryFx,
-  weather,
-  destination,
-  weatherPending,
-  onRetryWeather,
-}: {
-  fx: Fx;
-  fxPending: boolean;
-  onRetryFx: () => void;
-  weather: Weather;
-  destination: Weather;
-  weatherPending: boolean;
-  onRetryWeather: () => void;
-}) {
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-  const work = offWorkState(now);
-
-  return (
-    <div className="flex w-full min-w-0 max-w-full flex-col gap-y-1 lg:items-end">
-      <div className="flex w-full min-w-0 flex-wrap items-center gap-x-3 gap-y-1 lg:justify-end">
-        <span
-          className={
-            work.off
-              ? "max-w-full shrink-0 whitespace-nowrap rounded-full bg-[var(--header-chip)] px-2 py-0.5 text-[11px] font-medium leading-snug text-[var(--header-dim)]"
-              : "max-w-full shrink-0 whitespace-nowrap rounded-full bg-[#00b578]/15 px-2 py-0.5 text-[11px] font-medium leading-snug text-[#00754b] dark:text-[#5ee0a8]"
-          }
-        >
-          <span
-            aria-hidden="true"
-            className={
-              work.off
-                ? "mr-1 inline-block h-1.5 w-1.5 rounded-full bg-[var(--header-dim)] align-middle"
-                : "mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#00b578] align-middle motion-reduce:animate-none dark:bg-[#00b578]"
-            }
-          />
-          {work.prefix} · {work.label}
-        </span>
-        <span className="shrink-0 whitespace-nowrap text-[11px] text-[var(--header-dim)]">
-          {t("toronto")} {formatZoneDate(now, "America/Toronto")}{" "}
-          <span className="text-sm font-bold tabular-nums text-[var(--header-text)]">
-            {formatClockTime(now, "America/Toronto")}
-          </span>
-        </span>
-        <span className="shrink-0 whitespace-nowrap border-l border-[var(--header-border)] pl-3 text-[11px] text-[var(--header-dim)]">
-          {t("beijing")} {formatZoneDate(now, "Asia/Shanghai")}{" "}
-          <span className="text-sm font-bold tabular-nums text-[var(--header-text)]">
-            {formatClockTime(now, "Asia/Shanghai")}
-          </span>
-        </span>
-      </div>
-      <HeaderWeatherLine
-        w={weather}
-        label={t("weatherToday")}
-        pending={weatherPending}
-        loadingText={t("weatherLoading")}
-        unavailableText={t("weatherUnavailable")}
-        onRetry={onRetryWeather}
-      />
-      <HeaderWeatherLine
-        w={destination}
-        label={`${t("weatherDestination")}`}
-        pending={weatherPending}
-        loadingText={t("destinationLoading")}
-        unavailableText={t("destinationUnavailable")}
-        onRetry={onRetryWeather}
-      />
-      <FxSegment fx={fx} pending={fxPending} onRetry={onRetryFx} />
+      <span aria-hidden="true" className="ml-auto flex shrink-0 text-[var(--dim)] transition group-hover:text-[var(--accent)]">
+        <ChevronRightIcon size={18} />
+      </span>
     </div>
   );
 }
@@ -1666,7 +1730,7 @@ function TinaPulseStrip({ tinaStatus }: { tinaStatus: string }) {
 }
 
 /** Page-1 slim summary of today's completions: one line with the count,
- * linking to page 4 (History) where the full 7-day archive lives. */
+ * linking to the History page where the full 7-day archive lives. */
 function DoneTodayStrip({
   count,
   onOpen,
@@ -1693,10 +1757,12 @@ function DoneTodayStrip({
           {t("doneTodayNone")}
         </span>
       ) : (
-        <span className="text-[13px] font-medium text-[var(--accent)]">
+        <span className="flex items-center gap-1.5 text-[13px] font-medium text-[var(--accent)]">
           {activeLang === "zh"
-            ? `✓ 今日已完成 ${count} 件 → 第 4 页`
-            : `✓ ${count} done today → History`}
+            ? `今日已完成 ${count} 件`
+            : `${count} done today`}
+          <ArrowRightIcon size={13} />
+          {activeLang === "zh" ? "历史页" : "History"}
         </span>
       )}
     </button>
@@ -1733,7 +1799,7 @@ function historyGroupLabel(dateKey: string): string {
 
 type DoneGroup = { date: string; items: string[] };
 
-/** Page-4 day groups: today's live list first (still unarchived), then
+/** History day groups: today's live list first (still unarchived), then
  * the archived buckets; a same-date bucket merges into today's group. */
 function buildDoneGroups(
   doneToday: string[],
@@ -1752,7 +1818,7 @@ function buildDoneGroups(
   return groups;
 }
 
-/** Page 4 「完成记录」: read-only archive of completions, grouped by day. */
+/** History page: read-only archive of completions, grouped by day. */
 function DoneHistoryPage({ groups }: { groups: DoneGroup[] }) {
   if (groups.length === 0) {
     return (
@@ -1781,9 +1847,10 @@ function DoneHistoryPage({ groups }: { groups: DoneGroup[] }) {
             {group.items.map((entry, i) => (
               <li
                 key={`${group.date}-${i}-${entry}`}
-                className="rounded-[6px] bg-[#00b578]/10 px-2 py-0.5 text-xs font-medium text-[#00754b] dark:text-[#5ee0a8]"
+                className="flex items-center gap-1 rounded-[6px] bg-[#00b578]/10 px-2 py-0.5 text-xs font-medium text-[#00754b] dark:text-[#5ee0a8]"
               >
-                ✓ {entry}
+                <CheckIcon size={11} />
+                {entry}
               </li>
             ))}
           </ul>
@@ -1807,7 +1874,7 @@ function SpotifyGlyph() {
 }
 
 /**
- * Slim Spotify strip under the Tina pulse row: now-playing (track /
+ * Spotify card (v2.0: on the status page): now-playing (track /
  * artist / device) with previous / play-pause / next buttons and a
  * volume slider. Polls every 45 s; every control refetches the state
  * immediately after it lands. Quiet empty states when Spotify is not
@@ -1843,7 +1910,7 @@ function SpotifyStrip({
   return (
     <div
       aria-label={t("spotifyLabel")}
-      className={`${CARD_CLASS} mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 [@media(max-height:949px)]:mt-1.5`}
+      className={`${CARD_CLASS} mt-3 flex flex-wrap items-center gap-x-3 gap-y-1`}
     >
       <span className="flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-[var(--text)]">
         <SpotifyGlyph />
@@ -1989,6 +2056,371 @@ function SpotifyStrip({
         </>
       )}
     </div>
+  );
+}
+
+type ProgramsData = ApiResponse<typeof api, "getPrograms">;
+type ProgramEntry = ProgramsData["programs"][number];
+type ProgramActionName = "start" | "stop" | "restart" | "run" | "autostart-toggle";
+
+/** 程序区 (v2.0, status page). The registry + allowed controls come
+ * from the server (hard-coded there per Mark's classification); this
+ * component only renders what the category allows:
+ *   readonly / info / device-status — NO buttons are rendered at all;
+ *   always — restart only (or 立即运行 for scheduled tasks), never stop;
+ *   proxy — restart, plus the group-level 默认自启 switch;
+ *   toggle / foxshare — start / stop / restart;
+ *   device — restart only, never power-off.
+ * A press only REGISTERS a request (requestProgramControl): while a
+ * request is pending the row shows 已登记 · 待执行 and the verified
+ * state stays exactly as last reported — nothing pretends to have
+ * happened until reportProgramResult writes the outcome back. */
+const PROG_GROUPS: { titleKey: StrKey; categories: ProgramEntry["category"][] }[] = [
+  { titleKey: "progGroupReadonly", categories: ["readonly"] },
+  { titleKey: "progGroupAlways", categories: ["always"] },
+  { titleKey: "progGroupProxy", categories: ["proxy"] },
+  { titleKey: "progGroupInfo", categories: ["info"] },
+  { titleKey: "progGroupToggle", categories: ["toggle", "foxshare"] },
+  { titleKey: "progGroupDevices", categories: ["device", "device-status"] },
+];
+
+function programActionText(action: string): string {
+  if (activeLang === "en") {
+    switch (action) {
+      case "start": return "Start";
+      case "stop": return "Stop";
+      case "restart": return "Restart";
+      case "run": return "Run now";
+      case "autostart-toggle": return "Default-start setting";
+      default: return "Verify";
+    }
+  }
+  switch (action) {
+    case "start": return "启动";
+    case "stop": return "停止";
+    case "restart": return "重启";
+    case "run": return "立即运行";
+    case "autostart-toggle": return "默认自启设置";
+    default: return "核验";
+  }
+}
+
+function ProgramStateLine({ program }: { program: ProgramEntry }) {
+  if (program.pending) {
+    return (
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-[6px] bg-[#ff9d0a]/15 px-2 py-0.5 text-xs font-medium text-[#a15e00] dark:text-[#ffc65c]">
+        <span aria-hidden="true" className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#ff9d0a] motion-reduce:animate-none" />
+        {t("progPending")} · {programActionText(program.pending.action)}
+      </span>
+    );
+  }
+  if (!program.state) {
+    return (
+      <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-[var(--dim)]">
+        <span aria-hidden="true" className="h-2 w-2 rounded-full border border-[var(--dim)]" />
+        {t("progUnverified")}
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-[var(--dim)]">
+      <span
+        aria-hidden="true"
+        className={`h-2 w-2 rounded-full ${program.state.status === "up" ? "bg-[#00b578]" : "bg-[#f53f3f]"}`}
+      />
+      <span className={program.state.status === "up" ? "font-semibold text-[#00915f] dark:text-[#5ee0a8]" : "font-semibold text-[#d92d20] dark:text-[#ff9d97]"}>
+        {program.state.status === "up" ? t("progRunning") : t("progDown")}
+      </span>
+      {program.state.verifiedAt
+        ? `${t("progVerifiedAt")} ${formatStampToronto(program.state.verifiedAt)}`
+        : null}
+    </span>
+  );
+}
+
+function ProgramRowView({
+  program,
+  busy,
+  onRequest,
+}: {
+  program: ProgramEntry;
+  busy: boolean;
+  onRequest: (program: ProgramEntry, action: ProgramActionName) => void;
+}) {
+  const name = activeLang === "zh" ? program.name : program.nameEn;
+  const note = activeLang === "zh" ? program.note : program.noteEn;
+  const btnCls =
+    "h-8 shrink-0 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-3 text-[13px] font-medium text-[var(--text)] transition hover:bg-[var(--fill)] active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50";
+  const primaryBtnCls =
+    "h-8 shrink-0 rounded-[6px] bg-[var(--accent)] px-3 text-[13px] font-semibold text-white transition hover:bg-[var(--accent-hover)] active:bg-[var(--accent-active)] active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50";
+  const showButtons =
+    !program.pending &&
+    (program.category === "always" ||
+      program.category === "proxy" ||
+      program.category === "toggle" ||
+      program.category === "foxshare" ||
+      program.category === "device");
+  return (
+    <li className="py-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        <div className="min-w-0 flex-1 basis-48">
+          <p className="truncate text-sm font-medium leading-snug text-[var(--text)]">
+            {name}
+            <span className="ml-2 text-xs font-normal text-[var(--dim)]">{program.device}</span>
+          </p>
+          {note ? (
+            <p className="mt-0.5 text-xs leading-snug text-[var(--dim)]">{note}</p>
+          ) : null}
+        </div>
+        <ProgramStateLine program={program} />
+        {showButtons ? (
+          <span className="flex shrink-0 items-center gap-1.5">
+            {program.category === "always" ? (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => onRequest(program, program.runLabel ? "run" : "restart")}
+                aria-label={`${program.runLabel ? t("progRunNow") : t("progRestart")}：${name}`}
+                className={primaryBtnCls}
+              >
+                {program.runLabel ? t("progRunNow") : t("progRestart")}
+              </button>
+            ) : null}
+            {program.category === "proxy" || program.category === "device" ? (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => onRequest(program, "restart")}
+                aria-label={`${t("progRestart")}：${name}`}
+                className={btnCls}
+              >
+                {program.category === "device" ? t("progDeviceRestart") : t("progRestart")}
+              </button>
+            ) : null}
+            {program.category === "toggle" || program.category === "foxshare" ? (
+              <>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => onRequest(program, "start")}
+                  aria-label={`${t("progStart")}：${name}`}
+                  className={btnCls}
+                >
+                  {t("progStart")}
+                </button>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => onRequest(program, "stop")}
+                  aria-label={`${t("progStop")}：${name}`}
+                  className={btnCls}
+                >
+                  {t("progStop")}
+                </button>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => onRequest(program, "restart")}
+                  aria-label={`${t("progRestart")}：${name}`}
+                  className={btnCls}
+                >
+                  {t("progRestart")}
+                </button>
+              </>
+            ) : null}
+          </span>
+        ) : null}
+      </div>
+      {program.lastAudit ? (
+        <p className="mt-1 text-xs leading-snug text-[var(--dim)]">
+          {formatStampToronto(program.lastAudit.at)} · {program.lastAudit.text}
+        </p>
+      ) : null}
+    </li>
+  );
+}
+
+function ProgramsSection() {
+  const queryClient = useQueryClient();
+  const programsQuery = useQuery({
+    queryKey: ["programs"],
+    queryFn: () => api.getPrograms({}),
+    refetchInterval: 60_000,
+  });
+  const [confirmFor, setConfirmFor] = useState<{
+    program: ProgramEntry;
+    action: ProgramActionName;
+  } | null>(null);
+  const [requestError, setRequestError] = useState(false);
+  const requestMutation = useMutation({
+    mutationFn: async (args: { programId: string; action: ProgramActionName }) =>
+      await api.requestProgramControl(args),
+    onMutate: () => setRequestError(false),
+    onSuccess: (result) => {
+      if (!result.ok) setRequestError(true);
+    },
+    onError: () => setRequestError(true),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["programs"] });
+    },
+  });
+  const data = programsQuery.data;
+  const handleRequest = (program: ProgramEntry, action: ProgramActionName) => {
+    // Mir2 stop/restart and the Surface device restart pass the
+    // in-game-announcement confirmation step first — no request is
+    // filed until Mark confirms the announcement was made.
+    if (program.confirm && (action === "stop" || action === "restart")) {
+      setConfirmFor({ program, action });
+      return;
+    }
+    requestMutation.mutate({ programId: program.id, action });
+  };
+  const proxyPending = data?.proxyPending ?? null;
+  return (
+    <section aria-label={t("progTitle")} className={`${CARD_CLASS} mt-3 min-w-0`}>
+      <SectionHeading icon={<SectionTile kind="programs" />}>{t("progTitle")}</SectionHeading>
+      <p className="-mt-1 text-[13px] leading-relaxed text-[var(--dim)]">{t("progSub")}</p>
+      {requestError ? (
+        <p role="alert" className="mt-2 rounded-lg border border-[#d92d20] px-3 py-2 text-sm text-[#d92d20] dark:text-[#ff9d97]">
+          {t("progRequestFailed")}
+        </p>
+      ) : null}
+      {programsQuery.isPending && !data ? (
+        <p className="py-3 text-sm text-[var(--dim)]">{t("progLoading")}</p>
+      ) : !data ? (
+        <p className="py-3 text-sm text-[var(--dim)]">
+          {t("progUnavailable")}
+          <button
+            type="button"
+            onClick={() => void programsQuery.refetch()}
+            className="ml-2 font-medium text-[var(--text)] underline underline-offset-2"
+          >
+            {t("retry")}
+          </button>
+        </p>
+      ) : (
+        <>
+          {PROG_GROUPS.map((group) => {
+            const rows = data.programs.filter((p) => group.categories.includes(p.category));
+            if (rows.length === 0) return null;
+            return (
+              <div key={group.titleKey} className="mt-3 first:mt-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-[13px] font-semibold tracking-wide text-[var(--text)]">
+                    {t(group.titleKey)}
+                  </h3>
+                  {group.titleKey === "progGroupProxy" ? (
+                    <span className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-[var(--dim)]">{t("progAutostart")}</span>
+                      {proxyPending ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-[6px] bg-[#ff9d0a]/15 px-2 py-0.5 text-xs font-medium text-[#a15e00] dark:text-[#ffc65c]">
+                          <span aria-hidden="true" className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#ff9d0a] motion-reduce:animate-none" />
+                          {t("progPending")}
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={data.proxyAutostart}
+                          aria-label={t("progAutostartAria")}
+                          disabled={requestMutation.isPending}
+                          onClick={() =>
+                            requestMutation.mutate({
+                              programId: "proxy-group",
+                              action: "autostart-toggle",
+                            })
+                          }
+                          className={`relative h-6 w-11 shrink-0 rounded-full transition disabled:opacity-50 ${data.proxyAutostart ? "bg-[var(--accent)]" : "bg-[var(--border)]"}`}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${data.proxyAutostart ? "left-[22px]" : "left-0.5"}`}
+                          />
+                        </button>
+                      )}
+                    </span>
+                  ) : null}
+                </div>
+                <ul className="divide-y divide-[var(--border)]">
+                  {rows.map((program) => (
+                    <ProgramRowView
+                      key={program.id}
+                      program={program}
+                      busy={requestMutation.isPending}
+                      onRequest={handleRequest}
+                    />
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+          <div className="mt-4 border-t border-[var(--border)] pt-3">
+            <h3 className="text-[13px] font-semibold tracking-wide text-[var(--text)]">
+              {t("progAuditTitle")}
+            </h3>
+            {data.audit.length === 0 ? (
+              <p className="mt-1.5 text-[13px] text-[var(--dim)]">{t("progAuditEmpty")}</p>
+            ) : (
+              <ul className="mt-1.5 flex flex-col gap-1">
+                {data.audit.map((entry) => (
+                  <li key={entry.id} className="flex flex-wrap items-baseline gap-x-2 text-xs leading-relaxed text-[var(--dim)]">
+                    <span className="shrink-0 tabular-nums">{formatStampToronto(entry.at)}</span>
+                    <span className="shrink-0 font-medium text-[var(--text)]">{entry.programName}</span>
+                    <span className="min-w-0">{entry.text}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </>
+      )}
+      {confirmFor ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("progConfirmTitle")}
+          className="fixed inset-0 z-[70] flex items-end justify-center bg-black/45 p-4 sm:items-center"
+          onClick={() => setConfirmFor(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-[10px] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[0_8px_28px_rgba(28,31,35,0.25)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-base font-semibold text-[var(--text)]">{t("progConfirmTitle")}</h3>
+            <p className="mt-1.5 text-sm leading-relaxed text-[var(--dim)]">
+              {(activeLang === "zh" ? confirmFor.program.name : confirmFor.program.nameEn)}
+              {" · "}
+              {programActionText(confirmFor.action)}
+              {" — "}
+              {t("progConfirmBody")}
+            </p>
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                disabled={requestMutation.isPending}
+                onClick={() => {
+                  requestMutation.mutate({
+                    programId: confirmFor.program.id,
+                    action: confirmFor.action,
+                  });
+                  setConfirmFor(null);
+                }}
+                className="h-10 flex-1 rounded-[6px] bg-[var(--accent)] text-sm font-semibold text-white transition hover:bg-[var(--accent-hover)] active:bg-[var(--accent-active)] disabled:opacity-50"
+              >
+                {t("progConfirmGo")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmFor(null)}
+                className="h-10 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-4 text-sm font-medium text-[var(--text)] transition hover:bg-[var(--fill)]"
+              >
+                {t("progConfirmCancel")}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </section>
   );
 }
 
@@ -2204,21 +2636,14 @@ function StatusChip({
 
 type BoardPage = "main" | "more" | "china" | "history" | "jason" | "growth";
 
-/** Page switch, grouped since v1.9.0 (Semi button-type Tabs — the fill
- * container + white selected tab the board has used since v1.7.0, now
- * arranged in three labelled groups so six pages stay one-glance):
- *   日常 (daily):  今天 (page 1 workbench) / 待拍板 (waiting-on-decision)
- *                  / 状态 (page 2: later deadlines + status detail —
- *                  page 1's own drill-down, last in the daily group;
- *                  the CFO tab left this group in v1.9.1)
- *   专题 (topics): 增长 (growth) / 回国 (page 3, expanded in place)
- *   记录 (records): 历史 (done-history archive)
- * The bar is ONE line at every width: it never wraps and never hides
- * a page into a menu — at 390px it scrolls horizontally instead.
- * Group captions + hairline dividers make the grouping visible in the
- * bar's arrangement; grouping governs order/presentation only, every
- * page's contents are unchanged. */
-function PageTabs({
+/** Navigation (v2.0): a Semi-style left rail. Pages keep their v1.9.0
+ * groups — 日常 (daily): 今天 / 待拍板 / 状态 · 专题 (topics): 增长 /
+ * 回国 · 记录 (records): 历史 — each group with a small heading and
+ * every tab carrying the board's one line-icon set. At desktop width
+ * the rail is a vertical column beside the content; below lg it
+ * collapses to a single horizontally scrollable tab row — it never
+ * wraps and never hides pages behind a hamburger menu. */
+function RailNav({
   page,
   chinaCount,
   jasonCount,
@@ -2229,10 +2654,9 @@ function PageTabs({
   jasonCount: number;
   onChange: (page: BoardPage) => void;
 }) {
-  // At 390px the bar scrolls horizontally (by design); whenever the
-  // page changes — including arrivals via in-page buttons like the
-  // dual-city strip — slide the selected tab into view so the current
-  // page is always visible in the bar.
+  // Whenever the page changes — including arrivals via in-page buttons
+  // like the countdown strip — slide the selected tab into view so the
+  // current page is always visible in the phone-width row.
   const listRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const list = listRef.current;
@@ -2246,63 +2670,79 @@ function PageTabs({
       list.scrollLeft += delta;
     }
   }, [page]);
-  const tabCls = (active: boolean) =>
-    active
-      ? "h-8 shrink-0 whitespace-nowrap rounded-[6px] bg-[var(--surface)] px-3 text-[13px] font-semibold text-[var(--accent)] shadow-[0_1px_4px_rgba(28,31,35,0.14)] transition"
-      : "h-8 shrink-0 whitespace-nowrap rounded-[6px] px-3 text-[13px] font-medium text-[var(--dim)] transition hover:text-[var(--text)]";
-  const caption = (label: string, first: boolean) => (
-    <span
-      aria-hidden="true"
-      className={`shrink-0 select-none whitespace-nowrap text-[11px] font-semibold tracking-wide text-[var(--dim)] ${
-        first ? "pl-1.5 pr-0.5" : "pl-2 pr-0.5"
-      }`}
-    >
-      {label}
-    </span>
-  );
-  const divider = (
-    <span aria-hidden="true" className="mx-1 h-5 w-px shrink-0 self-center bg-[var(--border)]" />
-  );
-  const tab = (
-    target: BoardPage,
-    label: string,
-    aria: string,
-    count?: number,
-  ) => (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={page === target}
-      aria-label={aria}
-      onClick={() => onChange(target)}
-      className={tabCls(page === target)}
-    >
-      {label}
-      {count !== undefined && count > 0 ? (
-        <span className="tabular-nums"> {count}</span>
-      ) : null}
-    </button>
-  );
+  const groups: { caption: string; tabs: { target: BoardPage; label: string; aria: string; count?: number }[] }[] = [
+    {
+      caption: t("tabGroupDaily"),
+      tabs: [
+        { target: "main", label: t("tabToday"), aria: t("railTodayPage") },
+        { target: "jason", label: t("tabJason"), aria: t("jasonTitle"), count: jasonCount },
+        { target: "more", label: t("tabStatus"), aria: t("statusDetail") },
+      ],
+    },
+    {
+      caption: t("tabGroupTopic"),
+      tabs: [
+        { target: "growth", label: t("tabGrowth"), aria: t("growthTitle") },
+        { target: "china", label: t("tabChina"), aria: t("page3"), count: chinaCount },
+      ],
+    },
+    {
+      caption: t("tabGroupRecord"),
+      tabs: [{ target: "history", label: t("tabHistory"), aria: t("page4") }],
+    },
+  ];
   return (
-    <div className="mt-2">
-      <div
-        ref={listRef}
-        role="tablist"
-        aria-label={t("tabsAria")}
-        className="flex max-w-full items-center gap-0.5 overflow-x-auto rounded-[8px] border border-[var(--border)] bg-[var(--fill)] p-[3px]"
-      >
-        {caption(t("tabGroupDaily"), true)}
-        {tab("main", t("tabToday"), t("page1"))}
-        {tab("jason", t("tabJason"), t("jasonTitle"), jasonCount)}
-        {tab("more", t("tabStatus"), activeLang === "zh" ? "第 2 页 · 更远到期 + 状态详情" : "Page 2 · Later deadlines + Status")}
-        {divider}
-        {caption(t("tabGroupTopic"), false)}
-        {tab("growth", t("tabGrowth"), t("growthTitle"))}
-        {tab("china", t("tabChina"), t("page3"), chinaCount)}
-        {divider}
-        {caption(t("tabGroupRecord"), false)}
-        {tab("history", t("tabHistory"), t("page4"))}
-      </div>
+    <div
+      ref={listRef}
+      role="tablist"
+      aria-label={t("navAria")}
+      className="flex max-w-full items-center gap-1 overflow-x-auto px-4 pb-1 pt-2 lg:max-h-none lg:flex-col lg:items-stretch lg:gap-0 lg:overflow-visible lg:px-0 lg:pb-0 lg:pt-0"
+    >
+      {groups.map((group, gi) => (
+        <div
+          key={group.caption}
+          className="flex shrink-0 items-center gap-1 lg:mb-4 lg:flex-col lg:items-stretch"
+        >
+          <span
+            aria-hidden="true"
+            className={`shrink-0 select-none whitespace-nowrap px-1 text-[11px] font-semibold tracking-wide text-[var(--dim)] lg:px-2.5 lg:pb-1.5 ${gi > 0 ? "ml-2 lg:ml-0" : ""}`}
+          >
+            {group.caption}
+          </span>
+          {group.tabs.map((tab) => {
+            const active = page === tab.target;
+            return (
+              <button
+                key={tab.target}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                aria-label={tab.aria}
+                onClick={() => onChange(tab.target)}
+                className={
+                  active
+                    ? "flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-[8px] bg-[var(--accent)]/10 px-3 text-[13px] font-semibold text-[var(--accent)] transition lg:h-10 lg:px-2.5 lg:text-sm"
+                    : "flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-[8px] px-3 text-[13px] font-medium text-[var(--dim)] transition hover:bg-[var(--fill)] hover:text-[var(--text)] lg:h-10 lg:px-2.5 lg:text-sm"
+                }
+              >
+                <NavIcon page={tab.target} />
+                {tab.label}
+                {tab.count !== undefined && tab.count > 0 ? (
+                  <span
+                    className={
+                      active
+                        ? "ml-auto rounded-full bg-[var(--accent)] px-1.5 py-px text-[11px] font-semibold tabular-nums text-white"
+                        : "ml-auto rounded-full bg-[var(--fill)] px-1.5 py-px text-[11px] font-semibold tabular-nums text-[var(--dim)]"
+                    }
+                  >
+                    {tab.count}
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 }
@@ -2472,7 +2912,7 @@ function AddChinaForm({
 }
 
 /** Deadline items as ONE line per item (date · title · note inline · countdown),
- * shared by page 1 (≤14 天） and page 2 (>14 天）. Items arrive from the
+ * shared by page 1 (≤14 天） and the status page (>14 天）. Items arrive from the
  * server in pure due-date order (soonest first); v1.8.2 stable-pins
  * items due today (Toronto date) to the very top — their relative
  * order is kept, and every other item keeps its order too. */
@@ -2503,9 +2943,6 @@ function DeadlineGroups({ items }: { items: Item[] }) {
               ) : null}
             </span>
             <StatusPill status={item.status} />
-            {/* Fixed-width right-aligned slot: the countdown chip's right
-                edge (and the pill just left of it) lines up on every row,
-                whether the chip is a pill or plain text, or absent. */}
             <span className="flex w-[84px] shrink-0 items-center justify-end">
               {left !== null ? <DeadlineChip left={left} /> : null}
             </span>
@@ -2540,9 +2977,11 @@ function StatusPill({ status }: { status: string }) {
   const label = STATUS_LABELS[status]?.[activeLang] ?? status;
   return (
     <span
-      className={`shrink-0 rounded-[6px] px-2 py-0.5 text-xs font-medium ${cls}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 rounded-[6px] px-2 py-0.5 text-xs font-medium ${cls}`}
     >
-      {status === "进行中" ? "● " : ""}
+      {status === "进行中" ? (
+        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
+      ) : null}
       {label}
     </span>
   );
@@ -2592,7 +3031,7 @@ function EmptyLine({ text }: { text: string }) {
   );
 }
 
-/** Compact one-row empty state for narrow cards (e.g. page 2's side column). */
+/** Compact one-row empty state for narrow cards (e.g. the far-deadlines card). */
 function EmptyLineCompact({ text }: { text: string }) {
   return (
     <div className="flex items-center gap-2 py-1 text-left">
@@ -2612,7 +3051,10 @@ function EmptyLineCompact({ text }: { text: string }) {
 
 function VerdictMark({ verdict }: { verdict: Verdict }) {
   return verdict === "yes" ? (
-    <span className="font-semibold text-[var(--accent)]">{t("approved")}</span>
+    <span className="inline-flex items-center gap-1 font-semibold text-[var(--accent)]">
+      <CheckIcon size={13} />
+      {t("approved")}
+    </span>
   ) : (
     <span className="font-semibold text-[#d92d20] dark:text-[#ff9d97]">{t("rejected")}</span>
   );
@@ -2704,7 +3146,7 @@ const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 /** 待拍板 page (waiting-on-decision). Feed convention (the ops lane
  * writes via the generic item actions, section "jason"): dueDate =
  * the day the ask was raised, so drag days = today − dueDate and the
- * list is sorted longest-wait first; a hard date, when the item has one,
+ * sorted longest-wait first; a hard date, when the item has one,
  * rides in `status` as an ISO date and gets the board's DeadlineChip
  * badge （今天到期 orange-red / overdue red — same caliber as the
  * deadlines list). Rows Tina closes land in the 本周已清 strip via
@@ -2793,7 +3235,7 @@ function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
           <ul className="divide-y divide-[var(--border)]">
             {cleared.map((item) => (
               <li key={item.id} className="flex items-center gap-2 py-[5px]">
-                <span aria-hidden="true" className="shrink-0 font-semibold text-[#00b578]">✓</span>
+                <span aria-hidden="true" className="flex shrink-0 text-[#00b578]"><CheckIcon size={14} /></span>
                 <span className="min-w-0 flex-1 truncate text-sm text-[var(--dim)]">
                   <span className="font-medium">{item.title}</span>
                   {item.detail ? <span> · {item.detail}</span> : null}
@@ -2991,23 +3433,6 @@ function DecisionItem({
   );
 }
 
-function HeaderStat({ value, label, accent }: { value: number; label: string; accent?: boolean }) {
-  return (
-    <div className="flex items-baseline gap-1.5 py-0.5">
-      <span
-        className={
-          accent
-            ? "text-base font-bold tabular-nums leading-none text-[var(--header-accent)]"
-            : "text-base font-bold tabular-nums leading-none text-[var(--header-text)]"
-        }
-      >
-        {value}
-      </span>
-      <span className="text-[11px] leading-none text-[var(--header-dim)]">{label}</span>
-    </div>
-  );
-}
-
 const INPUT_CLASS =
   "h-10 w-full rounded-[6px] border border-[var(--border)] bg-[var(--fill)] px-3 text-[15px] text-[var(--text)] placeholder:text-[var(--dim)] transition focus:border-[var(--accent)] focus:bg-[var(--surface)] focus:shadow-[0_0_0_3px_var(--accent-ring)] focus:outline-none";
 
@@ -3113,8 +3538,11 @@ function LaneRow({
             <LaneGlyph lane={item.lane} />
           </span>
           <span className="truncate">{item.title}</span>
-          <span aria-hidden="true" className="shrink-0 text-xs text-[var(--dim)]">
-            {expanded ? "▾" : "▸"}
+          <span
+            aria-hidden="true"
+            className={`flex shrink-0 text-[var(--dim)] transition-transform ${expanded ? "rotate-180" : "-rotate-90"}`}
+          >
+            <ChevronDownIcon size={13} />
           </span>
         </button>
         <StatusPill status={item.status} />
@@ -3450,13 +3878,16 @@ export function App() {
 
   const jumpToItem = (id: number) => {
     setHeroOpen(false);
+    // Hero items live on the today page, except far-future deadlines,
+    // which live on the status page: try the current page, then today,
+    // then status, retrying as each page renders.
+    const fallbacks: BoardPage[] = ["main", "more"];
     const attempt = (triesLeft: number) => {
       const el = document.getElementById(`board-item-${id}`);
       if (!el) {
-        // A far-future deadline lives on page 2: switch, then retry once
-        // the other page has rendered.
         if (triesLeft > 0) {
-          setPage("more");
+          const next = fallbacks[fallbacks.length - triesLeft];
+          if (next) setPage(next);
           setTimeout(() => attempt(triesLeft - 1), 120);
         }
         return;
@@ -3467,7 +3898,7 @@ export function App() {
       el.classList.add("item-flash");
       setTimeout(() => el.classList.remove("item-flash"), 1900);
     };
-    requestAnimationFrame(() => attempt(1));
+    requestAnimationFrame(() => attempt(2));
   };
 
   // A 30-second heartbeat so the header date, the timeline's
@@ -3790,248 +4221,238 @@ export function App() {
     <div className="min-h-screen bg-[var(--bg)] font-sans antialiased">
       <SafeAreaTopScrim backgroundColor={scrimColor} />
 
-      {/* 深色顶栏：日期 + 今日概览数字；右上多段元信息（状态 + 双时钟 /
-          双城天气 / 汇率，v1.8.1 恢复 v1.7.2 的饱满排法） */}
-      {page === "main" ? (
-      <header className="border-b border-[var(--header-border)] bg-[var(--header-bg)] px-5 pb-2 pt-safe-or-3 text-[var(--header-text)] [@media(max-height:949px)]:pb-1">
+      {/* 顶栏 (v2.0)：只留品牌 + 关键状态片 — Hero 计数（待拍板 /
+          等跟进）、服务器总状态、更新时间，外加刷新与偏好开关。天气 /
+          汇率 / Spotify 已移入状态页的信息卡，不再堆在顶栏。 */}
+      <header className="border-b border-[var(--header-border)] bg-[var(--header-bg)] px-4 pb-2 pt-safe-or-3 text-[var(--header-text)] sm:px-5 [@media(max-height:949px)]:pb-1">
         <div className="mx-auto w-full max-w-[1600px]">
-          <div className="grid items-center gap-x-4 gap-y-2 lg:grid-cols-[1fr_auto_1fr] xl:grid-cols-[minmax(0,4.2fr)_auto_minmax(0,7fr)]">
-            <div className="min-w-0">
-              <div className="flex items-baseline gap-3">
-                <h1 className="text-lg font-bold leading-tight tracking-tight text-[var(--header-text)]">
-                  {t("boardTitle")}
-                </h1>
-                <span className="shrink-0 text-[11px] font-medium tracking-wide text-[var(--header-dim)]">
-                  OPS BOARD
-                </span>
-              </div>
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-                <button
-                  type="button"
-                  onClick={refreshAll}
-                  disabled={refreshing}
-                  aria-label={t("refreshAria")}
-                  className="h-8 shrink-0 rounded-[6px] bg-[var(--header-chip)] px-3 text-sm font-medium text-[var(--header-text)] transition hover:brightness-110 active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50"
-                >
-                  {refreshing ? t("refreshing") : t("refresh")}
-                </button>
-                <span className="text-xs tabular-nums text-[var(--header-dim)]">
-                  {t("updatedAt")}{" "}
-                  {new Intl.DateTimeFormat(uiLocale(), {
-                    timeZone: "America/Toronto",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hourCycle: "h23",
-                  }).format(new Date(board.dataUpdatedAt))}
-                  {t("torontoTimeSuffix")}
-                </span>
-                <StatusChip
-                  data={statusQuery.data}
-                  pending={statusQuery.isPending}
-                  checking={statusQuery.isFetching}
-                  onOpen={() => setPage("more")}
-                />
-                <PrefsControls
-                  themeMode={themeMode}
-                  onTheme={setThemeMode}
-                  lang={lang}
-                  onLang={setLang}
-                />
-              </div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <div className="flex shrink-0 items-baseline gap-2.5">
+              <h1 className="text-lg font-bold leading-tight tracking-tight text-[var(--header-text)]">
+                {t("boardTitle")}
+              </h1>
+              <span className="shrink-0 text-[11px] font-medium tracking-wide text-[var(--header-dim)]">
+                OPS BOARD
+              </span>
             </div>
 
             {/* 中间 Hero：需要 Mark 处理的事，一眼看到（紧凑版）。点开是
                 一个下拉浮层，逐件列出被计数的事项，点条目滚动定位。 */}
-            <div ref={heroRef} className="relative text-center lg:justify-self-center">
-              {actionCount > 0 ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setHeroOpen((v) => !v)}
-                    aria-expanded={heroOpen}
-                    aria-haspopup="true"
-                    aria-label={
-                      activeLang === "zh"
-                        ? followOnly
-                          ? followNamed
-                            ? `等你跟进：${followNamed}（点开查看全部）`
-                            : `查看等你跟进的 ${actionCount} 件事`
-                          : `查看需要你处理的 ${actionCount} 件事`
-                        : followNamed
-                          ? `Waiting on you: ${followNamed} (open to view all)`
-                          : actionCount === 1
-                            ? "View the 1 item that needs you"
-                            : `View the ${actionCount} items that need you`
-                    }
-                    className="rounded-lg px-2 py-1 transition hover:bg-[var(--header-chip)] active:scale-[0.99] motion-reduce:transition-none"
-                  >
-                    <span className="flex flex-col items-center gap-1">
-                      <span className="flex items-baseline justify-center gap-2 leading-none">
-                        <span className="text-3xl font-black tabular-nums text-[var(--header-accent)]">
-                          {actionCount}
-                        </span>
-                        <span className="text-base font-semibold text-[var(--header-text)]">
-                          {activeLang === "zh"
-                            ? followOnly
-                              ? "件等你跟进"
-                              : "样东西需要你处理"
-                            : followOnly
-                              ? actionCount === 1
-                                ? "item waiting on you"
-                                : "items waiting on you"
-                              : actionCount === 1
-                                ? "item needs your call"
-                                : "items need your call"}
-                        </span>
-                        {heroParts.length > 0 ? (
-                          <span className="text-xs text-[var(--header-dim)]">{heroParts.join(" · ")}</span>
-                        ) : null}
-                        <span aria-hidden="true" className="text-xs text-[var(--header-dim)]">
-                          {heroOpen ? "▴" : "▾"}
-                        </span>
+          <div ref={heroRef} className="relative min-w-0 text-center">
+            {actionCount > 0 ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setHeroOpen((v) => !v)}
+                  aria-expanded={heroOpen}
+                  aria-haspopup="true"
+                  aria-label={
+                    activeLang === "zh"
+                      ? followOnly
+                        ? followNamed
+                          ? `等你跟进：${followNamed}（点开查看全部）`
+                          : `查看等你跟进的 ${actionCount} 件事`
+                        : `查看需要你处理的 ${actionCount} 件事`
+                      : followNamed
+                        ? `Waiting on you: ${followNamed} (open to view all)`
+                        : actionCount === 1
+                          ? "View the 1 item that needs you"
+                          : `View the ${actionCount} items that need you`
+                  }
+                  className="rounded-lg px-2 py-1 transition hover:bg-[var(--header-chip)] active:scale-[0.99] motion-reduce:transition-none"
+                >
+                  <span className="flex flex-col items-center gap-1">
+                    <span className="flex items-baseline justify-center gap-2 leading-none">
+                      <span className="text-3xl font-black tabular-nums text-[var(--header-accent)]">
+                        {actionCount}
                       </span>
-                      {followNamed ? (
-                        <span className="max-w-[min(430px,86vw)] truncate text-xs font-medium text-[var(--header-dim)]">
-                          {followNamed}
-                        </span>
+                      <span className="text-base font-semibold text-[var(--header-text)]">
+                        {activeLang === "zh"
+                          ? followOnly
+                            ? "件等你跟进"
+                            : "样东西需要你处理"
+                          : followOnly
+                            ? actionCount === 1
+                              ? "item waiting on you"
+                              : "items waiting on you"
+                            : actionCount === 1
+                              ? "item needs your call"
+                              : "items need your call"}
+                      </span>
+                      {heroParts.length > 0 ? (
+                        <span className="text-xs text-[var(--header-dim)]">{heroParts.join(" · ")}</span>
                       ) : null}
+                      <span aria-hidden="true" className={`flex text-[var(--header-dim)] transition-transform ${heroOpen ? "rotate-180" : ""}`}>
+                        <ChevronDownIcon size={13} />
+                      </span>
                     </span>
-                  </button>
-                  {heroOpen ? (
-                    <div className="absolute left-1/2 top-full z-50 mt-1 w-[min(430px,92vw)] -translate-x-1/2 rounded-[10px] border border-[var(--border)] bg-[var(--surface)] p-1.5 text-left shadow-[0_0_1px_rgba(28,31,35,0.08),0_8px_28px_rgba(28,31,35,0.16)]">
-                      <ul className="max-h-[50vh] divide-y divide-[var(--border)] overflow-y-auto">
-                        {actionEntries.map((entry) => (
-                          <li key={`${entry.tag}-${entry.item.id}`}>
-                            <button
-                              type="button"
-                              onClick={() => jumpToItem(entry.item.id)}
-                              aria-label={`${entry.displayTitle} · ${entry.tag}`}
-                              className="flex w-full items-center gap-2 rounded-[6px] px-2 py-2 text-left transition hover:bg-[var(--fill)]"
-                            >
-                              <span className="shrink-0 rounded-[6px] bg-[var(--accent)]/10 px-2 py-0.5 text-[11px] font-semibold text-[var(--accent)]">
-                                {entry.tag}
-                              </span>
-                              <span className="min-w-0 flex-1 truncate text-sm font-medium text-[var(--text)]">
-                                {entry.displayTitle}
-                              </span>
-                              <span aria-hidden="true" className="shrink-0 text-xs text-[var(--dim)]">
-                                →
-                              </span>
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                </>
-              ) : (
-                <p className="flex items-center justify-center gap-2 leading-none">
-                  <span
-                    aria-hidden="true"
-                    className="flex h-6 w-6 items-center justify-center rounded-full bg-[#00b578]/15"
-                  >
-                    <SvgIcon color="#00b578" size={14} className="shrink-0">
-                      <polyline points="20 6 9 17 4 12" />
-                    </SvgIcon>
+                    {followNamed ? (
+                      <span className="max-w-[min(430px,86vw)] truncate text-xs font-medium text-[var(--header-dim)]">
+                        {followNamed}
+                      </span>
+                    ) : null}
                   </span>
-                  <span className="text-2xl font-black tabular-nums text-[var(--header-text)]">0</span>
-                  <span className="text-base font-semibold text-[var(--header-text)]">
-                    {activeLang === "zh" ? "样需要你处理" : "items need your call"}
-                  </span>
-                  <span className="text-xs text-[var(--header-dim)]">{t("heroNoneNote")}</span>
-                </p>
-              )}
-            </div>
-
-            <div className="min-w-0 lg:justify-self-end">
-              <HeaderMeta
-                fx={fxQuery.data?.fx ?? null}
-                fxPending={fxQuery.isPending}
-                onRetryFx={() => void fxQuery.refetch()}
-                weather={weatherQuery.data?.weather ?? null}
-                destination={weatherQuery.data?.destination ?? null}
-                weatherPending={weatherQuery.isPending}
-                onRetryWeather={() => void weatherQuery.refetch()}
+                </button>
+                {heroOpen ? (
+                  <div className="absolute left-1/2 top-full z-50 mt-1 w-[min(430px,92vw)] -translate-x-1/2 rounded-[10px] border border-[var(--border)] bg-[var(--surface)] p-1.5 text-left shadow-[0_0_1px_rgba(28,31,35,0.08),0_8px_28px_rgba(28,31,35,0.16)]">
+                    <ul className="max-h-[50vh] divide-y divide-[var(--border)] overflow-y-auto">
+                      {actionEntries.map((entry) => (
+                        <li key={`${entry.tag}-${entry.item.id}`}>
+                          <button
+                            type="button"
+                            onClick={() => jumpToItem(entry.item.id)}
+                            aria-label={`${entry.displayTitle} · ${entry.tag}`}
+                            className="flex w-full items-center gap-2 rounded-[6px] px-2 py-2 text-left transition hover:bg-[var(--fill)]"
+                          >
+                            <span className="shrink-0 rounded-[6px] bg-[var(--accent)]/10 px-2 py-0.5 text-[11px] font-semibold text-[var(--accent)]">
+                              {entry.tag}
+                            </span>
+                            <span className="min-w-0 flex-1 truncate text-sm font-medium text-[var(--text)]">
+                              {entry.displayTitle}
+                            </span>
+                            <span aria-hidden="true" className="flex shrink-0 text-[var(--dim)]">
+                              <ArrowRightIcon size={13} />
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <p className="flex items-center justify-center gap-2 leading-none">
+                <span
+                  aria-hidden="true"
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-[#00b578]/15"
+                >
+                  <SvgIcon color="#00b578" size={14} className="shrink-0">
+                    <polyline points="20 6 9 17 4 12" />
+                  </SvgIcon>
+                </span>
+                <span className="text-2xl font-black tabular-nums text-[var(--header-text)]">0</span>
+                <span className="text-base font-semibold text-[var(--header-text)]">
+                  {activeLang === "zh" ? "样需要你处理" : "items need your call"}
+                </span>
+                <span className="text-xs text-[var(--header-dim)]">{t("heroNoneNote")}</span>
+              </p>
+            )}
+          </div>
+            <div className="ml-auto flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+              <StatusChip
+                data={statusQuery.data}
+                pending={statusQuery.isPending}
+                checking={statusQuery.isFetching}
+                onOpen={() => setPage("more")}
+              />
+              <span className="hidden text-xs tabular-nums text-[var(--header-dim)] md:inline">
+                {t("updatedAt")}{" "}
+                {new Intl.DateTimeFormat(uiLocale(), {
+                  timeZone: "America/Toronto",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hourCycle: "h23",
+                }).format(new Date(board.dataUpdatedAt))}
+                {t("torontoTimeSuffix")}
+              </span>
+              <button
+                type="button"
+                onClick={refreshAll}
+                disabled={refreshing}
+                aria-label={t("refreshAria")}
+                className="flex h-8 shrink-0 items-center gap-1.5 rounded-[6px] bg-[var(--header-chip)] px-3 text-sm font-medium text-[var(--header-text)] transition hover:brightness-110 active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50"
+              >
+                <RefreshIcon size={13} />
+                {refreshing ? t("refreshing") : t("refresh")}
+              </button>
+              <PrefsControls
+                themeMode={themeMode}
+                onTheme={setThemeMode}
+                lang={lang}
+                onLang={setLang}
               />
             </div>
           </div>
-          <div className="mt-1.5 flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-[var(--header-border)] pt-1.5 [@media(max-height:949px)]:mt-1 [@media(max-height:949px)]:pt-1">
-            <HeaderStat
-              value={data.decisions.length}
-              label={t("statDecisions")}
-              accent={data.decisions.length > 0}
-            />
-            <HeaderStat value={data.today.length} label={t("statToday")} />
-            <HeaderStat value={nearDeadlines.length} label={t("statDue14")} />
-            <HeaderStat value={data.lanes.length} label={t("statOpen")} />
-          </div>
         </div>
       </header>
-      ) : null}
 
-      <main className="mx-auto w-full max-w-[1600px] px-5 pb-3">
+      <div className="mx-auto flex w-full max-w-[1600px] flex-col lg:flex-row lg:items-start lg:gap-5 lg:px-5">
+        <aside className="shrink-0 border-b border-[var(--border)] lg:sticky lg:top-0 lg:w-60 lg:border-b-0 lg:py-3">
+          <RailNav page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
+        </aside>
+        <main className="min-w-0 flex-1 px-4 pb-3 sm:px-5 lg:px-0 lg:py-1">
         {page === "more" ? (
           <>
-            <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
-
-            {/* 两栏：左 = 状态详情（主栏 2/3），右 = 14 天后到期（窄栏 1/3）；
-                远期为空时不排窄栏，状态详情占整行满宽；
-                窄窗/手机堆叠为单列（DOM 顺序：到期在前、状态在后）。 */}
-            <div
-              className={`mt-3 grid items-start gap-3 ${
-                farDeadlines.length > 0 ? "lg:grid-cols-3" : ""
-              }`}
-            >
-              {/* 14 天后到期 */}
-              <section aria-label={t("farTitle")} className={`${CARD_CLASS} min-w-0 lg:order-2`}>
-                <SectionHeading icon={<SectionTile kind="deadlines" />}>
-                  {t("farTitle")}
-                </SectionHeading>
-                {farDeadlines.length === 0 ? (
-                  <EmptyLineCompact text={t("farEmpty")} />
-                ) : (
-                  <DeadlineGroups items={farDeadlines} />
-                )}
-              </section>
-
-              {/* 状态详情：每台机器 / 每个站点的完整列表 */}
-              <div
-                className={`min-w-0 lg:order-1 ${
-                  farDeadlines.length > 0 ? "lg:col-span-2" : ""
-                }`}
+            {/* 状态页 (v2.0)：状态详情打头，其后是自顶栏 / 今天页首屏移入的
+                信息卡（天气 · 汇率 · Spotify），再到 14 天后到期与程序区。 */}
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold tracking-tight text-[var(--text)]">
+                {t("statusDetail")}
+              </h2>
+              <button
+                type="button"
+                onClick={() => {
+                  statusForceRef.current = true;
+                  void statusQuery.refetch();
+                }}
+                disabled={statusQuery.isFetching}
+                aria-label={t("recheckAria")}
+                className="flex h-10 items-center gap-1.5 rounded-[6px] bg-[var(--accent)] px-4 text-[15px] font-semibold text-white transition hover:bg-[var(--accent-hover)] active:bg-[var(--accent-active)] disabled:opacity-50"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="text-lg font-semibold tracking-tight text-[var(--text)]">
-                    {t("statusDetail")}
-                  </h2>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      statusForceRef.current = true;
-                      void statusQuery.refetch();
-                    }}
-                    disabled={statusQuery.isFetching}
-                    aria-label={t("recheckAria")}
-                    className="h-10 rounded-[6px] bg-[var(--accent)] px-4 text-[15px] font-semibold text-white transition hover:bg-[var(--accent-hover)] active:bg-[var(--accent-active)] disabled:opacity-50"
-                  >
-                    {statusQuery.isFetching ? t("checking") : t("recheck")}
-                  </button>
-                </div>
-                <StatusCards
-                  data={statusQuery.data}
-                  pending={statusQuery.isPending}
-                  checking={statusQuery.isFetching}
-                />
-                <p className="mt-3 text-sm leading-relaxed text-[var(--dim)]">
-                  {t("statusFootnote")}
-                </p>
-              </div>
+                <RefreshIcon size={14} />
+                {statusQuery.isFetching ? t("checking") : t("recheck")}
+              </button>
             </div>
+            <StatusCards
+              data={statusQuery.data}
+              pending={statusQuery.isPending}
+              checking={statusQuery.isFetching}
+            />
+            <p className="mt-3 text-sm leading-relaxed text-[var(--dim)]">
+              {t("statusFootnote")}
+            </p>
+
+            <div className="mt-3 grid items-start gap-3 md:grid-cols-2">
+              <WeatherInfoCard
+                weather={weatherQuery.data?.weather ?? null}
+                destination={weatherQuery.data?.destination ?? null}
+                pending={weatherQuery.isPending}
+                onRetry={() => void weatherQuery.refetch()}
+              />
+              <FxInfoCard
+                fx={fxQuery.data?.fx ?? null}
+                pending={fxQuery.isPending}
+                onRetry={() => void fxQuery.refetch()}
+              />
+            </div>
+
+            {/* Spotify 播放控制（v2.0 自今天页移入） */}
+            <SpotifyStrip
+              state={spotifyQuery.data?.spotify}
+              pending={spotifyQuery.isPending}
+              controlPending={spotifyControlMutation.isPending}
+              onControl={(args) => spotifyControlMutation.mutate(args)}
+              onRetry={() => void spotifyQuery.refetch()}
+            />
+
+            {/* 14 天后到期 */}
+            <section aria-label={t("farTitle")} className={`${CARD_CLASS} mt-3 min-w-0`}>
+              <SectionHeading icon={<SectionTile kind="deadlines" />}>
+                {t("farTitle")}
+              </SectionHeading>
+              {farDeadlines.length === 0 ? (
+                <EmptyLineCompact text={t("farEmpty")} />
+              ) : (
+                <DeadlineGroups items={farDeadlines} />
+              )}
+            </section>
+
+            {/* 程序区 (v2.0)：注册表 + 核验状态 + 控制请求 / 回写 */}
+            <ProgramsSection />
           </>
         ) : page === "china" ? (
           <>
-            <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
-
+            
             {/* 行程信息：静态一行 */}
             <div className={`${CARD_CLASS} mt-3 flex flex-wrap items-center gap-x-3 gap-y-1`}>
               <span className="flex shrink-0 items-center gap-2 text-sm font-semibold text-[var(--text)]">
@@ -4102,7 +4523,7 @@ export function App() {
             {weatherQuery.data?.destination ? (
               <div className={`${CARD_CLASS} mt-3`}>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                  <span className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text)]"><WeatherGlyph />{t("destination")}</span>
+                  <span className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text)]"><WeatherGlyph />{t("destination")} · 河北</span>
                   <span className="text-sm tabular-nums text-[var(--text)]"><span className="text-base font-bold">{fmtTemp(weatherQuery.data.destination.temperature)}</span> {activeLang === "zh" ? wxZh(weatherQuery.data.destination.description) : weatherQuery.data.destination.description}</span>
                   {weatherQuery.data.destination.high !== null || weatherQuery.data.destination.low !== null ? <span className="text-[13px] tabular-nums text-[var(--dim)]">{t("wxHigh")} {fmtTemp(weatherQuery.data.destination.high)} · {t("wxLow")} {fmtTemp(weatherQuery.data.destination.low)}</span> : null}
                   {weatherQuery.data.destination.feelsLike !== null ? <span className="text-[13px] text-[var(--dim)]">{t("feelsLike")} {fmtTemp(weatherQuery.data.destination.feelsLike)}</span> : null}
@@ -4113,7 +4534,7 @@ export function App() {
                   {fmtSunTime(weatherQuery.data.destination.sunrise) || fmtSunTime(weatherQuery.data.destination.sunset) ? <span className="text-[13px] tabular-nums text-[var(--dim)]">{t("sunriseLabel")} {fmtSunTime(weatherQuery.data.destination.sunrise) ?? "—"} · {t("sunsetLabel")} {fmtSunTime(weatherQuery.data.destination.sunset) ?? "—"}</span> : null}
                   {tomorrowLine(weatherQuery.data.destination) ? <span className="text-[13px] text-[var(--dim)]">{t("tomorrow")}：{tomorrowLine(weatherQuery.data.destination)}</span> : null}
                   {weatherQuery.data.destination.stale ? <span className="text-[13px] text-[var(--dim)]">{t("staleData")}</span> : null}
-                  {weatherQuery.data.destination.alerts.length > 0 ? <span className="text-[13px] font-medium text-[#a15e00] dark:text-[#ffc65c]">⚠ {weatherQuery.data.destination.alerts.join("；")}</span> : null}
+                  {weatherQuery.data.destination.alerts.length > 0 ? <span className="text-[13px] font-medium text-[#a15e00] dark:text-[#ffc65c]">{weatherQuery.data.destination.alerts.join("；")}</span> : null}
                 </div>
                 {weatherQuery.data.destination.forecast.length > 0 ? (
                   <div className="mt-2.5 border-t border-[var(--border)] pt-2.5">
@@ -4198,8 +4619,7 @@ export function App() {
           </>
         ) : page === "history" ? (
           <>
-            <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
-
+            
             <div className={`${CARD_CLASS} mt-3 flex flex-wrap items-center gap-x-3 gap-y-1`}>
               <span className="flex shrink-0 items-center gap-2 text-sm font-semibold text-[var(--text)]">
                 <SvgIcon color="var(--accent)" size={16} className="shrink-0">
@@ -4223,8 +4643,7 @@ export function App() {
           </>
         ) : page === "jason" ? (
           <>
-            <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
-            <JasonPage open={data.jasonOpen} cleared={data.jasonCleared} />
+                        <JasonPage open={data.jasonOpen} cleared={data.jasonCleared} />
             <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
               <p className="text-xs text-[var(--dim)]">
                 OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
@@ -4233,8 +4652,7 @@ export function App() {
           </>
         ) : page === "growth" ? (
           <>
-            <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
-            <GrowthPage items={data.growth} />
+                        <GrowthPage items={data.growth} />
             <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
               <p className="text-xs text-[var(--dim)]">
                 OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
@@ -4243,23 +4661,12 @@ export function App() {
           </>
         ) : (
           <>
-        <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
-        {/* Tina 状态行 + 快捷入口 */}
+                {/* Tina 状态行 + 快捷入口 */}
         <TinaPulseStrip tinaStatus={data.tinaStatus} />
 
-        {/* 双城速览：回国倒计时 + 双城当前天气 + 温差 + 目的地明日 +
-            目的地空气，一条扫完（v1.8.1 起顶栏右上也恢复双城天气，两处
-            并存、以顶栏为准；天气细节在悬停提示和第 3 页目的地卡里看） */}
-        <DualCityStrip toronto={weatherQuery.data?.weather ?? null} destination={weatherQuery.data?.destination ?? null} weatherPending={weatherQuery.isPending} onRetryWeather={() => void weatherQuery.refetch()} onOpenChina={() => setPage("china")} />
-
-        {/* Spotify 正在播放 + 播放控制 */}
-        <SpotifyStrip
-          state={spotifyQuery.data?.spotify}
-          pending={spotifyQuery.isPending}
-          controlPending={spotifyControlMutation.isPending}
-          onControl={(args) => spotifyControlMutation.mutate(args)}
-          onRetry={() => void spotifyQuery.refetch()}
-        />
+        {/* 回国倒计时条：v2.0 起只剩倒计时（天气已移入状态页信息卡）；
+            整条可点直达回国页，天数仍是视觉锚点。 */}
+        <TripCountdownStrip onOpenChina={() => setPage("china")} />
 
         {/* 1. 待 Mark 拍板 — 有条目时是永远置顶的强调卡。v1.8.2：为空时
             「暂无待拍板」空条整条不渲染、拍板区直接不出现；仅当有一条
@@ -4433,7 +4840,7 @@ export function App() {
                           {item.detail ? (
                             <span className="text-[var(--dim)]"> · {item.detail}</span>
                           ) : null}
-                          {past ? <span className="ml-1.5 text-xs text-[var(--dim)]">✓</span> : null}
+                          {past ? <span className="ml-1 inline-flex translate-y-[2px] text-[var(--dim)]"><CheckIcon size={12} /></span> : null}
                         </span>
                         {isNext ? (
                           <span className="shrink-0 rounded-[6px] bg-[var(--accent)] px-1.5 py-0.5 text-[11px] font-medium text-white">
@@ -4467,11 +4874,13 @@ export function App() {
                   ? "查看 14 天后到期的事项（第 2 页）"
                   : "View items due after 14 days (page 2)"
               }
-              className="mt-3 w-full rounded-[6px] bg-[var(--fill)] px-3 py-2 text-sm font-medium text-[var(--dim)] transition hover:text-[var(--text)]"
+              className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-[6px] bg-[var(--fill)] px-3 py-2 text-sm font-medium text-[var(--dim)] transition hover:text-[var(--text)]"
             >
               {activeLang === "zh"
-                ? `14 天后还有 ${farDeadlines.length} 件到期 → 第 2 页`
-                : `${farDeadlines.length} more due after 14 days → Page 2`}
+                ? `14 天后还有 ${farDeadlines.length} 件到期`
+                : `${farDeadlines.length} more due after 14 days`}
+              <ArrowRightIcon size={13} />
+              {activeLang === "zh" ? "状态页" : "Status page"}
             </button>
           ) : null}
         </section>
@@ -4606,7 +5015,8 @@ export function App() {
         </footer>
           </>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

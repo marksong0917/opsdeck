@@ -90,6 +90,55 @@ export const fxCache = sqliteTable("fx_cache", {
   fetchedAt: integer("fetched_at", { mode: "timestamp_ms" }).notNull(),
 });
 
+// v2.0 「程序」区 (status page): the program REGISTRY itself is
+// hard-coded in actions.ts (never data-driven, so the control red
+// lines cannot be rewritten from the data layer). These tables hold
+// only runtime state around it:
+//   program_state    — latest VERIFIED state per programId, written
+//     exclusively by reportProgramResult after Tina's lane executed
+//     over SSH and checked. status: "up" | "down". A program with no
+//     row has never been verified and renders 未核验 — never faked.
+//   program_requests — pending control requests filed by
+//     requestProgramControl (the board cannot reach the tailnet, so a
+//     button press only REGISTERS a request; nothing has happened
+//     until a result is reported back).
+//   program_audit    — append-only audit trail: one row per request
+//     filed and per result reported, newest shown on the board.
+//   program_prefs    — single row (id = 1): the proxy group's
+//     默认自启 preference, changed only via a reported
+//     autostart-toggle result.
+export const programState = sqliteTable("program_state", {
+  programId: text("program_id").primaryKey(),
+  status: text("status").notNull(),
+  evidence: text("evidence").notNull().default(""),
+  verifiedAt: integer("verified_at", { mode: "timestamp_ms" }),
+});
+
+export const programRequests = sqliteTable("program_requests", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  programId: text("program_id").notNull(),
+  action: text("action").notNull(),
+  status: text("status").notNull().default("pending"),
+  requestedAt: integer("requested_at", { mode: "timestamp_ms" }).notNull(),
+  closedAt: integer("closed_at", { mode: "timestamp_ms" }),
+});
+
+export const programAudit = sqliteTable("program_audit", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  programId: text("program_id").notNull(),
+  kind: text("kind").notNull(),
+  action: text("action").notNull(),
+  text: text("text").notNull(),
+  at: integer("at", { mode: "timestamp_ms" }).notNull(),
+});
+
+export const programPrefs = sqliteTable("program_prefs", {
+  id: integer("id").primaryKey(),
+  proxyAutostart: integer("proxy_autostart", { mode: "boolean" })
+    .notNull()
+    .default(true),
+});
+
 // Single-row table (id = 1) holding the board's last-updated instant,
 // plus the most recent decision Mark answered on the board itself, so
 // Tina can report it back in chat even after the item has scrolled off.
