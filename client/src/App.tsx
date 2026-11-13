@@ -23,7 +23,7 @@ const STR = {
     loading: "加载中…",
     loadFailed: "看板加载失败",
     retry: "重试",
-    boardTitle: "Tina 工作台",
+    boardTitle: "OpsDeck",
     refresh: "↻ 刷新",
     refreshing: "刷新中…",
     refreshAria: "刷新看板数据",
@@ -89,7 +89,7 @@ const STR = {
     historyYesterdayLabel: "昨天",
     historyItemsUnit: "件",
     decisionsTitle: "待 Mark 拍板",
-    decisionsEmpty: "暂无待决",
+    decisionsEmpty: "暂无待拍板",
     recentVerdict: "最近拍板",
     undo: "撤销",
     undoing: "撤销中…",
@@ -143,6 +143,66 @@ const STR = {
     tabsAria: "看板分页",
     page1: "第 1 页 · 工作台",
     page3: "第 3 页 · 回国待办",
+    tabGroupDaily: "日常",
+    tabGroupTopic: "专题",
+    tabGroupRecord: "记录",
+    tabToday: "今天",
+    tabStatus: "状态",
+    tabJason: "待拍板",
+    tabCfo: "CFO",
+    tabGrowth: "增长",
+    tabChina: "回国",
+    tabHistory: "历史",
+    dataUpdatedAt: "数据更新于",
+    notSynced: "尚未同步",
+    jasonTitle: "待拍板",
+    jasonSub: "等决策人回复与拍板的事 · 按拖延天数排，拖得最久的在最前",
+    jasonEmpty:
+      "尚未同步 — 助理每次例行扫查后会把等决策人的清单回写到这里。",
+    jasonNoneOpen: "当前没有等决策人的事，都清了。",
+    jasonDragPrefix: "已等",
+    jasonDragDays: "天",
+    jasonAskedOn: "提出",
+    jasonNoDate: "提出日期未记",
+    jasonHardDate: "硬日期",
+    jasonClearedTitle: "本周已清",
+    jasonClearedEmpty: "本周还没有清掉的项。",
+    cfoTitle: "CFO",
+    cfoSub: "未来 30 天的钱：什么时候进来、什么时候出去",
+    cfoArTitle: "应收",
+    cfoApTitle: "应付",
+    cfoTopTitle: "催收前五名",
+    cfoEmpty:
+      "尚未同步 — 数字只从 QB 房的 AR 账本与登记册回写，这里不手填、不估算。",
+    cfoColItem: "事项",
+    cfoColDue: "到期",
+    cfoColAmount: "金额",
+    cfoTotal: "合计",
+    cfoOverdueDays: "逾期",
+    cfoNoDate: "未定日期",
+    growthTitle: "增长",
+    growthSub: "Foxuma 漏斗 + 外联三线 · 每周更新一次",
+    growthEmpty: "尚未同步 — Foxuma 房与外联登记回写后显示。",
+    foundingTitle: "Founding 名额",
+    funnelTitle: "Foxuma 漏斗",
+    outreachTitle: "外联三线 · 本周",
+    flightTitle: "航班",
+    flightOut: "去程",
+    flightBack: "回程",
+    flightBookingRef: "订座号",
+    seatWatchTag: "座位盯梢中",
+    seatWatchNote: "有免费的过道 / 靠窗位放出就换",
+    seatsHeldFree: "座位已免费锁定",
+    hardDatesTitle: "关键日期",
+    hardWsib: "证书到期",
+    hardMatrix: "授权矩阵签字",
+    hardDepart: "出发",
+    hardReturn: "回程",
+    chinaGroupPre: "出发前清尾",
+    chinaGroupInChina: "在华待办",
+    chinaGroupGifts: "礼物进度",
+    chinaGroupPacking: "打包定稿",
+    chinaGroupOther: "其他待办",
     chinaTitle: "回国待办",
     chinaTripLine: "20XX-XX-XX 出发 · 目的地 · 20XX-XX-XX 回程",
     chinaEmpty: "还没有回国待办",
@@ -169,7 +229,6 @@ const STR = {
     torontoParen: "（多伦多）",
     viewStatusAria: "查看状态详情",
     statusLabel: "状态",
-    footer: "由 Tina 维护 · 汇报在 Main，看板在这里",
     portfolioLink: "作品集",
     themeAria: "显示模式",
     themeSystem: "跟随系统",
@@ -188,13 +247,12 @@ const STR = {
     playLabel: "播放",
     pauseLabel: "暂停",
     volumeLabel: "音量",
-    versionWord: "版本",
   },
   en: {
     loading: "Loading…",
     loadFailed: "Board failed to load",
     retry: "Retry",
-    boardTitle: "Tina Workbench",
+    boardTitle: "OpsDeck",
     refresh: "↻ Refresh",
     refreshing: "Refreshing…",
     refreshAria: "Refresh board data",
@@ -225,8 +283,8 @@ const STR = {
     staleData: "last known",
     weatherLoading: "Loading weather…",
     weatherUnavailable: "Weather unavailable",
-    destinationLoading: "Loading destination-city weather…",
-    destinationUnavailable: "Destination-city weather unavailable",
+    destinationLoading: "Loading Destination City weather…",
+    destinationUnavailable: "Destination City weather unavailable",
     fxLabel: "FX CAD→CNY",
     fxLoading: "Loading FX…",
     fxUnavailable: "FX unavailable",
@@ -238,7 +296,7 @@ const STR = {
     forecastToday: "Today",
     tripCountdownTitle: "China trip countdown",
     tripNotStarted: "Depart in",
-    tripInProgress: "At the destination · return in",
+    tripInProgress: "In Destination City · return in",
     tripDone: "Trip completed",
     daysUnit: "days",
     tempWarmer: "warmer than Toronto",
@@ -246,7 +304,7 @@ const STR = {
     tempSame: "same as Toronto",
     dualCityTitle: "Dual-city glance",
     torontoSun: "Toronto sun",
-    destinationSun: "Destination sun",
+    destinationSun: "Destination City sun",
     tinaNow: "Tina is",
     quickLinks: "Quick links",
     opensNewWindow: "(opens in a new window)",
@@ -260,7 +318,7 @@ const STR = {
     historyYesterdayLabel: "Yesterday",
     historyItemsUnit: "items",
     decisionsTitle: "Awaiting Mark's call",
-    decisionsEmpty: "Nothing pending",
+    decisionsEmpty: "No decisions pending",
     recentVerdict: "Latest call",
     undo: "Undo",
     undoing: "Undoing…",
@@ -314,6 +372,66 @@ const STR = {
     tabsAria: "Board pages",
     page1: "Page 1 · Workbench",
     page3: "Page 3 · China Trip",
+    tabGroupDaily: "Daily",
+    tabGroupTopic: "Topics",
+    tabGroupRecord: "Records",
+    tabToday: "Today",
+    tabStatus: "Status",
+    tabJason: "Decisions",
+    tabCfo: "CFO",
+    tabGrowth: "Growth",
+    tabChina: "China",
+    tabHistory: "History",
+    dataUpdatedAt: "Data updated",
+    notSynced: "Not synced yet",
+    jasonTitle: "Awaiting decisions",
+    jasonSub: "Everything waiting on a decision · longest wait first",
+    jasonEmpty:
+      "Not synced yet — the ops lane writes the waiting-on-decisions list here after each routine sweep.",
+    jasonNoneOpen: "Nothing is waiting on a decision right now.",
+    jasonDragPrefix: "Waiting",
+    jasonDragDays: "d",
+    jasonAskedOn: "Asked",
+    jasonNoDate: "Ask date not recorded",
+    jasonHardDate: "Hard date",
+    jasonClearedTitle: "Cleared this week",
+    jasonClearedEmpty: "Nothing cleared yet this week.",
+    cfoTitle: "CFO",
+    cfoSub: "Money over the next 30 days: what comes in, what goes out, and when",
+    cfoArTitle: "Receivables",
+    cfoApTitle: "Payables",
+    cfoTopTitle: "Top 5 to collect",
+    cfoEmpty:
+      "Not synced yet — figures come only from the QB room's AR ledger and registers; nothing is typed in or estimated here.",
+    cfoColItem: "Item",
+    cfoColDue: "Due",
+    cfoColAmount: "Amount",
+    cfoTotal: "Total",
+    cfoOverdueDays: "overdue",
+    cfoNoDate: "No date set",
+    growthTitle: "Growth",
+    growthSub: "Foxuma funnel + three outreach lines · updated weekly",
+    growthEmpty: "Not synced yet — appears once the Foxuma room and outreach register write back.",
+    foundingTitle: "Founding seats",
+    funnelTitle: "Foxuma funnel",
+    outreachTitle: "Outreach · this week",
+    flightTitle: "Flights",
+    flightOut: "Outbound",
+    flightBack: "Return",
+    flightBookingRef: "Booking ref",
+    seatWatchTag: "Seat watch on",
+    seatWatchNote: "swap if a free aisle / window seat opens",
+    seatsHeldFree: "Seats held free",
+    hardDatesTitle: "Key dates",
+    hardWsib: "Certificate expires",
+    hardMatrix: "Delegation matrix sign-off",
+    hardDepart: "Departure",
+    hardReturn: "Return",
+    chinaGroupPre: "Before departure",
+    chinaGroupInChina: "While in China",
+    chinaGroupGifts: "Gifts",
+    chinaGroupPacking: "Packing",
+    chinaGroupOther: "Other to-dos",
     chinaTitle: "China Trip",
     chinaTripLine: "Depart 20XX-XX-XX · Destination · Return 20XX-XX-XX",
     chinaEmpty: "No China trip to-dos yet",
@@ -340,7 +458,6 @@ const STR = {
     torontoParen: "(Toronto)",
     viewStatusAria: "View status details",
     statusLabel: "Status",
-    footer: "Maintained by Tina · Reports in Main, the board lives here",
     portfolioLink: "Portfolio",
     themeAria: "Display theme",
     themeSystem: "System",
@@ -359,7 +476,6 @@ const STR = {
     playLabel: "Play",
     pauseLabel: "Pause",
     volumeLabel: "Volume",
-    versionWord: "Version",
   },
 } as const;
 
@@ -391,31 +507,31 @@ function uiLocale(): string {
  * v1.0 = one-screen workbench (CRUD + status + weather/clocks);
  * v1.1 = theme/language toggles + expandable hero;
  * v1.2 = Spotify card + today's calendar + phone overflow fix;
- * v1.2.1 = calendar merge removed at the owner's direction (board items only);
+ * v1.2.1 = calendar merge removed at Mark's direction (board items only);
  * v1.2.2 = page-2 two-column layout, one-line header weather, compact
  * header stat strip;
  * v1.2.3 = weather condition words + item status pills follow the UI
  * language; page 2 goes full-width when nothing is due after 14 days;
- * v1.2.4 = footer gets a row of quick links to the owner's personal projects
+ * v1.2.4 = footer gets a row of quick links to Mark's personal projects
  * (portfolio, GitHub, Typebook, FoxShare);
- * v1.3.0 = page 3 "China Trip" checklist: a check-off list backed by the
+ * v1.3.0 = page 3 「回国待办」 (China Trip): a check-off list backed by the
  * new "china" item section; ticking a row sets status "done" in place;
- * v1.4.0 = page 4 "History": done-today moved off page 1 into a read-only
- * 7-day archive grouped by Toronto date (archiveDoneToday action); page 1
- * keeps a one-line done-today count summary that links to page 4;
+ * v1.4.0 = page 4 「完成记录」 (History): done-today moved off page 1 into
+ * a read-only 7-day archive grouped by Toronto date (archiveDoneToday
+ * action); page 1 keeps a one-line "✓ 今日已完成 N 件 → 第 4 页" summary;
  * v1.4.1 = header work-status fix: the workday is 08:00–18:00 Toronto, so
  * before 08:00 the chip counts down to the start instead of wrongly
  * reading 上班中 with the full day left;
- * v1.5.0 = destination-city weather added alongside Toronto in the
- * header (dual-city, cached separately), plus a dual-city glance strip
- * on page 1: China-trip countdown to the departure / return dates,
- * Toronto vs destination temperature difference, and sunrise/sunset for
- * both cities when the weather source provides them;
+ * v1.5.0 = Destination City (Hebei) weather added alongside Toronto in the header
+ * (dual-city, cached separately), plus a dual-city glance strip on page 1:
+ * China-trip countdown to the departure / return dates, Toronto↔destination
+ * temperature difference, and sunrise/sunset for both cities when the
+ * weather source provides them;
  * v1.6.0 = CAD→CNY rate in the header next to the weather (open.er-api.com,
  * 6 h cache, source date shown, stale flagged on failure); page 3's
- * destination card gains a 7-day forecast grid (weekday + high/low +
+ * Destination City card gains a 7-day forecast grid (weekday + high/low +
  * condition per day) from the same weather source's forecast_days; the
- * same payload's destination air-quality / UV (when the source provides
+ * same payload's Destination City air-quality / UV (when the source provides
  * them) shows on page 3 and in the dual-city strip;
  * v1.7.0 = Semi Design conversion: Semi blue #0077FA primary (lighter
  * step in dark), Semi token surfaces (cool grey page, white cards;
@@ -425,10 +541,10 @@ function uiLocale(): string {
  * stack. Visual language only — data, layout and functions unchanged.
  * v1.6.1 = polish/correctness pass: sunrise/sunset render as local
  * HH:MM everywhere (the source's raw ISO timestamps never reach the
- * page); the destination's tomorrow line is localized (condition +
- * ranges in Chinese format, never the English source sentence); page 1's
+ * page); Destination City's tomorrow line is localized (condition + ranges in
+ * Chinese format, never the English source sentence); page 1's
  * dual-city strip slimmed to four glanceable chips (trip countdown,
- * temperature difference, destination tomorrow, destination air) with
+ * temperature difference, Destination City tomorrow, Destination City air) with
  * sunrise/sunset moved to the header tooltip and page 3's card; the
  * hero counter's label is truthful — follow-ups waiting on Mark no
  * longer masquerade as pending decisions ("件等你跟进" when no decision
@@ -440,20 +556,93 @@ function uiLocale(): string {
  * amber marker + 「受阻」 pill, never the past ✓, and never counts as
  * completed or next-up; the 未来 14 天到期 list renders in pure
  * due-date order (getBoard sorts deadlines by dueDate, ignoring the
- * stored sort values); Product lane copy refreshed to 0.369 live /
- * 0.370 in build (applyV172BoardUpdates). */
-const BOARD_VERSION = "v1.7.2";
-const BOARD_VERSION_DATE = "2026-11-11";
+ * stored sort values); Foxuma lane copy refreshed to 0.369 live /
+ * 0.370 in build (applyV172BoardUpdates).
+ * v1.8.0 = header + done-chain pass (R-21 first batch): the hero names
+ * the follow-up it counts (the item's own 「下一步」 ask under the
+ * count, no dropdown needed); Destination City/Toronto weather appears exactly
+ * once — the dual-city strip now carries both cities' current weather
+ * and the header meta is a single line (work chip + dual clocks +
+ * CAD→CNY rate); wording aligned — the decisions bucket says 待拍板
+ * everywhere (「暂无待拍板」 empty state, 「N 件待拍板」 badge) so it
+ * can no longer read as contradicting the hero's 等你跟进 count; the
+ * done write-back chain is repaired server-side: appendDoneToday logs
+ * a completion in one call (no full-list resend), done_today carries a
+ * Toronto date stamp, archiveDoneToday files a list under its own
+ * stamped date (the 00:07 reset no longer relabels yesterday's work),
+ * getBoard never presents a stale list as today's and folds today's
+ * archive bucket back into doneToday — an archive that runs mid-day
+ * (as happened on 2026-11-13, when the morning's six completions sat
+ * in today's bucket while page 1 read the emptied list) can no longer
+ * hide today's completions; they stay in 今日已完成 all day and only
+ * become history at rollover. applyV180DoneBackfill remains as a
+ * coverage-guarded safety net for the two prose-only completions.
+ * v1.8.1 = header visual revert only (Mark's call): the top-right
+ * block returns to the fuller v1.7.2 layout — a stacked column with
+ * the work chip + Toronto/Beijing clocks, BOTH cities' weather lines
+ * back in the header (temp / condition / high-low / tomorrow /
+ * humidity visible), and the FX line showing the rate + 100-CAD
+ * equivalent + update date as text again instead of tooltip-only.
+ * The dual-city strip keeps its weather (both places carry it now,
+ * the header is canonical). Everything else from v1.8.0 is kept
+ * exactly: the hero's named follow-up line, the 待拍板 wording
+ * alignment, and the done write-back chain (date-stamped done_today,
+ * appendDoneToday, archive-by-stamp) — untouched.
+ * v1.8.2 = five visual fixes (Mark approved): (1) deadline items due
+ * TODAY (Toronto date) get an orange-red 「今天到期」 badge and pin to
+ * the top of the deadlines list, relative order otherwise unchanged;
+ * (2) the dual-city strip's countdown days are the visual anchor —
+ * big, bold, accent-colored; (3) the whole strip is clickable through
+ * to page 3 (cursor + hover affordance, weather retry buttons stop
+ * propagation); (4) the three page-1 columns share one row rhythm —
+ * lane rows now use the same py-[5px] (compact py-[3px]) padding as
+ * the today timeline and deadline rows; (5) the 「暂无待拍板」 empty
+ * strip no longer renders — with no pending decisions the decisions
+ * area is absent entirely (the 最近拍板 + 撤销 record still shows on
+ * its own slim line when a verdict exists to undo). Header layout,
+ * follow-up line, populated-decisions wording, the countdown strip's
+ * weather, and the whole done write-back chain are untouched.
+ * v1.9.0 = board expansion (Mark: "合并成一个 board，里边很多 page"):
+ * three new pages fed through the SAME items table + generic actions
+ * (new sections "jason" / "money" / "growth" — no new write path) and
+ * page 3 expanded in place. 「待拍板」 (waiting-on-decision — the page name states a status, not a person):
+ * open rows sorted by drag days (dueDate = ask date), hard dates ride
+ * in `status` as ISO dates and get DeadlineChip badges, rows closed
+ * this Toronto week land in a 本周已清 strip (getBoard's jasonCleared).
+ * 「CFO」 (money): lane "ar"/"ap" rows with the CAD amount as a plain
+ * decimal string in `status`, rendered verbatim — 30-day in/out plus
+ * a top-5 collection list derived from the AR rows only. 「增长」:
+ * lane-grouped feed rows shown as written; the only seeded fact is
+ * Founding (10 seats, a demo tenant holds seat 1, 9 left) via the guarded
+ * applyV190GrowthSeed. Pages with no feed data yet say 尚未同步 —
+ * nothing is invented. Each new page shows its own 数据更新时间 (the
+ * newest item updatedAt in its section, Toronto time). Page 3 gains a
+ * static demo flight card (DEMO 101 out / DEMO 102 back, seats held free, seat watch on; fictional booking ref DEMO01) and a key-dates strip (certificate expiry, delegation-matrix sign-off, departure, return); the checklist groups by lane (pre/inch/gifts/pack, flat
+ * exactly as before while every lane is empty). Navigation is now a
+ * grouped Semi button-type Tabs bar — 日常： 今天 / 待拍板 / CFO /
+ * 状态 · 专题： 增长 / 回国 · 记录： 历史 — one line at every width,
+ * horizontally scrollable at 390px, never wrapping. Existing pages,
+ * the header, and the done write-back chain are untouched.
+ * Same release, identity upgrade (Mark approved): the product is now
+ * OpsDeck — every outward self-reference renamed (header wordmark,
+ * browser title, space display name) and every page footer is now the
+ * single line "OpsDeck · v1.9.0 · Built by Tina for Mark". Internal
+ * plumbing (slug, action names, data keys) deliberately NOT renamed.
+ * Dead code this build proved dead and removed: BOARD_VERSION_DATE
+ * (only the old footers used it) and the STR footer/versionWord
+ * entries (same); the grouped PageTabs also dropped the farCount
+ * prop and the per-tab page-number labels. */
+const BOARD_VERSION = "v1.9.0";
 
-const LANE_ORDER = ["Bookkeeping", "Product", "General Ops", "Outreach", "Devices", "Servers"];
+const LANE_ORDER = ["QuickBooks", "Foxuma", "General Ops", "外联", "设备与机器", "Mir2"];
 
 const LANE_DOT: Record<string, string> = {
-  Bookkeeping: "#00a870",
-  Product: "#0077fa",
+  QuickBooks: "#00a870",
+  Foxuma: "#0077fa",
   "General Ops": "#86909c",
-  Outreach: "#fa7a08",
-  Devices: "#00a5ff",
-  Servers: "#7a4df3",
+  外联: "#fa7a08",
+  设备与机器: "#00a5ff",
+  Mir2: "#7a4df3",
 };
 
 /** Small 16px stroke icons (Lucide-style paths), one accent color per lane. */
@@ -486,7 +675,7 @@ function SvgIcon({
   );
 }
 
-type SectionKind = "decisions" | "today" | "deadlines" | "lanes" | "sites" | "servers" | "china";
+type SectionKind = "decisions" | "today" | "deadlines" | "lanes" | "sites" | "servers" | "china" | "jason" | "cfo" | "growth";
 
 function SectionGlyph({
   kind,
@@ -551,6 +740,36 @@ function SectionGlyph({
       </SvgIcon>
     );
   }
+  if (kind === "jason") {
+    // Hourglass: things sitting waiting, time passing.
+    return (
+      <SvgIcon color={c} size={s} className="shrink-0">
+        <path d="M5 22h14" />
+        <path d="M5 2h14" />
+        <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" />
+        <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
+      </SvgIcon>
+    );
+  }
+  if (kind === "cfo") {
+    // Wallet: the money page.
+    return (
+      <SvgIcon color={c} size={s} className="shrink-0">
+        <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+        <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+        <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+      </SvgIcon>
+    );
+  }
+  if (kind === "growth") {
+    // Trending-up arrow: the growth page.
+    return (
+      <SvgIcon color={c} size={s} className="shrink-0">
+        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+        <polyline points="16 7 22 7 22 13" />
+      </SvgIcon>
+    );
+  }
   return (
     <SvgIcon color={c} size={s} className="shrink-0">
       <polygon points="12 2 2 7 12 12 22 7 12 2" />
@@ -572,6 +791,9 @@ const TILE_STYLE: Record<SectionKind, { bg: string; fg: string }> = {
   sites: { bg: "rgba(0,168,112,0.10)", fg: "#00a870" },
   servers: { bg: "rgba(134,144,156,0.13)", fg: "#86909c" },
   china: { bg: "rgba(245,63,63,0.10)", fg: "#f53f3f" },
+  jason: { bg: "rgba(255,157,10,0.12)", fg: "#fa7a08" },
+  cfo: { bg: "rgba(0,168,112,0.10)", fg: "#00a870" },
+  growth: { bg: "rgba(0,119,250,0.10)", fg: "#0077fa" },
 };
 
 function SectionTile({ kind }: { kind: SectionKind }) {
@@ -595,13 +817,13 @@ function LaneGlyph({ lane }: { lane: string }) {
   // status pills, and the lane group dots.
   const color = "var(--accent)";
   switch (lane) {
-    case "Bookkeeping":
+    case "QuickBooks":
       return (
         <SvgIcon color={color}>
           <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
         </SvgIcon>
       );
-    case "Product":
+    case "Foxuma":
       return (
         <SvgIcon color={color}>
           <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -641,7 +863,7 @@ function LaneGlyph({ lane }: { lane: string }) {
           <path d="M20 15h2" />
         </SvgIcon>
       );
-    case "Servers":
+    case "Mir2":
       return (
         <SvgIcon color={color}>
           <circle cx="12" cy="12" r="10" />
@@ -664,7 +886,7 @@ function LaneGlyph({ lane }: { lane: string }) {
 function TodayGlyph({ item }: { item: Item }) {
   if (item.lane) return <LaneGlyph lane={item.lane} />;
   const hay = `${item.title} ${item.detail}`;
-  if (/QB|发票|QuickBooks/i.test(hay)) return <LaneGlyph lane="Bookkeeping" />;
+  if (/QB|发票|QuickBooks/i.test(hay)) return <LaneGlyph lane="QuickBooks" />;
   if (hay.includes("外联")) return <LaneGlyph lane="外联" />;
   if (/CNC|分拣|里程/.test(hay)) return <LaneGlyph lane="设备与机器" />;
   return (
@@ -732,7 +954,7 @@ function torontoNowMinutes(): number {
   return hour * 60 + minute;
 }
 
-/** The owner's workday is 08:00–18:00 Toronto. Live work state for the header:
+/** Mark's workday is 08:00–18:00 Toronto. Live work state for the header:
  * before 08:00 it counts down to the start (not "上班中"), 08:00–18:00 it
  * counts down to 18:00, and from 18:00 on it reads 已下班. */
 function offWorkState(now: Date): { off: boolean; prefix: string; label: string } {
@@ -890,62 +1112,117 @@ function fmtTemp(value: number | null): string {
   return value === null ? "—" : `${Math.round(value)}°`;
 }
 
-function WeatherLine({
+/** One city's current weather as compact strip text: temp + condition
+ * + high/low (+ stale / alert flags). The full detail (feels-like,
+ * humidity, precip, wind, sunrise/sunset) stays in the tooltip via
+ * weatherTitle. Used by the page-1 dual-city strip. */
+function weatherSummary(w: NonNullable<Weather>): string {
+  const parts = [
+    `${fmtTemp(w.temperature)} ${activeLang === "zh" ? wxZh(w.description) : w.description}`,
+    w.high !== null || w.low !== null
+      ? `${t("wxHigh")} ${fmtTemp(w.high)} ${t("wxLow")} ${fmtTemp(w.low)}`
+      : null,
+    w.stale ? t("staleData") : null,
+    w.alerts.length > 0 ? `⚠ ${w.alerts.join("；")}` : null,
+  ];
+  return parts.filter((p): p is string => p !== null).join(" · ");
+}
+
+/** One city's weather as the header's fuller line (the v1.7.2 shape,
+ * restored in v1.8.1): temp + condition + high/low + tomorrow's
+ * low–high range + humidity, all visible — nothing essential is left
+ * to the tooltip (weatherTitle still adds feels-like / precip / wind /
+ * sunrise / sunset on hover). */
+function headerWeatherSummary(w: NonNullable<Weather>): string {
+  const parts = [
+    `${fmtTemp(w.temperature)} ${activeLang === "zh" ? wxZh(w.description) : w.description}`,
+    w.high !== null || w.low !== null
+      ? `${t("wxHigh")} ${fmtTemp(w.high)} ${t("wxLow")} ${fmtTemp(w.low)}`
+      : null,
+    w.tomorrowLow !== null && w.tomorrowHigh !== null
+      ? `${t("tomorrow")} ${Math.round(w.tomorrowLow)}–${Math.round(w.tomorrowHigh)}°`
+      : null,
+    w.humidity !== null ? `${t("humidityLabel")} ${Math.round(w.humidity)}%` : null,
+    w.stale ? t("staleData") : null,
+    w.alerts.length > 0 ? `⚠ ${w.alerts.join("；")}` : null,
+  ];
+  return parts.filter((p): p is string => p !== null).join(" · ");
+}
+
+/** One weather line in the header's top-right block: glyph + city
+ * label + the fuller summary. Loading / unavailable states keep the
+ * same one-line footprint, with a retry affordance when data failed. */
+function HeaderWeatherLine({
+  w,
   label,
-  weather,
   pending,
   loadingText,
   unavailableText,
   onRetry,
 }: {
+  w: Weather;
   label: string;
-  weather: Weather;
   pending: boolean;
   loadingText: string;
   unavailableText: string;
   onRetry: () => void;
 }) {
-  if (!weather) {
-    if (pending) return <p className="text-xs text-[var(--header-dim)] sm:text-right">{loadingText}</p>;
+  if (!w) {
+    if (pending)
+      return (
+        <span className="whitespace-nowrap text-[11px] text-[var(--header-dim)]">
+          {loadingText}
+        </span>
+      );
     return (
-      <p className="text-xs text-[var(--header-dim)] sm:text-right">
+      <span className="whitespace-nowrap text-[11px] text-[var(--header-dim)]">
         {unavailableText}
-        <button type="button" onClick={onRetry} aria-label={t("retry")} className="ml-2 font-medium text-[var(--header-text)] underline underline-offset-2">{t("retry")}</button>
-      </p>
+        <button
+          type="button"
+          onClick={onRetry}
+          aria-label={t("retry")}
+          className="ml-2 font-medium text-[var(--header-text)] underline underline-offset-2"
+        >
+          {t("retry")}
+        </button>
+      </span>
     );
   }
   return (
-    <p
-      className="flex flex-wrap items-center justify-start gap-x-1.5 text-xs tabular-nums text-[var(--header-dim)] sm:flex-nowrap sm:justify-end sm:whitespace-nowrap"
-      title={[
-        weather.feelsLike !== null ? `${t("feelsLike")} ${fmtTemp(weather.feelsLike)}` : null,
-        weather.humidity !== null ? `${t("humidityLabel")} ${Math.round(weather.humidity)}%` : null,
-        weather.precipitationChance !== null ? `${t("precip")} ${Math.round(weather.precipitationChance)}%` : null,
-        weather.wind ? `${t("windLabel")} ${weather.wind}` : null,
-        fmtSunTime(weather.sunrise) ? `${t("sunriseLabel")} ${fmtSunTime(weather.sunrise)}` : null,
-        fmtSunTime(weather.sunset) ? `${t("sunsetLabel")} ${fmtSunTime(weather.sunset)}` : null,
-      ].filter((p): p is string => p !== null).join(" · ")}
+    <span
+      className="flex min-w-0 max-w-full items-center gap-1.5 text-[11px] tabular-nums text-[var(--header-dim)]"
+      title={weatherTitle(w)}
     >
       <WeatherGlyph />
-      <span className="font-medium text-[var(--header-text)]">{label}</span>
-      <span className="text-sm font-bold tabular-nums text-[var(--header-text)]">{fmtTemp(weather.temperature)}</span>
-      <span className="text-[var(--header-text)]">{activeLang === "zh" ? wxZh(weather.description) : weather.description}</span>
-      <span>
-        {weather.high !== null || weather.low !== null ? `· ${t("wxHigh")} ${fmtTemp(weather.high)} ${t("wxLow")} ${fmtTemp(weather.low)}` : ""}
-        {weather.tomorrowHigh !== null && weather.tomorrowLow !== null ? ` · ${t("tomorrow")} ${Math.round(weather.tomorrowLow)}–${Math.round(weather.tomorrowHigh)}°` : ""}
-        {weather.humidity !== null ? ` · ${t("humidityLabel")} ${Math.round(weather.humidity)}%` : ""}
-        {weather.stale ? ` · ${t("staleData")}` : ""}
-        {weather.alerts.length > 0 ? ` · ⚠ ${weather.alerts.join("；")}` : ""}
+      <span className="min-w-0 truncate">
+        <span className="font-medium text-[var(--header-text)]">{label}</span>{" "}
+        {headerWeatherSummary(w)}
       </span>
-    </p>
+    </span>
   );
+}
+
+function weatherTitle(w: NonNullable<Weather>): string {
+  return [
+    w.feelsLike !== null ? `${t("feelsLike")} ${fmtTemp(w.feelsLike)}` : null,
+    w.humidity !== null ? `${t("humidityLabel")} ${Math.round(w.humidity)}%` : null,
+    w.precipitationChance !== null ? `${t("precip")} ${Math.round(w.precipitationChance)}%` : null,
+    w.wind ? `${t("windLabel")} ${w.wind}` : null,
+    fmtSunTime(w.sunrise) ? `${t("sunriseLabel")} ${fmtSunTime(w.sunrise)}` : null,
+    fmtSunTime(w.sunset) ? `${t("sunsetLabel")} ${fmtSunTime(w.sunset)}` : null,
+  ]
+    .filter((p): p is string => p !== null)
+    .join(" · ");
 }
 
 type Fx = ApiResponse<typeof api, "getFx">["fx"];
 
-/** Header FX line: today's CAD→CNY rate next to the weather lines.
- * Compact at phone width: rate + the 100-CAD equivalent + source date. */
-function FxLine({
+/** Header FX line: today's CAD→CNY rate with the 100-CAD equivalent
+ * and the source update date shown as visible text — the v1.7.2 shape,
+ * restored in v1.8.1 after v1.8.0 compressed it to the rate alone and
+ * hid the rest in a tooltip. The tooltip keeps only the extras
+ * (source name, inverse rate, raw UTC stamp). */
+function FxSegment({
   fx,
   pending,
   onRetry,
@@ -957,12 +1234,12 @@ function FxLine({
   if (!fx) {
     if (pending)
       return (
-        <p className="text-xs text-[var(--header-dim)] sm:text-right">
+        <span className="text-[11px] text-[var(--header-dim)]">
           {t("fxLoading")}
-        </p>
+        </span>
       );
     return (
-      <p className="text-xs text-[var(--header-dim)] sm:text-right">
+      <span className="text-[11px] text-[var(--header-dim)]">
         {t("fxUnavailable")}
         <button
           type="button"
@@ -972,31 +1249,36 @@ function FxLine({
         >
           {t("retry")}
         </button>
-      </p>
+      </span>
     );
   }
   return (
-    <p
-      className="flex flex-wrap items-center justify-start gap-x-1.5 text-xs tabular-nums text-[var(--header-dim)] sm:flex-nowrap sm:justify-end sm:whitespace-nowrap"
+    <span
+      className="flex min-w-0 max-w-full flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] tabular-nums text-[var(--header-dim)] lg:justify-end"
       title={`${t("fxSource")} · 1 CNY ≈ $${fx.inverse.toFixed(3)} CAD${fx.sourceUpdatedUtc ? ` · ${fx.sourceUpdatedUtc}` : ""}`}
     >
-      <span aria-hidden="true" className="text-[13px] leading-none">💱</span>
-      <span className="font-medium text-[var(--header-text)]">{t("fxLabel")}</span>
-      <span className="text-sm font-bold tabular-nums text-[var(--header-text)]">
-        {activeLang === "zh"
-          ? `1 加币 ≈ ¥${fx.rate.toFixed(2)}`
-          : `1 CAD ≈ ¥${fx.rate.toFixed(2)}`}
+      <span aria-hidden="true" className="shrink-0 text-[13px] leading-none">💱</span>
+      <span className="whitespace-nowrap">
+        <span className="font-medium text-[var(--header-text)]">{t("fxLabel")}</span>{" "}
+        <span className="text-sm font-bold tabular-nums text-[var(--header-text)]">
+          {activeLang === "zh"
+            ? `1 加币 ≈ ¥${fx.rate.toFixed(2)}`
+            : `1 CAD ≈ ¥${fx.rate.toFixed(2)}`}
+        </span>
       </span>
-      <span>
+      <span className="whitespace-nowrap">
+        ·{" "}
         {activeLang === "zh"
-          ? `· 100 加币 ≈ ¥${Math.round(fx.rate * 100)}`
-          : `· 100 CAD ≈ ¥${Math.round(fx.rate * 100)}`}
-        {fx.sourceDate
-          ? ` · ${t("fxUpdated")} ${formatDateLabel(fx.sourceDate)}`
-          : ""}
-        {fx.stale ? ` · ${t("staleData")}` : ""}
+          ? `100 加币 ≈ ¥${Math.round(fx.rate * 100)}`
+          : `100 CAD ≈ ¥${Math.round(fx.rate * 100)}`}
       </span>
-    </p>
+      {fx.sourceDate ? (
+        <span className="whitespace-nowrap">
+          · {t("fxUpdated")} {formatDateLabel(fx.sourceDate)}
+        </span>
+      ) : null}
+      {fx.stale ? <span className="whitespace-nowrap">· {t("staleData")}</span> : null}
+    </span>
   );
 }
 
@@ -1101,7 +1383,7 @@ function aqiDesc(description: string): string {
   return AQI_ZH[description] ?? description;
 }
 
-/** Destination-city air-quality text from the weather payload, when present. */
+/** Destination City air-quality text from the weather payload, when present. */
 function aqiText(w: Weather): string | null {
   if (!w) return null;
   if (w.airQualityIndex !== null) {
@@ -1122,55 +1404,124 @@ function uvText(w: Weather): string | null {
 
 /** Trip countdown derived from the fixed trip dates on page 3. */
 function tripCountdown(nowKey: string): { label: string; days: number | null } {
-  const dep = "2027-02-01";
-  const ret = "2027-04-15";
+  const dep = "2027-01-15";
+  const ret = "2027-03-01";
   const diff = (a: string, b: string) => Math.round((new Date(`${b}T12:00:00Z`).getTime() - new Date(`${a}T12:00:00Z`).getTime()) / 86400000);
   if (nowKey < dep) return { label: t("tripNotStarted"), days: diff(nowKey, dep) };
   if (nowKey <= ret) return { label: t("tripInProgress"), days: diff(nowKey, ret) };
   return { label: t("tripDone"), days: null };
 }
 
-function DualCityStrip({ toronto, destination, onOpenChina }: { toronto: Weather; destination: Weather; onOpenChina: () => void }) {
+function DualCityStrip({ toronto, destination, weatherPending, onRetryWeather, onOpenChina }: { toronto: Weather; destination: Weather; weatherPending: boolean; onRetryWeather: () => void; onOpenChina: () => void }) {
   const todayKey = torontoTodayKey(new Date());
   const trip = tripCountdown(todayKey);
   const diffTemp = toronto?.temperature != null && destination?.temperature != null ? Math.round(destination.temperature - toronto.temperature) : null;
   const diffText = diffTemp === null ? null : diffTemp === 0 ? t("tempSame") : diffTemp > 0 ? `${t("destination")} ${t("tempWarmer")} ${diffTemp}°` : `${t("destination")} ${t("tempColder")} ${Math.abs(diffTemp)}°`;
   return (
-    <div className={`${CARD_CLASS} mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5 [@media(max-height:949px)]:mt-1.5`} aria-label={t("dualCityTitle")}>
+    <div
+      onClick={onOpenChina}
+      className={`${CARD_CLASS} group mt-2 flex cursor-pointer flex-wrap items-center gap-x-5 gap-y-1.5 transition hover:border-[var(--accent)] [@media(max-height:949px)]:mt-1.5`}
+      aria-label={t("dualCityTitle")}
+      title={t("page3")}
+    >
       <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[var(--text)]">
         <SvgIcon color="#f53f3f" size={14} className="shrink-0"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" /></SvgIcon>
         {t("tripCountdownTitle")}
       </span>
-      <button type="button" onClick={onOpenChina} className="text-[13px] font-medium text-[var(--accent)] underline-offset-2 hover:underline" aria-label={t("page3")}>
-        {trip.days !== null ? `${trip.label} ${trip.days} ${t("daysUnit")} · 2027-02-01 → 2027-04-15` : trip.label}
+      {/* v1.8.2: the days-to-departure number is the strip's visual
+          anchor — big, extra-bold, accent-colored; the label, unit
+          and date range stay small beside it. The whole strip clicks
+          through to page 3 (the button stays as the keyboard target). */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpenChina();
+        }}
+        className="flex items-baseline gap-1.5 text-[13px] font-medium text-[var(--accent)] underline-offset-2 hover:underline"
+        aria-label={t("page3")}
+      >
+        {trip.days !== null ? (
+          <>
+            <span>{trip.label}</span>
+            <span className="text-[26px] font-extrabold leading-none tracking-tight">
+              {trip.days}
+            </span>
+            <span className="font-semibold">{t("daysUnit")}</span>
+            <span className="font-normal text-[var(--dim)]">· 2027-01-15 → 2027-03-01</span>
+          </>
+        ) : (
+          trip.label
+        )}
       </button>
+      {/* 双城当前天气 + 温差 + 目的地明日 + 目的地空气，一条扫完
+          （v1.8.1 起顶栏右上同样有双城天气，两处并存）。 */}
+      {toronto ? (
+        <span className="flex min-w-0 items-center gap-1.5 text-[13px] text-[var(--dim)]" title={weatherTitle(toronto)}>
+          <WeatherGlyph />
+          <span className="truncate"><span className="font-medium text-[var(--text)]">{t("weatherToday")}</span> {weatherSummary(toronto)}</span>
+        </span>
+      ) : weatherPending ? (
+        <span className="text-[13px] text-[var(--dim)]">{t("weatherLoading")}</span>
+      ) : (
+        <span className="text-[13px] text-[var(--dim)]">
+          {t("weatherUnavailable")}
+          <button type="button" onClick={(e) => { e.stopPropagation(); onRetryWeather(); }} aria-label={t("retry")} className="ml-1.5 font-medium text-[var(--accent)] underline underline-offset-2">{t("retry")}</button>
+        </span>
+      )}
+      {destination ? (
+        <span className="flex min-w-0 items-center gap-1.5 text-[13px] text-[var(--dim)]" title={weatherTitle(destination)}>
+          <WeatherGlyph />
+          <span className="truncate"><span className="font-medium text-[var(--text)]">{t("weatherDestination")}</span> {weatherSummary(destination)}</span>
+        </span>
+      ) : weatherPending ? (
+        <span className="text-[13px] text-[var(--dim)]">{t("destinationLoading")}</span>
+      ) : (
+        <span className="text-[13px] text-[var(--dim)]">
+          {t("destinationUnavailable")}
+          <button type="button" onClick={(e) => { e.stopPropagation(); onRetryWeather(); }} aria-label={t("retry")} className="ml-1.5 font-medium text-[var(--accent)] underline underline-offset-2">{t("retry")}</button>
+        </span>
+      )}
       {diffText ? <span className="text-[13px] text-[var(--dim)]">{diffText}</span> : null}
       {tomorrowLine(destination) ? <span className="min-w-0 truncate text-[13px] text-[var(--dim)]">{t("destination")} {t("tomorrow")}：{tomorrowLine(destination)}</span> : null}
       {aqiText(destination) ? <span className="text-[13px] text-[var(--dim)]">{t("destination")} {aqiText(destination)}</span> : null}
+      {/* Click affordance: the chevron warms to the accent color with
+          the strip's hover border — the strip is a door to page 3,
+          not a hidden one. */}
+      <span aria-hidden="true" className="ml-auto shrink-0 text-lg leading-none text-[var(--dim)] transition group-hover:text-[var(--accent)]">›</span>
     </div>
   );
 }
 
 /**
- * Top-right header block: live Toronto + Beijing clocks side by side,
- * with Toronto + destination-city weather underneath. Ticks every second.
+ * Top-right header block in the fuller v1.7.2 layout, restored in
+ * v1.8.1 (v1.8.0 had compressed it to a single line and dropped the
+ * weather from here — Mark preferred the older, fuller use of the
+ * space): a stacked, right-aligned column —
+ *   row 1: work chip + live Toronto / Beijing clocks;
+ *   row 2: Toronto weather (temp / condition / high-low / tomorrow /
+ *          humidity, all visible);
+ *   row 3: Destination City weather, same shape;
+ *   row 4: CAD→CNY rate with the 100-CAD equivalent + update date.
+ * The page-1 dual-city strip keeps its own weather lines too; this
+ * header block is the canonical one. Ticks every second.
  */
-function HeaderClockWeather({
+function HeaderMeta({
+  fx,
+  fxPending,
+  onRetryFx,
   weather,
   destination,
   weatherPending,
   onRetryWeather,
-  fx,
-  fxPending,
-  onRetryFx,
 }: {
+  fx: Fx;
+  fxPending: boolean;
+  onRetryFx: () => void;
   weather: Weather;
   destination: Weather;
   weatherPending: boolean;
   onRetryWeather: () => void;
-  fx: Fx;
-  fxPending: boolean;
-  onRetryFx: () => void;
 }) {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
@@ -1180,13 +1531,13 @@ function HeaderClockWeather({
   const work = offWorkState(now);
 
   return (
-    <div className="w-full min-w-0 text-left sm:w-auto sm:shrink-0 sm:text-right">
-      <div className="flex flex-wrap items-center justify-start gap-x-3 gap-y-1 sm:justify-end">
+    <div className="flex w-full min-w-0 max-w-full flex-col gap-y-1 lg:items-end">
+      <div className="flex w-full min-w-0 flex-wrap items-center gap-x-3 gap-y-1 lg:justify-end">
         <span
           className={
             work.off
-              ? "max-w-full rounded-full bg-[var(--header-chip)] px-2 py-0.5 text-[11px] font-medium leading-snug text-[var(--header-dim)]"
-              : "max-w-full rounded-full bg-[#00b578]/15 px-2 py-0.5 text-[11px] font-medium leading-snug text-[#00754b] dark:text-[#5ee0a8]"
+              ? "max-w-full shrink-0 whitespace-nowrap rounded-full bg-[var(--header-chip)] px-2 py-0.5 text-[11px] font-medium leading-snug text-[var(--header-dim)]"
+              : "max-w-full shrink-0 whitespace-nowrap rounded-full bg-[#00b578]/15 px-2 py-0.5 text-[11px] font-medium leading-snug text-[#00754b] dark:text-[#5ee0a8]"
           }
         >
           <span
@@ -1199,24 +1550,36 @@ function HeaderClockWeather({
           />
           {work.prefix} · {work.label}
         </span>
-        <span className="text-[11px] text-[var(--header-dim)]">
+        <span className="shrink-0 whitespace-nowrap text-[11px] text-[var(--header-dim)]">
           {t("toronto")} {formatZoneDate(now, "America/Toronto")}{" "}
           <span className="text-sm font-bold tabular-nums text-[var(--header-text)]">
             {formatClockTime(now, "America/Toronto")}
           </span>
         </span>
-        <span className="border-l border-[var(--header-border)] pl-3 text-[11px] text-[var(--header-dim)]">
+        <span className="shrink-0 whitespace-nowrap border-l border-[var(--header-border)] pl-3 text-[11px] text-[var(--header-dim)]">
           {t("beijing")} {formatZoneDate(now, "Asia/Shanghai")}{" "}
           <span className="text-sm font-bold tabular-nums text-[var(--header-text)]">
             {formatClockTime(now, "Asia/Shanghai")}
           </span>
         </span>
       </div>
-      <div className="mt-1.5 space-y-1">
-        <WeatherLine label={t("weatherToday")} weather={weather} pending={weatherPending} loadingText={t("weatherLoading")} unavailableText={t("weatherUnavailable")} onRetry={onRetryWeather} />
-        <WeatherLine label={`${t("weatherDestination")}`} weather={destination} pending={weatherPending} loadingText={t("destinationLoading")} unavailableText={t("destinationUnavailable")} onRetry={onRetryWeather} />
-        <FxLine fx={fx} pending={fxPending} onRetry={onRetryFx} />
-      </div>
+      <HeaderWeatherLine
+        w={weather}
+        label={t("weatherToday")}
+        pending={weatherPending}
+        loadingText={t("weatherLoading")}
+        unavailableText={t("weatherUnavailable")}
+        onRetry={onRetryWeather}
+      />
+      <HeaderWeatherLine
+        w={destination}
+        label={`${t("weatherDestination")}`}
+        pending={weatherPending}
+        loadingText={t("destinationLoading")}
+        unavailableText={t("destinationUnavailable")}
+        onRetry={onRetryWeather}
+      />
+      <FxSegment fx={fx} pending={fxPending} onRetry={onRetryFx} />
     </div>
   );
 }
@@ -1272,7 +1635,7 @@ const QUICK_LINKS: {
     ),
   },
   {
-    label: "App",
+    label: "Foxuma",
     href: "https://app.example.com",
     bg: "rgba(0,119,250,0.10)",
     glyph: (
@@ -1779,7 +2142,7 @@ function StatusCards({
 
 /**
  * Compact status summary chip for the header: "状态 X/6" over the four
- * websites + Mini PC + office server. Green and quiet when everything is up,
+ * websites + Mini PC + office-server. Green and quiet when everything is up,
  * red with the down targets' names when anything is down. Opens the
  * full status detail view.
  */
@@ -1861,93 +2224,107 @@ function StatusChip({
   );
 }
 
-type BoardPage = "main" | "more" | "china" | "history";
+type BoardPage = "main" | "more" | "china" | "history" | "jason" | "cfo" | "growth";
 
-/** Page switch: page 1 = one-screen workbench, page 2 = later deadlines +
- * status detail, page 3 = 回国待办 (China Trip checklist), page 4 =
- * 完成记录 (History, 7-day done archive). */
+/** Page switch, grouped since v1.9.0 (Semi button-type Tabs — the fill
+ * container + white selected tab the board has used since v1.7.0, now
+ * arranged in three labelled groups so seven pages stay one-glance):
+ *   日常 (daily):  今天 (page 1 workbench) / 待拍板 (waiting-on-decision)
+ *                  / CFO (money) / 状态 (page 2: later deadlines +
+ *                  status detail — page 1's own drill-down, last in
+ *                  the daily group)
+ *   专题 (topics): 增长 (growth) / 回国 (page 3, expanded in place)
+ *   记录 (records): 历史 (done-history archive)
+ * The bar is ONE line at every width: it never wraps and never hides
+ * a page into a menu — at 390px it scrolls horizontally instead.
+ * Group captions + hairline dividers make the grouping visible in the
+ * bar's arrangement; grouping governs order/presentation only, every
+ * page's contents are unchanged. */
 function PageTabs({
   page,
-  farCount,
   chinaCount,
+  jasonCount,
   onChange,
 }: {
   page: BoardPage;
-  farCount: number;
   chinaCount: number;
+  jasonCount: number;
   onChange: (page: BoardPage) => void;
 }) {
+  // At 390px the bar scrolls horizontally (by design); whenever the
+  // page changes — including arrivals via in-page buttons like the
+  // dual-city strip — slide the selected tab into view so the current
+  // page is always visible in the bar.
+  const listRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const list = listRef.current;
+    const selected = list?.querySelector<HTMLElement>('[aria-selected="true"]');
+    if (!list || !selected) return;
+    const delta =
+      selected.getBoundingClientRect().left -
+      list.getBoundingClientRect().left -
+      12;
+    if (delta < -4 || delta + selected.offsetWidth > list.clientWidth - 12) {
+      list.scrollLeft += delta;
+    }
+  }, [page]);
   const tabCls = (active: boolean) =>
     active
-      ? "h-8 whitespace-nowrap rounded-[6px] bg-[var(--surface)] px-3 text-[13px] font-semibold text-[var(--accent)] shadow-[0_1px_4px_rgba(28,31,35,0.14)] transition"
-      : "h-8 whitespace-nowrap rounded-[6px] px-3 text-[13px] font-medium text-[var(--dim)] transition hover:text-[var(--text)]";
+      ? "h-8 shrink-0 whitespace-nowrap rounded-[6px] bg-[var(--surface)] px-3 text-[13px] font-semibold text-[var(--accent)] shadow-[0_1px_4px_rgba(28,31,35,0.14)] transition"
+      : "h-8 shrink-0 whitespace-nowrap rounded-[6px] px-3 text-[13px] font-medium text-[var(--dim)] transition hover:text-[var(--text)]";
+  const caption = (label: string, first: boolean) => (
+    <span
+      aria-hidden="true"
+      className={`shrink-0 select-none whitespace-nowrap text-[11px] font-semibold tracking-wide text-[var(--dim)] ${
+        first ? "pl-1.5 pr-0.5" : "pl-2 pr-0.5"
+      }`}
+    >
+      {label}
+    </span>
+  );
+  const divider = (
+    <span aria-hidden="true" className="mx-1 h-5 w-px shrink-0 self-center bg-[var(--border)]" />
+  );
+  const tab = (
+    target: BoardPage,
+    label: string,
+    aria: string,
+    count?: number,
+  ) => (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={page === target}
+      aria-label={aria}
+      onClick={() => onChange(target)}
+      className={tabCls(page === target)}
+    >
+      {label}
+      {count !== undefined && count > 0 ? (
+        <span className="tabular-nums"> {count}</span>
+      ) : null}
+    </button>
+  );
   return (
     <div className="mt-2">
       <div
+        ref={listRef}
         role="tablist"
         aria-label={t("tabsAria")}
-        className="inline-flex max-w-full overflow-x-auto rounded-[8px] border border-[var(--border)] bg-[var(--fill)] p-[3px]"
+        className="flex max-w-full items-center gap-0.5 overflow-x-auto rounded-[8px] border border-[var(--border)] bg-[var(--fill)] p-[3px]"
       >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={page === "main"}
-          aria-label={t("page1")}
-          onClick={() => onChange("main")}
-          className={tabCls(page === "main")}
-        >
-          <span className="sm:hidden">{activeLang === "zh" ? "工作台" : "Workbench"}</span>
-          <span className="hidden sm:inline">{t("page1")}</span>
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={page === "more"}
-          aria-label={
-            activeLang === "zh"
-              ? `第 2 页 · 更远到期${farCount > 0 ? ` ${farCount}` : ""} + 状态详情`
-              : `Page 2 · Later${farCount > 0 ? ` ${farCount}` : ""} + Status`
-          }
-          onClick={() => onChange("more")}
-          className={tabCls(page === "more")}
-        >
-          <span className="sm:hidden">{activeLang === "zh" ? "状态详情" : "Status"}</span>
-          <span className="hidden sm:inline">
-            {activeLang === "zh"
-              ? `第 2 页 · 更远到期${farCount > 0 ? ` ${farCount}` : ""} + 状态详情`
-              : `Page 2 · Later${farCount > 0 ? ` ${farCount}` : ""} + Status`}
-          </span>
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={page === "china"}
-          aria-label={t("page3")}
-          onClick={() => onChange("china")}
-          className={tabCls(page === "china")}
-        >
-          <span className="sm:hidden">
-            {activeLang === "zh"
-              ? `回国待办${chinaCount > 0 ? ` ${chinaCount}` : ""}`
-              : `China Trip${chinaCount > 0 ? ` ${chinaCount}` : ""}`}
-          </span>
-          <span className="hidden sm:inline">
-            {activeLang === "zh"
-              ? `第 3 页 · 回国待办${chinaCount > 0 ? ` ${chinaCount}` : ""}`
-              : `Page 3 · China Trip${chinaCount > 0 ? ` ${chinaCount}` : ""}`}
-          </span>
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={page === "history"}
-          aria-label={t("page4")}
-          onClick={() => onChange("history")}
-          className={tabCls(page === "history")}
-        >
-          <span className="sm:hidden">{activeLang === "zh" ? "完成记录" : "History"}</span>
-          <span className="hidden sm:inline">{t("page4")}</span>
-        </button>
+        {caption(t("tabGroupDaily"), true)}
+        {tab("main", t("tabToday"), t("page1"))}
+        {tab("jason", t("tabJason"), t("jasonTitle"), jasonCount)}
+        {tab("cfo", t("tabCfo"), t("cfoTitle"))}
+        {tab("more", t("tabStatus"), activeLang === "zh" ? "第 2 页 · 更远到期 + 状态详情" : "Page 2 · Later deadlines + Status")}
+        {divider}
+        {caption(t("tabGroupTopic"), false)}
+        {tab("growth", t("tabGrowth"), t("growthTitle"))}
+        {tab("china", t("tabChina"), t("page3"), chinaCount)}
+        {divider}
+        {caption(t("tabGroupRecord"), false)}
+        {tab("history", t("tabHistory"), t("page4"))}
       </div>
     </div>
   );
@@ -2002,6 +2379,63 @@ function ChinaRow({
         ) : null}
       </div>
     </li>
+  );
+}
+
+/** Page-3 checklist groups (v1.9.0): rows group by their lane key —
+ * "pre" 出发前清尾 / "inch" 在华待办 / "gifts" 礼物进度 / "pack" 打包
+ * 定稿； any other lane (including "") falls into 其他待办. While every
+ * row's lane is empty the list renders as ONE flat list, byte-for-byte
+ * the pre-v1.9.0 behaviour, so existing items are untouched until the
+ * China Trip room tags them. */
+const CHINA_GROUPS: { lane: string; titleKey: StrKey }[] = [
+  { lane: "pre", titleKey: "chinaGroupPre" },
+  { lane: "inch", titleKey: "chinaGroupInChina" },
+  { lane: "gifts", titleKey: "chinaGroupGifts" },
+  { lane: "pack", titleKey: "chinaGroupPacking" },
+];
+
+function ChinaChecklistGroups({
+  items,
+  pendingId,
+  onToggle,
+}: {
+  items: Item[];
+  pendingId: number | undefined;
+  onToggle: (id: number, done: boolean) => void;
+}) {
+  const renderList = (rows: Item[]) => (
+    <ul className="divide-y divide-[var(--border)]">
+      {rows.map((item) => (
+        <ChinaRow
+          key={item.id}
+          item={item}
+          pending={pendingId === item.id}
+          onToggle={(done) => onToggle(item.id, done)}
+        />
+      ))}
+    </ul>
+  );
+  if (!items.some((i) => i.lane !== "")) return renderList(items);
+  const known = new Set(CHINA_GROUPS.map((g) => g.lane));
+  const rest = items.filter((i) => !known.has(i.lane));
+  const groupBlock = (titleKey: StrKey, rows: Item[]) =>
+    rows.length === 0 ? null : (
+      <div key={titleKey}>
+        <p className="flex items-baseline gap-2 pb-0.5 pt-2.5 text-[13px] font-semibold text-[var(--text)] first:pt-1">
+          {t(titleKey)}
+          <span className="text-xs font-medium tabular-nums text-[var(--dim)]">
+            {rows.filter((i) => i.status === "done").length}/{rows.length}
+          </span>
+        </p>
+        {renderList(rows)}
+      </div>
+    );
+  return (
+    <div>
+      {CHINA_GROUPS.map((g) => groupBlock(g.titleKey, items.filter((i) => i.lane === g.lane)))}
+      {groupBlock("chinaGroupOther", rest)}
+    </div>
   );
 }
 
@@ -2062,11 +2496,19 @@ function AddChinaForm({
 
 /** Deadline items as ONE line per item (date · title · note inline · countdown),
  * shared by page 1 (≤14 天） and page 2 (>14 天）. Items arrive from the
- * server in pure due-date order (soonest first), so render them flat. */
+ * server in pure due-date order (soonest first); v1.8.2 stable-pins
+ * items due today (Toronto date) to the very top — their relative
+ * order is kept, and every other item keeps its order too. */
 function DeadlineGroups({ items }: { items: Item[] }) {
+  const isDueToday = (item: Item) =>
+    item.dueDate !== null && daysUntil(item.dueDate) === 0;
+  const ordered = [
+    ...items.filter(isDueToday),
+    ...items.filter((item) => !isDueToday(item)),
+  ];
   return (
     <ul className="divide-y divide-[var(--border)]">
-      {items.map((item) => {
+      {ordered.map((item) => {
         const left = item.dueDate ? daysUntil(item.dueDate) : null;
         return (
           <li
@@ -2208,8 +2650,10 @@ function DeadlineChip({ left }: { left: number }) {
     );
   }
   if (left === 0) {
+    // Due today gets its own orange-red badge (v1.8.2) — louder than
+    // the ≤3-day amber, distinct from the pure-red overdue chip.
     return (
-      <span className="rounded-[6px] bg-[var(--accent)] px-2 py-0.5 text-xs font-medium text-white">
+      <span className="rounded-[6px] bg-[#fa541c] px-2 py-0.5 text-xs font-semibold text-white">
         {t("dueTodayChip")}
       </span>
     );
@@ -2225,6 +2669,398 @@ function DeadlineChip({ left }: { left: number }) {
     <span className="text-xs text-[var(--dim)]">
       {activeLang === "zh" ? `还有 ${left} 天` : `in ${left} days`}
     </span>
+  );
+}
+
+/** Toronto-zoned short stamp for an instant (M/D HH:MM). */
+function formatStampToronto(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat(uiLocale(), {
+    timeZone: "America/Toronto",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(d);
+}
+
+/** Header strip shared by the v1.9.0 pages: tile + title + one-line
+ * purpose, and the page's own 数据更新时间 on the right — the newest
+ * updatedAt among the page's rows (Toronto time), or 尚未同步 when the
+ * page has no feed rows yet. Semi Card + Tag language, same shape as
+ * the history page's header strip. */
+function NewPageHeader({
+  kind,
+  title,
+  sub,
+  items,
+}: {
+  kind: SectionKind;
+  title: string;
+  sub: string;
+  items: Item[];
+}) {
+  const stamp = items.reduce<string | null>(
+    (acc, i) => (acc === null || i.updatedAt > acc ? i.updatedAt : acc),
+    null,
+  );
+  return (
+    <div className={`${CARD_CLASS} mt-3 flex flex-wrap items-center gap-x-3 gap-y-1`}>
+      <span className="flex shrink-0 items-center gap-2 text-sm font-semibold text-[var(--text)]">
+        <SectionTile kind={kind} />
+        {title}
+      </span>
+      <span className="min-w-0 text-sm text-[var(--dim)]">{sub}</span>
+      <span className="ml-auto shrink-0 text-xs tabular-nums text-[var(--dim)]">
+        {stamp
+          ? `${t("dataUpdatedAt")} ${formatStampToronto(stamp)}${t("torontoTimeSuffix")}`
+          : t("notSynced")}
+      </span>
+    </div>
+  );
+}
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** 待拍板 page (waiting-on-decision). Feed convention (the ops lane
+ * writes via the generic item actions, section "jason"): dueDate =
+ * the day the ask was raised, so drag days = today − dueDate and the
+ * list is sorted longest-wait first; a hard date, when the item has one,
+ * rides in `status` as an ISO date and gets the board's DeadlineChip
+ * badge （今天到期 orange-red / overdue red — same caliber as the
+ * deadlines list). Rows Tina closes land in the 本周已清 strip via
+ * getBoard's jasonCleared. Semi List rhythm + soft Tags throughout. */
+function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
+  const dragOf = (item: Item): number | null =>
+    item.dueDate ? -daysUntil(item.dueDate) : null;
+  const ordered = [...open].sort((a, b) => {
+    const da = dragOf(a);
+    const db = dragOf(b);
+    if (da !== null && db !== null) return db - da || a.id - b.id;
+    if (da !== null) return -1;
+    if (db !== null) return 1;
+    return a.sort - b.sort || a.id - b.id;
+  });
+  const dragChip = (drag: number) => {
+    const cls =
+      drag >= 14
+        ? "bg-[#f53f3f] text-white font-semibold"
+        : drag >= 7
+          ? "bg-[#ff9d0a]/15 text-[#a15e00] dark:text-[#ffc65c] font-medium"
+          : "bg-[var(--fill)] text-[var(--dim)] font-medium";
+    return (
+      <span className={`shrink-0 rounded-[6px] px-2 py-0.5 text-xs tabular-nums ${cls}`}>
+        {t("jasonDragPrefix")} {drag} {t("jasonDragDays")}
+      </span>
+    );
+  };
+  return (
+    <>
+      <NewPageHeader
+        kind="jason"
+        title={t("jasonTitle")}
+        sub={t("jasonSub")}
+        items={[...open, ...cleared]}
+      />
+      <section aria-label={t("jasonTitle")} className={`${CARD_CLASS} mt-3`}>
+        {ordered.length === 0 ? (
+          <EmptyLine text={cleared.length > 0 ? t("jasonNoneOpen") : t("jasonEmpty")} />
+        ) : (
+          <ul className="divide-y divide-[var(--border)]">
+            {ordered.map((item) => {
+              const drag = dragOf(item);
+              const hard = ISO_DATE_RE.test(item.status.trim())
+                ? item.status.trim()
+                : null;
+              return (
+                <li key={item.id} id={`board-item-${item.id}`} className="scroll-mt-24 py-2.5">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="min-w-0 text-[15px] font-medium leading-snug text-[var(--text)]">
+                      {item.title}
+                    </p>
+                    {drag !== null && drag > 0 ? dragChip(drag) : null}
+                  </div>
+                  {item.detail ? (
+                    <p className="mt-0.5 text-sm leading-relaxed text-[var(--dim)]">{item.detail}</p>
+                  ) : null}
+                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span className="text-xs tabular-nums text-[var(--dim)]">
+                      {item.dueDate
+                        ? `${t("jasonAskedOn")} ${formatDateLabel(item.dueDate)}`
+                        : t("jasonNoDate")}
+                    </span>
+                    {hard ? (
+                      <span className="flex items-center gap-1.5">
+                        <span className="text-xs text-[var(--dim)]">{t("jasonHardDate")}</span>
+                        <DeadlineChip left={daysUntil(hard)} />
+                      </span>
+                    ) : item.status ? (
+                      <StatusPill status={item.status} />
+                    ) : null}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+      <section aria-label={t("jasonClearedTitle")} className={`${CARD_CLASS} mt-3`}>
+        <SectionHeading icon={<SectionTile kind="jason" />}>
+          {t("jasonClearedTitle")}
+        </SectionHeading>
+        {cleared.length === 0 ? (
+          <EmptyLineCompact text={t("jasonClearedEmpty")} />
+        ) : (
+          <ul className="divide-y divide-[var(--border)]">
+            {cleared.map((item) => (
+              <li key={item.id} className="flex items-center gap-2 py-[5px]">
+                <span aria-hidden="true" className="shrink-0 font-semibold text-[#00b578]">✓</span>
+                <span className="min-w-0 flex-1 truncate text-sm text-[var(--dim)]">
+                  <span className="font-medium">{item.title}</span>
+                  {item.detail ? <span> · {item.detail}</span> : null}
+                </span>
+                {item.closedAt ? (
+                  <span className="shrink-0 text-xs tabular-nums text-[var(--dim)]">
+                    {formatStampToronto(item.closedAt)}
+                  </span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </>
+  );
+}
+
+/** CFO feed convention (QB room writes via the generic item actions,
+ * section "money"): lane "ar" = 应收 / "ap" = 应付， dueDate = due
+ * date, `status` = the CAD amount as a plain decimal string. Amounts
+ * are rendered verbatim from the feed — an unparseable amount shows
+ * "—", never an estimate. */
+function parseAmount(status: string): number | null {
+  const raw = status.trim().replace(/[$,]/g, "");
+  if (!raw) return null;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : null;
+}
+
+function formatMoney(n: number): string {
+  return `$${n.toLocaleString(uiLocale(), {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+/** One Semi-Table-shaped money card: hairline header row （事项 / 到期 /
+ * 金额）, divider rows, right-aligned tabular amounts, a 合计 footer
+ * summed from the feed rows only (shown when at least one amount
+ * parses — never a fabricated zero). */
+function MoneyTable({
+  title,
+  items,
+  emptyText,
+}: {
+  title: string;
+  items: Item[];
+  emptyText: string;
+}) {
+  const amounts = items
+    .map((i) => parseAmount(i.status))
+    .filter((n): n is number => n !== null);
+  const total = amounts.length > 0 ? amounts.reduce((a, b) => a + b, 0) : null;
+  return (
+    <section aria-label={title} className={`${CARD_CLASS} mt-3`}>
+      <SectionHeading icon={<SectionTile kind="cfo" />}>{title}</SectionHeading>
+      {items.length === 0 ? (
+        <EmptyLineCompact text={emptyText} />
+      ) : (
+        <>
+          <div
+            aria-hidden="true"
+            className="grid grid-cols-[minmax(0,1fr)_92px_96px] gap-x-2 border-b border-[var(--border)] pb-1.5 text-xs font-medium text-[var(--dim)]"
+          >
+            <span>{t("cfoColItem")}</span>
+            <span>{t("cfoColDue")}</span>
+            <span className="text-right">{t("cfoColAmount")}</span>
+          </div>
+          <ul className="divide-y divide-[var(--border)]">
+            {items.map((item) => {
+              const amount = parseAmount(item.status);
+              const left = item.dueDate ? daysUntil(item.dueDate) : null;
+              return (
+                <li
+                  key={item.id}
+                  id={`board-item-${item.id}`}
+                  className="grid scroll-mt-24 grid-cols-[minmax(0,1fr)_92px_96px] items-start gap-x-2 py-[5px]"
+                >
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium leading-snug text-[var(--text)]">{item.title}</span>
+                    {item.detail ? (
+                      <span className="block text-[13px] leading-snug text-[var(--dim)]">{item.detail}</span>
+                    ) : null}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-xs font-semibold tabular-nums text-[var(--text)]">
+                      {item.dueDate ? formatDateLabel(item.dueDate) : t("cfoNoDate")}
+                    </span>
+                    {left !== null && left <= 3 ? (
+                      <span className="mt-0.5 block">
+                        <DeadlineChip left={left} />
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="text-right text-sm font-semibold tabular-nums text-[var(--text)]">
+                    {amount !== null ? formatMoney(amount) : "—"}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+          {total !== null ? (
+            <div className="flex items-baseline justify-between border-t border-[var(--border)] pt-2">
+              <span className="text-[13px] font-medium text-[var(--dim)]">{t("cfoTotal")}</span>
+              <span className="text-[15px] font-bold tabular-nums text-[var(--text)]">{formatMoney(total)}</span>
+            </div>
+          ) : null}
+        </>
+      )}
+    </section>
+  );
+}
+
+/** CFO page: the next 30 days of money in/out （应收 / 应付）, plus the
+ * top-5 collection list derived from the AR rows alone — most overdue
+ * first, then largest amount. No feed rows → honest 尚未同步. */
+function CfoPage({ items }: { items: Item[] }) {
+  const inWindow = (item: Item) =>
+    !item.dueDate || daysUntil(item.dueDate) <= 30;
+  const byDue = (a: Item, b: Item) => {
+    if (a.dueDate && b.dueDate) return a.dueDate < b.dueDate ? -1 : a.dueDate > b.dueDate ? 1 : a.id - b.id;
+    if (a.dueDate) return -1;
+    if (b.dueDate) return 1;
+    return a.sort - b.sort || a.id - b.id;
+  };
+  const ar = items.filter((i) => i.lane === "ar" && inWindow(i)).sort(byDue);
+  const ap = items.filter((i) => i.lane === "ap" && inWindow(i)).sort(byDue);
+  const top5 = [...ar]
+    .sort((a, b) => {
+      const od = (i: Item) => (i.dueDate ? Math.max(0, -daysUntil(i.dueDate)) : 0);
+      return od(b) - od(a) || (parseAmount(b.status) ?? 0) - (parseAmount(a.status) ?? 0);
+    })
+    .slice(0, 5);
+  return (
+    <>
+      <NewPageHeader kind="cfo" title={t("cfoTitle")} sub={t("cfoSub")} items={items} />
+      <MoneyTable title={t("cfoArTitle")} items={ar} emptyText={t("cfoEmpty")} />
+      <MoneyTable title={t("cfoApTitle")} items={ap} emptyText={t("cfoEmpty")} />
+      <section aria-label={t("cfoTopTitle")} className={`${CARD_CLASS} mt-3`}>
+        <SectionHeading icon={<SectionTile kind="cfo" />}>{t("cfoTopTitle")}</SectionHeading>
+        {top5.length === 0 ? (
+          <EmptyLineCompact text={t("cfoEmpty")} />
+        ) : (
+          <ol className="divide-y divide-[var(--border)]">
+            {top5.map((item, idx) => {
+              const amount = parseAmount(item.status);
+              const overdue = item.dueDate ? Math.max(0, -daysUntil(item.dueDate)) : 0;
+              return (
+                <li key={item.id} className="flex items-center gap-2 py-[5px]">
+                  <span aria-hidden="true" className="w-5 shrink-0 text-center text-[13px] font-bold tabular-nums text-[var(--dim)]">
+                    {idx + 1}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium text-[var(--text)]">{item.title}</span>
+                    {item.detail ? (
+                      <span className="block truncate text-[13px] text-[var(--dim)]">{item.detail}</span>
+                    ) : null}
+                  </span>
+                  {overdue > 0 ? (
+                    <span className="shrink-0 rounded-[6px] bg-[#f53f3f] px-2 py-0.5 text-xs font-medium text-white">
+                      {t("cfoOverdueDays")} {overdue} {t("jasonDragDays")}
+                    </span>
+                  ) : item.dueDate ? (
+                    <span className="shrink-0 text-xs tabular-nums text-[var(--dim)]">
+                      {formatDateLabel(item.dueDate)}
+                    </span>
+                  ) : null}
+                  <span className="w-24 shrink-0 text-right text-sm font-semibold tabular-nums text-[var(--text)]">
+                    {amount !== null ? formatMoney(amount) : "—"}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+      </section>
+    </>
+  );
+}
+
+/** 增长 feed convention (Foxuma room + outreach register write via
+ * the generic item actions, section "growth"): lane groups the rows —
+ * "founding" (the verified seat fact), "funnel" （注册/试用/转付费）,
+ * "outreach" (the three outreach lines). `status` carries the feed's
+ * value string and is shown verbatim; nothing is computed here except
+ * the page's own update stamp. */
+function GrowthPage({ items }: { items: Item[] }) {
+  const founding = items.filter((i) => i.lane === "founding");
+  const funnel = items.filter((i) => i.lane === "funnel");
+  const outreach = items.filter((i) => i.lane === "outreach");
+  const valueRows = (rows: Item[]) => (
+    <ul className="divide-y divide-[var(--border)]">
+      {rows.map((item) => (
+        <li key={item.id} id={`board-item-${item.id}`} className="flex scroll-mt-24 items-baseline gap-3 py-2">
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-medium leading-snug text-[var(--text)]">{item.title}</span>
+            {item.detail ? (
+              <span className="block text-[13px] leading-snug text-[var(--dim)]">{item.detail}</span>
+            ) : null}
+          </span>
+          {item.status ? (
+            <span className="shrink-0 text-[15px] font-bold tabular-nums text-[var(--text)]">{item.status}</span>
+          ) : null}
+        </li>
+      ))}
+    </ul>
+  );
+  return (
+    <>
+      <NewPageHeader kind="growth" title={t("growthTitle")} sub={t("growthSub")} items={items} />
+      <section aria-label={t("foundingTitle")} className={`${CARD_CLASS} mt-3`}>
+        <SectionHeading icon={<SectionTile kind="growth" />}>{t("foundingTitle")}</SectionHeading>
+        {founding.length === 0 ? (
+          <EmptyLineCompact text={t("growthEmpty")} />
+        ) : (
+          <ul className="divide-y divide-[var(--border)]">
+            {founding.map((item) => (
+              <li key={item.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-0.5 py-2">
+                {item.status ? (
+                  <span className="text-[26px] font-extrabold leading-none tabular-nums text-[var(--accent)]">
+                    {item.status}
+                  </span>
+                ) : null}
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium text-[var(--text)]">{item.title}</span>
+                  {item.detail ? (
+                    <span className="block text-[13px] text-[var(--dim)]">{item.detail}</span>
+                  ) : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <section aria-label={t("funnelTitle")} className={`${CARD_CLASS} mt-3`}>
+        <SectionHeading icon={<SectionTile kind="growth" />}>{t("funnelTitle")}</SectionHeading>
+        {funnel.length === 0 ? <EmptyLineCompact text={t("growthEmpty")} /> : valueRows(funnel)}
+      </section>
+      <section aria-label={t("outreachTitle")} className={`${CARD_CLASS} mt-3`}>
+        <SectionHeading icon={<SectionTile kind="growth" />}>{t("outreachTitle")}</SectionHeading>
+        {outreach.length === 0 ? <EmptyLineCompact text={t("growthEmpty")} /> : valueRows(outreach)}
+      </section>
+    </>
   );
 }
 
@@ -2446,9 +3282,11 @@ function LaneRow({
   }
 
   return (
-    <li id={`board-item-${item.id}`} className="scroll-mt-24 py-[3px] [@media(max-height:949px)]:py-[1px]">
+    <li id={`board-item-${item.id}`} className="scroll-mt-24 py-[5px] [@media(max-height:949px)]:py-[3px]">
       {/* Collapsed: ONE line — glyph + title + status pill. Detail and the
-          编辑/完成/删除 controls appear only when the row is expanded. */}
+          编辑/完成/删除 controls appear only when the row is expanded.
+          Row padding matches the today timeline and deadline rows
+          (v1.8.2 density unification across the three columns). */}
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -3101,6 +3939,26 @@ export function App() {
   // waiting for a decision" state. The breakdown parts then only list
   // what the headline doesn't already say.
   const followOnly = data.decisions.length === 0 && followCount > 0;
+  // When follow-ups are the only thing waiting, the hero names the
+  // first one outright — Mark should not have to open the dropdown to
+  // learn what it is. The name prefers the item's own 「下一步」 ask
+  // (the concrete thing he has to do, e.g. 手柄和鼠标各补 2 张照片),
+  // falling back to the item's title.
+  const followHeadline = (entry: (typeof followItems)[number]): string => {
+    const next = /下一步[:：]\s*([^。；]+)/.exec(entry.item.detail)?.[1];
+    const cleaned = next?.replace(/（等\s*Mark[^）]*）/g, "").trim();
+    return cleaned || entry.displayTitle;
+  };
+  const firstFollow = followItems[0];
+  const followNamed =
+    followOnly && firstFollow
+      ? followHeadline(firstFollow) +
+        (followCount > 1
+          ? activeLang === "zh"
+            ? ` 等 ${followCount} 件`
+            : ` · ${followCount} in total`
+          : "")
+      : null;
   const heroParts = [
     data.decisions.length > 0
       ? activeLang === "zh"
@@ -3118,11 +3976,12 @@ export function App() {
     <div className="min-h-screen bg-[var(--bg)] font-sans antialiased">
       <SafeAreaTopScrim backgroundColor={scrimColor} />
 
-      {/* 深色顶栏：日期 + 今日概览数字；右上角双时钟 + 今日天气 */}
+      {/* 深色顶栏：日期 + 今日概览数字；右上多段元信息（状态 + 双时钟 /
+          双城天气 / 汇率，v1.8.1 恢复 v1.7.2 的饱满排法） */}
       {page === "main" ? (
       <header className="border-b border-[var(--header-border)] bg-[var(--header-bg)] px-5 pb-2 pt-safe-or-3 text-[var(--header-text)] [@media(max-height:949px)]:pb-1">
         <div className="mx-auto w-full max-w-[1600px]">
-          <div className="grid items-center gap-x-4 gap-y-2 lg:grid-cols-[1fr_auto_1fr]">
+          <div className="grid items-center gap-x-4 gap-y-2 lg:grid-cols-[1fr_auto_1fr] xl:grid-cols-[minmax(0,4.2fr)_auto_minmax(0,7fr)]">
             <div className="min-w-0">
               <div className="flex items-baseline gap-3">
                 <h1 className="text-lg font-bold leading-tight tracking-tight text-[var(--header-text)]">
@@ -3180,37 +4039,48 @@ export function App() {
                     aria-label={
                       activeLang === "zh"
                         ? followOnly
-                          ? `查看等你跟进的 ${actionCount} 件事`
+                          ? followNamed
+                            ? `等你跟进：${followNamed}（点开查看全部）`
+                            : `查看等你跟进的 ${actionCount} 件事`
                           : `查看需要你处理的 ${actionCount} 件事`
-                        : actionCount === 1
-                          ? "View the 1 item that needs you"
-                          : `View the ${actionCount} items that need you`
+                        : followNamed
+                          ? `Waiting on you: ${followNamed} (open to view all)`
+                          : actionCount === 1
+                            ? "View the 1 item that needs you"
+                            : `View the ${actionCount} items that need you`
                     }
                     className="rounded-lg px-2 py-1 transition hover:bg-[var(--header-chip)] active:scale-[0.99] motion-reduce:transition-none"
                   >
-                    <span className="flex items-baseline justify-center gap-2 leading-none">
-                      <span className="text-3xl font-black tabular-nums text-[var(--header-accent)]">
-                        {actionCount}
+                    <span className="flex flex-col items-center gap-1">
+                      <span className="flex items-baseline justify-center gap-2 leading-none">
+                        <span className="text-3xl font-black tabular-nums text-[var(--header-accent)]">
+                          {actionCount}
+                        </span>
+                        <span className="text-base font-semibold text-[var(--header-text)]">
+                          {activeLang === "zh"
+                            ? followOnly
+                              ? "件等你跟进"
+                              : "样东西需要你处理"
+                            : followOnly
+                              ? actionCount === 1
+                                ? "item waiting on you"
+                                : "items waiting on you"
+                              : actionCount === 1
+                                ? "item needs your call"
+                                : "items need your call"}
+                        </span>
+                        {heroParts.length > 0 ? (
+                          <span className="text-xs text-[var(--header-dim)]">{heroParts.join(" · ")}</span>
+                        ) : null}
+                        <span aria-hidden="true" className="text-xs text-[var(--header-dim)]">
+                          {heroOpen ? "▴" : "▾"}
+                        </span>
                       </span>
-                      <span className="text-base font-semibold text-[var(--header-text)]">
-                        {activeLang === "zh"
-                          ? followOnly
-                            ? "件等你跟进"
-                            : "样东西需要你处理"
-                          : followOnly
-                            ? actionCount === 1
-                              ? "item waiting on you"
-                              : "items waiting on you"
-                            : actionCount === 1
-                              ? "item needs your call"
-                              : "items need your call"}
-                      </span>
-                      {heroParts.length > 0 ? (
-                        <span className="text-xs text-[var(--header-dim)]">{heroParts.join(" · ")}</span>
+                      {followNamed ? (
+                        <span className="max-w-[min(430px,86vw)] truncate text-xs font-medium text-[var(--header-dim)]">
+                          {followNamed}
+                        </span>
                       ) : null}
-                      <span aria-hidden="true" className="text-xs text-[var(--header-dim)]">
-                        {heroOpen ? "▴" : "▾"}
-                      </span>
                     </span>
                   </button>
                   {heroOpen ? (
@@ -3259,15 +4129,15 @@ export function App() {
               )}
             </div>
 
-            <div className="lg:justify-self-end">
-              <HeaderClockWeather
+            <div className="min-w-0 lg:justify-self-end">
+              <HeaderMeta
+                fx={fxQuery.data?.fx ?? null}
+                fxPending={fxQuery.isPending}
+                onRetryFx={() => void fxQuery.refetch()}
                 weather={weatherQuery.data?.weather ?? null}
                 destination={weatherQuery.data?.destination ?? null}
                 weatherPending={weatherQuery.isPending}
                 onRetryWeather={() => void weatherQuery.refetch()}
-                fx={fxQuery.data?.fx ?? null}
-                fxPending={fxQuery.isPending}
-                onRetryFx={() => void fxQuery.refetch()}
               />
             </div>
           </div>
@@ -3288,7 +4158,7 @@ export function App() {
       <main className="mx-auto w-full max-w-[1600px] px-5 pb-3">
         {page === "more" ? (
           <>
-            <PageTabs page={page} farCount={farDeadlines.length} chinaCount={data.china.length} onChange={setPage} />
+            <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
 
             {/* 两栏：左 = 状态详情（主栏 2/3），右 = 14 天后到期（窄栏 1/3）；
                 远期为空时不排窄栏，状态详情占整行满宽；
@@ -3346,7 +4216,7 @@ export function App() {
           </>
         ) : page === "china" ? (
           <>
-            <PageTabs page={page} farCount={farDeadlines.length} chinaCount={data.china.length} onChange={setPage} />
+            <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
 
             {/* 行程信息：静态一行 */}
             <div className={`${CARD_CLASS} mt-3 flex flex-wrap items-center gap-x-3 gap-y-1`}>
@@ -3361,6 +4231,58 @@ export function App() {
                 </span>
               ) : null}
             </div>
+
+            {/* 航班卡（v1.9.0）：行程定稿信息卡的演示版 — DEMO 101 去程 12A
+                靠窗 / DEMO 102 回程 12F 靠窗，座位盯梢开启；航班号、座位与
+                订座号均为虚构演示数据。 */}
+            <section aria-label={t("flightTitle")} className={`${CARD_CLASS} mt-3`}>
+              <SectionHeading icon={<SectionTile kind="china" />}>{t("flightTitle")}</SectionHeading>
+              <ul className="divide-y divide-[var(--border)]">
+                <li className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
+                  <span className="shrink-0 rounded-[6px] bg-[#0077fa]/10 px-2 py-0.5 text-xs font-semibold text-[#0063d1] dark:bg-[#4d9fff]/15 dark:text-[#8fbeff]">{t("flightOut")}</span>
+                  <span className="text-[15px] font-bold tabular-nums text-[var(--text)]">DEMO 101</span>
+                  <span className="text-sm tabular-nums text-[var(--text)]">{formatDateLabel("2027-01-15")}</span>
+                  <span className="text-sm text-[var(--dim)]">{activeLang === "zh" ? "多伦多 → 目的地 · 09:00 起飞 · 座位 12A · 靠窗" : "Toronto → Destination City · departs 09:00 · Seat 12A · window"}</span>
+                </li>
+                <li className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
+                  <span className="shrink-0 rounded-[6px] bg-[#0077fa]/10 px-2 py-0.5 text-xs font-semibold text-[#0063d1] dark:bg-[#4d9fff]/15 dark:text-[#8fbeff]">{t("flightBack")}</span>
+                  <span className="text-[15px] font-bold tabular-nums text-[var(--text)]">DEMO 102</span>
+                  <span className="text-sm tabular-nums text-[var(--text)]">{formatDateLabel("2027-03-01")}</span>
+                  <span className="text-sm text-[var(--dim)]">{activeLang === "zh" ? "座位 12F · 靠窗" : "Seat 12F · window"}</span>
+                </li>
+              </ul>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 border-t border-[var(--border)] pt-2.5">
+                <span className="shrink-0 rounded-[6px] bg-[#00b578]/10 px-2 py-0.5 text-xs font-medium text-[#00754b] dark:text-[#5ee0a8]">{t("seatWatchTag")}</span>
+                <span className="text-[13px] text-[var(--dim)]">{t("seatWatchNote")} · {t("seatsHeldFree")}</span>
+                <span className="ml-auto shrink-0 text-[13px] tabular-nums text-[var(--dim)]">
+                  {t("flightBookingRef")}：DEMO01
+                </span>
+              </div>
+            </section>
+
+            {/* 关键日期条（v1.9.0）：出发前带硬日期的清尾节点，徽章口径
+                与到期清单一致（DeadlineChip）。日期为定稿静态信息。 */}
+            <section aria-label={t("hardDatesTitle")} className={`${CARD_CLASS} mt-3`}>
+              <SectionHeading icon={<SectionTile kind="deadlines" />}>{t("hardDatesTitle")}</SectionHeading>
+              <ul className="divide-y divide-[var(--border)]">
+                {[
+                  { label: t("hardMatrix"), date: "2027-01-11" },
+                  { label: t("hardWsib"), date: "2027-01-14" },
+                  { label: t("hardDepart"), date: "2027-01-15" },
+                  { label: t("hardReturn"), date: "2027-03-01" },
+                ].map((row) => (
+                  <li key={`${row.date}-${row.label}`} className="flex items-center gap-2 py-[5px]">
+                    <span className="w-[86px] shrink-0 text-xs font-semibold tabular-nums text-[var(--text)]">
+                      {formatDateLabel(row.date)}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-sm font-medium text-[var(--text)]">{row.label}</span>
+                    <span className="flex w-[84px] shrink-0 items-center justify-end">
+                      <DeadlineChip left={daysUntil(row.date)} />
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
 
             {/* 目的地当地天气（回国目的地）+ 未来一周预报 */}
             {weatherQuery.data?.destination ? (
@@ -3442,31 +4364,27 @@ export function App() {
               {data.china.length === 0 ? (
                 <EmptyLine text={t("chinaEmpty")} />
               ) : (
-                <ul className="divide-y divide-[var(--border)]">
-                  {data.china.map((item) => (
-                    <ChinaRow
-                      key={item.id}
-                      item={item}
-                      pending={
-                        chinaToggleMutation.isPending &&
-                        chinaToggleMutation.variables?.id === item.id
-                      }
-                      onToggle={(done) => chinaToggleMutation.mutate({ id: item.id, done })}
-                    />
-                  ))}
-                </ul>
+                <ChinaChecklistGroups
+                  items={data.china}
+                  pendingId={
+                    chinaToggleMutation.isPending
+                      ? chinaToggleMutation.variables?.id
+                      : undefined
+                  }
+                  onToggle={(id, done) => chinaToggleMutation.mutate({ id, done })}
+                />
               )}
             </section>
 
             <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
               <p className="text-xs text-[var(--dim)]">
-                {t("footer")} · {t("versionWord")} {BOARD_VERSION} · {BOARD_VERSION_DATE}
+                OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
               </p>
             </footer>
           </>
         ) : page === "history" ? (
           <>
-            <PageTabs page={page} farCount={farDeadlines.length} chinaCount={data.china.length} onChange={setPage} />
+            <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
 
             <div className={`${CARD_CLASS} mt-3 flex flex-wrap items-center gap-x-3 gap-y-1`}>
               <span className="flex shrink-0 items-center gap-2 text-sm font-semibold text-[var(--text)]">
@@ -3485,19 +4403,50 @@ export function App() {
 
             <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
               <p className="text-xs text-[var(--dim)]">
-                {t("footer")} · {t("versionWord")} {BOARD_VERSION} · {BOARD_VERSION_DATE}
+                OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
+              </p>
+            </footer>
+          </>
+        ) : page === "jason" ? (
+          <>
+            <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
+            <JasonPage open={data.jasonOpen} cleared={data.jasonCleared} />
+            <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
+              <p className="text-xs text-[var(--dim)]">
+                OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
+              </p>
+            </footer>
+          </>
+        ) : page === "cfo" ? (
+          <>
+            <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
+            <CfoPage items={data.money} />
+            <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
+              <p className="text-xs text-[var(--dim)]">
+                OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
+              </p>
+            </footer>
+          </>
+        ) : page === "growth" ? (
+          <>
+            <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
+            <GrowthPage items={data.growth} />
+            <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
+              <p className="text-xs text-[var(--dim)]">
+                OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
               </p>
             </footer>
           </>
         ) : (
           <>
-        <PageTabs page={page} farCount={farDeadlines.length} chinaCount={data.china.length} onChange={setPage} />
+        <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
         {/* Tina 状态行 + 快捷入口 */}
         <TinaPulseStrip tinaStatus={data.tinaStatus} />
 
-        {/* 双城速览（精简版）：回国倒计时 + 温差 + 目的地明日 + 目的地空气，
-            四个小块一行扫完；日出日落只在天气悬停提示和第 3 页目的地卡里看 */}
-        <DualCityStrip toronto={weatherQuery.data?.weather ?? null} destination={weatherQuery.data?.destination ?? null} onOpenChina={() => setPage("china")} />
+        {/* 双城速览：回国倒计时 + 双城当前天气 + 温差 + 目的地明日 +
+            目的地空气，一条扫完（v1.8.1 起顶栏右上也恢复双城天气，两处
+            并存、以顶栏为准；天气细节在悬停提示和第 3 页目的地卡里看） */}
+        <DualCityStrip toronto={weatherQuery.data?.weather ?? null} destination={weatherQuery.data?.destination ?? null} weatherPending={weatherQuery.isPending} onRetryWeather={() => void weatherQuery.refetch()} onOpenChina={() => setPage("china")} />
 
         {/* Spotify 正在播放 + 播放控制 */}
         <SpotifyStrip
@@ -3508,38 +4457,11 @@ export function App() {
           onRetry={() => void spotifyQuery.refetch()}
         />
 
-        {/* 1. 待 Mark 拍板 — 永远置顶。为空时只留一条紧凑状态行（标题 +
-            「暂无待决」）：「Tina 都盯着」这层意思顶部状态行已经说了，这里
-            不再整卡重复；最近拍板 + 撤销仍挂在这一行右侧。 */}
+        {/* 1. 待 Mark 拍板 — 有条目时是永远置顶的强调卡。v1.8.2：为空时
+            「暂无待拍板」空条整条不渲染、拍板区直接不出现；仅当有一条
+            可撤销的最近拍板时，留一条只含 最近拍板 + 撤销 的细行。 */}
+        {data.decisions.length > 0 ? (
         <section aria-label={t("decisionsTitle")} className="mt-2 [@media(max-height:949px)]:mt-1.5">
-          {data.decisions.length === 0 ? (
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 px-1">
-              <span className="flex shrink-0 items-center gap-2 text-[13px] font-semibold text-[var(--text)]">
-                <SectionTile kind="decisions" />
-                {t("decisionsTitle")}
-              </span>
-              <span className="min-w-0 truncate text-[13px] text-[var(--dim)]">
-                {t("decisionsEmpty")}
-              </span>
-              {lastVerdict && !lastVerdictStillListed ? (
-                <span className="ml-auto flex shrink-0 items-center gap-2 text-xs text-[var(--dim)]">
-                  <span className="truncate">
-                    {t("recentVerdict")}：{lastVerdict.title} — <VerdictMark verdict={lastVerdict.verdict} />{" "}
-                    {formatTorontoTime(new Date(lastVerdict.at))}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={undoingId === lastVerdict.itemId}
-                    onClick={() => undoMutation.mutate(lastVerdict.itemId)}
-                    aria-label={`${t("undo")}：${lastVerdict.title}`}
-                    className="shrink-0 font-medium underline underline-offset-2 transition-opacity disabled:opacity-50"
-                  >
-                    {undoingId === lastVerdict.itemId ? t("undoing") : t("undo")}
-                  </button>
-                </span>
-              ) : null}
-            </div>
-          ) : (
           <div className="rounded-[10px] border border-[var(--accent)] bg-[var(--surface)] p-4 shadow-[0_0_0_1px_var(--accent),0_4px_14px_rgba(28,31,35,0.06)]">
             <div className="flex items-center justify-between gap-3">
               <h2 className="flex items-center gap-2.5 text-base font-semibold tracking-tight text-[var(--text)]">
@@ -3548,7 +4470,7 @@ export function App() {
               </h2>
               <span className="rounded-[6px] bg-[var(--accent)] px-2 py-0.5 text-xs font-semibold text-white">
                 {activeLang === "zh"
-                  ? `${data.decisions.length} 件待决`
+                  ? `${data.decisions.length} 件待拍板`
                   : `${data.decisions.length} pending`}
               </span>
             </div>
@@ -3610,8 +4532,26 @@ export function App() {
               </div>
             ) : null}
           </div>
-          )}
         </section>
+        ) : lastVerdict && !lastVerdictStillListed ? (
+        <div className="mt-2 flex flex-wrap items-center px-1 [@media(max-height:949px)]:mt-1.5">
+          <span className="ml-auto flex shrink-0 items-center gap-2 text-xs text-[var(--dim)]">
+            <span className="truncate">
+              {t("recentVerdict")}：{lastVerdict.title} — <VerdictMark verdict={lastVerdict.verdict} />{" "}
+              {formatTorontoTime(new Date(lastVerdict.at))}
+            </span>
+            <button
+              type="button"
+              disabled={undoingId === lastVerdict.itemId}
+              onClick={() => undoMutation.mutate(lastVerdict.itemId)}
+              aria-label={`${t("undo")}：${lastVerdict.title}`}
+              className="shrink-0 font-medium underline underline-offset-2 transition-opacity disabled:opacity-50"
+            >
+              {undoingId === lastVerdict.itemId ? t("undoing") : t("undo")}
+            </button>
+          </span>
+        </div>
+        ) : null}
 
         {/* 今日已完成 — 瘦身摘要行，点进第 4 页看 7 天归档 */}
         <DoneTodayStrip count={data.doneToday.length} onOpen={() => setPage("history")} />
@@ -3821,7 +4761,7 @@ export function App() {
 
         <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
           <p className="text-xs text-[var(--dim)]">
-            {t("footer")} · {t("versionWord")} {BOARD_VERSION} · {BOARD_VERSION_DATE}
+            OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
             {" · "}
             <a
               href="https://yourname.github.io/"
@@ -3833,7 +4773,7 @@ export function App() {
             </a>
             {" · "}
             <a
-              href="https://github.com/yourname"
+              href="https://github.com/marksong0917"
               target="_blank"
               rel="noreferrer"
               className="text-[var(--accent)] underline underline-offset-2 decoration-[var(--accent)]/40 transition-colors hover:text-[var(--text)] hover:decoration-[var(--accent)]"
@@ -3842,7 +4782,7 @@ export function App() {
             </a>
             {" · "}
             <a
-              href="https://yourname.github.io/typebook-zh/"
+              href="https://marksong0917.github.io/typebook-zh/"
               target="_blank"
               rel="noreferrer"
               className="text-[var(--accent)] underline underline-offset-2 decoration-[var(--accent)]/40 transition-colors hover:text-[var(--text)] hover:decoration-[var(--accent)]"

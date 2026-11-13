@@ -2,17 +2,39 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 // One row per board item. `section` is one of:
 //   "decisions" | "today" | "deadlines" | "lanes" | "china"
-// ("china" = page 3, the China-trip checklist; its rows stay
+//   | "jason" | "money" | "growth"
+// ("china" = page 3, the 回国待办 China-trip checklist; its rows stay
 // open when ticked done — completion is the `status` field, "done",
 // not `closedAt`, so a ticked row remains visible struck through.)
+// v1.9.0 sections (the plain-TEXT column needs no SQL migration):
+//   "jason"  = the 待拍板 page (waiting-on-decision list): dueDate is
+//     the day the ask was raised (drag days = today − dueDate), and
+//     `status` carries a hard date as an ISO date string when the item
+//     has one. Closed rows surface in getBoard as this Toronto week's
+//     本周已清 strip instead of disappearing.
+//   "money"  = the CFO page: lane is "ar" （应收） or "ap" （应付）,
+//     dueDate is the due date, and `status` carries the CAD amount as
+//     a plain decimal string (e.g. "4267.50") written by the QB-room
+//     feed — the page renders it verbatim and never estimates.
+//   "growth" = the 增长 page: lane groups rows ("founding" | "funnel"
+//     | "outreach"); values are feed-written strings shown as-is.
 // `lane` groups items in the "lanes" section (and is free text elsewhere).
 // `dueDate` is an ISO date string (YYYY-MM-DD) or null.
 // A row is closed when `closedAt` is set; closed rows stay in the table
-// but are not returned by getBoard.
+// but are not returned by getBoard (except the jason 本周已清 strip).
 export const items = sqliteTable("items", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   section: text("section", {
-    enum: ["decisions", "today", "deadlines", "lanes", "china"],
+    enum: [
+      "decisions",
+      "today",
+      "deadlines",
+      "lanes",
+      "china",
+      "jason",
+      "money",
+      "growth",
+    ],
   }).notNull(),
   lane: text("lane").notNull().default(""),
   title: text("title").notNull(),
@@ -35,7 +57,7 @@ export const items = sqliteTable("items", {
 
 // Latest reachability check per key. Website rows (key = domain) are
 // written by the getStatus action's live probes; server rows (key =
-// "office-server") are written by recordServerCheck when the assistant inspects a box
+// "office-server") are written by recordServerCheck when Tina inspects a box
 // that has no public endpoint. status: "up" | "down".
 export const siteChecks = sqliteTable("site_checks", {
   key: text("key").primaryKey(),
@@ -77,6 +99,13 @@ export const boardMeta = sqliteTable("board_meta", {
   tinaStatus: text("tina_status").notNull().default("待命，随时喊我"),
   // JSON array of short one-line entries: what Tina finished today.
   doneToday: text("done_today").notNull().default("[]"),
+  // Toronto date (YYYY-MM-DD) the current done_today list belongs to,
+  // stamped by every write (updateBoardPulse / appendDoneToday). ""
+  // means unstamped (pre-v1.8.0 rows). The stamp is what lets
+  // archiveDoneToday file a list under its own day even when the
+  // nightly reset runs after midnight, and lets getBoard stop calling
+  // a stale list "today".
+  doneDate: text("done_date").notNull().default(""),
   // JSON array of archived done-today buckets, one per Toronto date:
   // [{ date: "YYYY-MM-DD", items: string[] }], newest first, kept for
   // 7 days by the archiveDoneToday action.

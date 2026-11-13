@@ -10,7 +10,16 @@ import { asc, eq, isNull } from "drizzle-orm";
 import * as schema from "./schema";
 import { privileged } from "@space/privileged";
 
-const sectionEnum = z.enum(["decisions", "today", "deadlines", "lanes", "china"]);
+const sectionEnum = z.enum([
+  "decisions",
+  "today",
+  "deadlines",
+  "lanes",
+  "china",
+  "jason",
+  "money",
+  "growth",
+]);
 
 const verdictEnum = z.enum(["yes", "no"]);
 
@@ -24,6 +33,11 @@ const itemShape = z.object({
   dueDate: z.string().nullable(),
   verdict: z.string(),
   sort: z.number(),
+  // v1.9.0: per-item stamps so each new page can show its own
+  // 数据更新时间 (the newest updatedAt among its rows) and the
+  // decisions page can date its 本周已清 rows (additive fields).
+  closedAt: z.string().nullable(),
+  updatedAt: z.string(),
 });
 
 type ItemRow = typeof schema.items.$inferSelect;
@@ -39,6 +53,8 @@ function toItem(row: ItemRow): z.infer<typeof itemShape> {
     dueDate: row.dueDate,
     verdict: row.verdict,
     sort: row.sort,
+    closedAt: row.closedAt ? row.closedAt.toISOString() : null,
+    updatedAt: row.updatedAt.toISOString(),
   };
 }
 
@@ -117,6 +133,93 @@ function torontoDateKey(instant: Date): string {
   }).format(instant);
 }
 
+type BoardMetaRow = typeof schema.boardMeta.$inferSelect;
+
+async function loadMetaRow(ctx: Ctx): Promise<BoardMetaRow | undefined> {
+  const db = ctx.db<typeof schema>();
+  const meta = await db
+    .select()
+    .from(schema.boardMeta)
+    .where(eq(schema.boardMeta.id, 1))
+    .limit(1);
+  return meta[0];
+}
+
+type DoneState = {
+  doneToday: string[];
+  doneDate: string;
+  history: DoneHistory;
+};
+
+/** Parse the done-today state out of a board_meta row. */
+function doneStateFromMeta(metaRow: BoardMetaRow | undefined): DoneState {
+  return {
+    doneToday: parseStringList(metaRow?.doneToday),
+    doneDate: metaRow?.doneDate ?? "",
+    history: parseDoneHistory(metaRow?.doneHistory),
+  };
+}
+
+/** Merge a finished day's list into its own history bucket, then drop
+ * buckets older than the 7-day window (today plus the 6 previous
+ * Toronto days; date keys compare correctly as YYYY-MM-DD strings). */
+function rollIntoHistory(state: DoneState, todayKey: string): DoneHistory {
+  const history = state.history.map((b) => ({
+    date: b.date,
+    items: [...b.items],
+  }));
+  if (state.doneToday.length > 0 && state.doneDate) {
+    const existing = history.find((b) => b.date === state.doneDate);
+    if (existing) {
+      existing.items = [...existing.items, ...state.doneToday];
+    } else {
+      history.unshift({ date: state.doneDate, items: [...state.doneToday] });
+    }
+  }
+  const cutoff = new Date(`${todayKey}T12:00:00Z`);
+  cutoff.setUTCDate(cutoff.getUTCDate() - 6);
+  const cutoffKey = cutoff.toISOString().slice(0, 10);
+  return history
+    .filter((b) => b.date >= cutoffKey)
+    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+}
+
+/**
+ * Normalize done state for "now": a done_today list stamped with a past
+ * Toronto date is a finished day — it moves into history under its own
+ * date instead of still being presented (or archived) as today's. An
+ * unstamped list (doneDate "", written before the stamp existed) is
+ * adopted as today's, so no recorded completion is ever dropped.
+ */
+function rollStaleDone(state: DoneState, todayKey: string): DoneState {
+  if (state.doneDate && state.doneDate !== todayKey) {
+    return {
+      doneToday: [],
+      doneDate: todayKey,
+      history: rollIntoHistory(state, todayKey),
+    };
+  }
+  return { ...state, doneDate: state.doneDate || todayKey };
+}
+
+/** Persist a done state onto the board_meta row (insert-or-update). */
+async function saveDoneState(ctx: Ctx, state: DoneState): Promise<void> {
+  const db = ctx.db<typeof schema>();
+  const now = new Date();
+  const fields = {
+    doneToday: JSON.stringify(state.doneToday),
+    doneDate: state.doneDate,
+    doneHistory: JSON.stringify(state.history),
+  };
+  await db
+    .insert(schema.boardMeta)
+    .values({ id: 1, updatedAt: now, ...fields })
+    .onConflictDoUpdate({
+      target: schema.boardMeta.id,
+      set: { updatedAt: now, ...fields },
+    });
+}
+
 const forecastDayShape = z.object({
   date: z.string().nullable(),
   summary: z.string().nullable(),
@@ -171,7 +274,6 @@ const WEATHER_TTL_MS = 60 * 60 * 1000;
 
 const STATUS_TTL_MS = 10 * 60 * 1000;
 
-// Example monitored sites — replace these with your own.
 const SITE_DEFS = [
   { key: "example.com", label: "Main website", url: "https://example.com/" },
   { key: "shop.example.com", label: "Online store", url: "https://shop.example.com/" },
@@ -682,7 +784,7 @@ export const Actions = {
 
   getBoard: defineAction({
     description:
-      "Returns all open board items grouped by section, plus the board's last-updated timestamp.",
+      "Returns all open board items grouped by section (including the v1.9.0 jason/money/growth pages), plus this Toronto week's cleared jason rows for the 待拍板 page's 本周已清 strip, and the board's last-updated timestamp.",
     request: z.object({}),
     response: z.object({
       decisions: z.array(itemShape),
@@ -690,6 +792,13 @@ export const Actions = {
       deadlines: z.array(itemShape),
       lanes: z.array(itemShape),
       china: z.array(itemShape),
+      // v1.9.0 pages: 待拍板 (waiting-on-decision), CFO (money in/out),
+      // 增长 (growth). jasonCleared = jason rows closed inside the
+      // current Toronto week (Mon 00:00 Toronto → now).
+      jasonOpen: z.array(itemShape),
+      jasonCleared: z.array(itemShape),
+      money: z.array(itemShape),
+      growth: z.array(itemShape),
       updatedAt: z.string().nullable(),
       tinaStatus: z.string(),
       doneToday: z.array(z.string()),
@@ -742,7 +851,32 @@ export const Actions = {
           };
         }
       }
-      const doneToday = parseStringList(metaRow?.doneToday);
+      // A done list stamped with a past date is presented under its
+      // own day in history, never as today's (read-side normalization;
+      // the stored row is repaired by the next done write / archive).
+      const todayKey = torontoDateKey(new Date());
+      const doneState = rollStaleDone(doneStateFromMeta(metaRow), todayKey);
+      // Today's archive bucket holds the same day's completions: the
+      // archive action may run mid-day (it moves the whole list into
+      // the bucket and clears done_today), but those items were still
+      // completed TODAY — they display in 今日已完成 for the whole day
+      // and only become history at day rollover. So the response folds
+      // the bucket back into doneToday (bucket items first — they were
+      // completed before anything still on the live list) and drops
+      // the bucket from the history response, which keeps page 4 from
+      // counting them twice when it merges the two.
+      const todayBucket = doneState.history.find((b) => b.date === todayKey);
+      const doneTodayMerged = todayBucket
+        ? [
+            ...todayBucket.items,
+            ...doneState.doneToday.filter(
+              (i) => !todayBucket.items.includes(i),
+            ),
+          ]
+        : doneState.doneToday;
+      const doneHistoryOut = doneState.history.filter(
+        (b) => b.date !== todayKey,
+      );
       // Deadlines render in pure chronological order — dueDate
       // ascending, soonest first — regardless of the stored sort
       // values; undated items keep their stored order at the end.
@@ -756,16 +890,47 @@ export const Actions = {
           if (b.dueDate) return 1;
           return a.sort - b.sort || a.id - b.id;
         });
+      // v1.9.0 — 待拍板 page: open jason rows are already in the main
+      // (open-only) query; the page sorts them by drag days itself.
+      // Cleared rows need a second look: jason rows closed inside the
+      // current Toronto week (Monday 00:00 Toronto → now) form the
+      // 本周已清 strip, newest closure first. Week membership is
+      // decided by comparing Toronto date keys, so no UTC-offset math
+      // can leak a Sunday-evening closure into the wrong week.
+      const mondayKey = (() => {
+        const today = new Date(`${todayKey}T12:00:00Z`);
+        const offset = (today.getUTCDay() + 6) % 7; // days since Monday
+        today.setUTCDate(today.getUTCDate() - offset);
+        return today.toISOString().slice(0, 10);
+      })();
+      const jasonAll = await db
+        .select()
+        .from(schema.items)
+        .where(eq(schema.items.section, "jason"));
+      const jasonCleared = jasonAll
+        .filter(
+          (r) =>
+            r.closedAt !== null && torontoDateKey(r.closedAt) >= mondayKey,
+        )
+        .sort(
+          (a, b) =>
+            (b.closedAt?.getTime() ?? 0) - (a.closedAt?.getTime() ?? 0),
+        )
+        .map(toItem);
       return {
         decisions: items.filter((i) => i.section === "decisions"),
         today: items.filter((i) => i.section === "today"),
         deadlines,
         lanes: items.filter((i) => i.section === "lanes"),
         china: items.filter((i) => i.section === "china"),
+        jasonOpen: items.filter((i) => i.section === "jason"),
+        jasonCleared,
+        money: items.filter((i) => i.section === "money"),
+        growth: items.filter((i) => i.section === "growth"),
         updatedAt: metaRow ? metaRow.updatedAt.toISOString() : null,
         tinaStatus: metaRow?.tinaStatus || "待命，随时喊我",
-        doneToday,
-        doneHistory: parseDoneHistory(metaRow?.doneHistory),
+        doneToday: doneTodayMerged,
+        doneHistory: doneHistoryOut,
         lastVerdict,
       };
     },
@@ -773,7 +938,7 @@ export const Actions = {
 
   updateBoardPulse: defineAction({
     description:
-      "Updates Tina's one-line live status line and/or today's completed-items list shown on the board; omitted fields are left unchanged.",
+      "Updates Tina's one-line live status line and/or today's completed-items list shown on the board; omitted fields are left unchanged. Passing doneToday REPLACES the whole list and stamps it with today's Toronto date — to log a single completion without resending the list, use appendDoneToday instead. A stale list stamped with a past date is first filed into history under its own date, never silently kept or dropped.",
     request: z.object({
       tinaStatus: z.string().min(1).optional(),
       doneToday: z.array(z.string()).optional(),
@@ -782,10 +947,26 @@ export const Actions = {
     handler: async (ctx, args): Promise<z.infer<typeof okResponse>> => {
       const db = ctx.db<typeof schema>();
       const now = new Date();
-      const fields: { tinaStatus?: string; doneToday?: string } = {};
+      const todayKey = torontoDateKey(now);
+      const state = rollStaleDone(
+        doneStateFromMeta(await loadMetaRow(ctx)),
+        todayKey,
+      );
+      if (args.doneToday !== undefined) {
+        state.doneToday = args.doneToday;
+        state.doneDate = todayKey;
+      }
+      const fields: {
+        tinaStatus?: string;
+        doneToday: string;
+        doneDate: string;
+        doneHistory: string;
+      } = {
+        doneToday: JSON.stringify(state.doneToday),
+        doneDate: state.doneDate,
+        doneHistory: JSON.stringify(state.history),
+      };
       if (args.tinaStatus !== undefined) fields.tinaStatus = args.tinaStatus;
-      if (args.doneToday !== undefined)
-        fields.doneToday = JSON.stringify(args.doneToday);
       await db
         .insert(schema.boardMeta)
         .values({ id: 1, updatedAt: now, ...fields })
@@ -798,69 +979,68 @@ export const Actions = {
     },
   }),
 
+  appendDoneToday: defineAction({
+    description:
+      "Appends one or more completed-item lines to today's done list — the write-back path for logging a completion the moment it happens, without resending the whole list. Entries already on the list are skipped. A stale list stamped with a past date is first filed into history under its own date. Returns today's full list after the append and how many entries were actually added.",
+    request: z.object({ entries: z.array(z.string().min(1)).min(1) }),
+    response: z.object({ doneToday: z.array(z.string()), added: z.number() }),
+    handler: async (
+      ctx,
+      args,
+    ): Promise<{ doneToday: string[]; added: number }> => {
+      const todayKey = torontoDateKey(new Date());
+      const state = rollStaleDone(
+        doneStateFromMeta(await loadMetaRow(ctx)),
+        todayKey,
+      );
+      // Dedupe against today's archive bucket too: an entry archived
+      // earlier today is already done today and must not land twice.
+      const bucketItems =
+        state.history.find((b) => b.date === todayKey)?.items ?? [];
+      let added = 0;
+      for (const entry of args.entries) {
+        const line = entry.trim();
+        if (
+          line &&
+          !state.doneToday.includes(line) &&
+          !bucketItems.includes(line)
+        ) {
+          state.doneToday.push(line);
+          added += 1;
+        }
+      }
+      state.doneDate = todayKey;
+      await saveDoneState(ctx, state);
+      ctx.invalidateQueries();
+      return { doneToday: state.doneToday, added };
+    },
+  }),
+
   archiveDoneToday: defineAction({
     description:
-      "Archives the current done-today list into the done-history bucket for today's Toronto date (merging into that date's bucket if one already exists), clears done-today, and drops history buckets older than 7 days (the 7th day back is kept). Returns the archived count and the history after pruning.",
+      "Archives the current done-today list into the done-history bucket for the list's own stamped Toronto date (merging into that date's bucket if one already exists), clears done-today, and drops history buckets older than 7 days (today plus the 6 previous days are kept). The nightly reset runs at 00:07 — already the next day — so the bucket follows the list's date stamp, not the run time; unstamped lists file under today. Returns the archived count and the history after pruning.",
     request: z.object({}),
     response: z.object({
       archived: z.number(),
       history: doneHistoryShape,
     }),
     handler: async (ctx): Promise<{ archived: number; history: DoneHistory }> => {
-      const db = ctx.db<typeof schema>();
-      const meta = await db
-        .select()
-        .from(schema.boardMeta)
-        .where(eq(schema.boardMeta.id, 1))
-        .limit(1);
-      const metaRow = meta[0];
-      const doneToday = parseStringList(metaRow?.doneToday);
-      const history = parseDoneHistory(metaRow?.doneHistory);
-
       const todayKey = torontoDateKey(new Date());
-      if (doneToday.length > 0) {
-        const existing = history.find((b) => b.date === todayKey);
-        if (existing) {
-          existing.items = [...existing.items, ...doneToday];
-        } else {
-          history.unshift({ date: todayKey, items: [...doneToday] });
-        }
-      }
-      // Keep today plus the 6 previous Toronto days (7 buckets of days);
-      // a bucket dated 7 or more days before today is dropped. Date keys
-      // compare correctly as strings in YYYY-MM-DD form.
-      const cutoff = new Date(`${todayKey}T12:00:00Z`);
-      cutoff.setUTCDate(cutoff.getUTCDate() - 6);
-      const cutoffKey = cutoff.toISOString().slice(0, 10);
-      const pruned = history
-        .filter((b) => b.date >= cutoffKey)
-        .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
-
-      const now = new Date();
-      await db
-        .insert(schema.boardMeta)
-        .values({
-          id: 1,
-          updatedAt: now,
-          doneToday: "[]",
-          doneHistory: JSON.stringify(pruned),
-        })
-        .onConflictDoUpdate({
-          target: schema.boardMeta.id,
-          set: {
-            updatedAt: now,
-            doneToday: "[]",
-            doneHistory: JSON.stringify(pruned),
-          },
-        });
+      const state = doneStateFromMeta(await loadMetaRow(ctx));
+      const archived = state.doneToday.length;
+      const history = rollIntoHistory(
+        { ...state, doneDate: state.doneDate || todayKey },
+        todayKey,
+      );
+      await saveDoneState(ctx, { doneToday: [], doneDate: todayKey, history });
       ctx.invalidateQueries();
-      return { archived: doneToday.length, history: pruned };
+      return { archived, history };
     },
   }),
 
   addItem: defineAction({
     description:
-      "Adds one item to a board section (decisions, today, deadlines, lanes, or china) and returns its id.",
+      "Adds one item to a board section (decisions, today, deadlines, lanes, china, jason, money, or growth) and returns its id. Feed conventions for the v1.9.0 pages: jason rows carry the ask date in dueDate and an optional hard date as an ISO date in status; money rows use lane \"ar\"/\"ap\", the due date in dueDate, and the CAD amount as a plain decimal string in status; growth rows group by lane (\"founding\"/\"funnel\"/\"outreach\") with the feed's value string in status.",
     request: z.object({
       section: sectionEnum,
       title: z.string().min(1),
@@ -922,7 +1102,7 @@ export const Actions = {
 
   applyV172BoardUpdates: defineAction({
     description:
-      "One-time v1.7.2 board data update: marks today item 47 (15:30 QB 浏览器下午场) as blocked with its deferral note, and refreshes the Product lane item 17 to the 0.369-live / 0.370-in-build wording. Each write is guarded by the item's current text, so re-running it after the board has moved on changes nothing. Returns the ids actually updated.",
+      "One-time v1.7.2 board data update: marks today item 47 (15:30 QB 浏览器下午场) as blocked with its deferral note, and refreshes the Foxuma lane item 17 to the 0.369-live / 0.370-in-build wording. Each write is guarded by the item's current text, so re-running it after the board has moved on changes nothing. Returns the ids actually updated.",
     request: z.object({}),
     response: z.object({ updated: z.array(z.number()) }),
     handler: async (ctx): Promise<{ updated: number[] }> => {
@@ -962,7 +1142,7 @@ export const Actions = {
         await db
           .update(schema.items)
           .set({
-            title: "Product 队列定版推进（0.369 已上线 · 0.370 在建）",
+            title: "Foxuma 队列定版推进（0.369 已上线 · 0.370 在建）",
             detail:
               "0.364–0.368 连上五版：通知清扫 + Trash purge、工资条修复、员工档案结构、lead 生命周期、Files UX。0.369 已上线，0.370 在建（Q3-B 分拣免确认）。Q2 发票补链至 70 条。后排：测试账号隐藏 → 邮箱证明 + 退订 → 分享同事 → Settings 大合并",
             updatedAt: now,
@@ -976,6 +1156,89 @@ export const Actions = {
         ctx.invalidateQueries();
       }
       return { updated };
+    },
+  }),
+
+  applyV180DoneBackfill: defineAction({
+    description:
+      "One-time v1.8.0 safety net for the 2026-11-13 done-today gap: that morning's completions (the 09:30 QB special trip, PO 261108) were first recorded only in board prose. Each is appended to done_today ONLY if no existing entry — on the live list or in today's archive bucket — already covers it (matched by its TVH amount / 261108 marker); the QB entry is composed from the today item's own current text and the 261108 entry from Tina's status line, so re-running changes nothing once the board has moved on. Returns the entries added.",
+    request: z.object({}),
+    response: z.object({ added: z.array(z.string()) }),
+    handler: async (ctx): Promise<{ added: string[] }> => {
+      const db = ctx.db<typeof schema>();
+      const todayKey = torontoDateKey(new Date());
+      const metaRow = await loadMetaRow(ctx);
+      const state = rollStaleDone(doneStateFromMeta(metaRow), todayKey);
+      // Everything already credited with today's completions: the live
+      // list plus today's archive bucket (getBoard presents them as
+      // one list, so coverage is checked against the union).
+      const covered = [
+        ...state.doneToday,
+        ...(state.history.find((b) => b.date === todayKey)?.items ?? []),
+      ];
+      const isCovered = (marker: string) =>
+        covered.some((entry) => entry.includes(marker));
+      const added: string[] = [];
+      const rows = await db
+        .select()
+        .from(schema.items)
+        .where(isNull(schema.items.closedAt));
+      const qbItem = rows.find(
+        (r) =>
+          r.section === "today" &&
+          r.title.includes("09:30") &&
+          `${r.title} ${r.detail}`.includes("提前办完"),
+      );
+      if (qbItem && !isCovered("TVH")) {
+        const name = qbItem.title.replace(/^\d{1,2}:\d{2}\s*/, "").trim();
+        const entry = (
+          qbItem.detail ? `${name} · ${qbItem.detail}` : `${name}已办完`
+        ).slice(0, 140);
+        state.doneToday.push(entry);
+        added.push(entry);
+      }
+      if (
+        (metaRow?.tinaStatus ?? "").includes("261108 已办完") &&
+        !isCovered("261108")
+      ) {
+        const entry = "261108 已办完";
+        state.doneToday.push(entry);
+        added.push(entry);
+      }
+      if (added.length > 0) {
+        state.doneDate = todayKey;
+        await saveDoneState(ctx, state);
+        ctx.invalidateQueries();
+      }
+      return { added };
+    },
+  }),
+
+  applyV190GrowthSeed: defineAction({
+    description:
+      "One-time v1.9.0 seed for the 增长 page: inserts the single verified Founding fact (10 seats total, a demo tenant — Maple & Grain — holds seat 1, 9 remaining) as a growth row in lane \"founding\". Guarded — if any growth row already exists it changes nothing, so the Foxuma room's live feed always wins over the seed. Returns how many rows were seeded.",
+    request: z.object({}),
+    response: z.object({ seeded: z.number() }),
+    handler: async (ctx): Promise<{ seeded: number }> => {
+      const db = ctx.db<typeof schema>();
+      const existing = await db
+        .select({ id: schema.items.id })
+        .from(schema.items)
+        .where(eq(schema.items.section, "growth"))
+        .limit(1);
+      if (existing.length > 0) return { seeded: 0 };
+      await db.insert(schema.items).values({
+        section: "growth",
+        lane: "founding",
+        title: "Founding 名额",
+        detail: "共 10 个名额 · Maple & Grain（演示租户）已占 1",
+        status: "余 9",
+        dueDate: null,
+        sort: 0,
+      });
+      await touchMeta(ctx);
+      ctx.invalidateQueries();
+      return { seeded: 1 };
     },
   }),
 
@@ -1176,6 +1439,11 @@ export const Actions = {
           title: "Approve the new website launch",
           detail: "Demo item — your Muse replaces these seeds with your real work.",
         },
+        {
+          section: "decisions",
+          title: "Pick the Q1 marketing budget",
+          detail: "Demo item",
+        },
         // Today's schedule (demo data)
         { section: "today", title: "09:00 Morning checks", detail: "Inbox + calendar", status: "Done" },
         { section: "today", title: "10:30 Team meeting notes", status: "In progress" },
@@ -1188,7 +1456,20 @@ export const Actions = {
         // Open items by lane (demo data)
         { section: "lanes", lane: "Bookkeeping", title: "Match this week's bank feed", detail: "Demo item" },
         { section: "lanes", lane: "Product", title: "Next release train queued", detail: "Demo item" },
-        { section: "lanes", lane: "Outreach", title: "Supplier quote — waiting for reply", status: "Waiting", },
+        { section: "lanes", lane: "Outreach", title: "Supplier quote — waiting for reply", status: "Waiting" },
+        // Waiting-on-decision page (demo data; dueDate = the day the ask was raised)
+        { section: "jason", title: "Quote approval for the demo kitchen job", detail: "Demo item — waiting on the decision-maker.", dueDate: "2026-12-01" },
+        { section: "jason", title: "Confirm the delivery-date change", detail: "Demo item", dueDate: "2026-12-05" },
+        // CFO page (demo data; status = the amount as a plain decimal string)
+        { section: "money", lane: "ar", title: "INV-1001 · Maple & Grain", detail: "Demo receivable", status: "1250.00", dueDate: "2026-12-20" },
+        { section: "money", lane: "ar", title: "INV-1002 · Demo Customer", detail: "Demo receivable", status: "480.00", dueDate: "2026-12-22" },
+        { section: "money", lane: "ap", title: "Payroll remittance", detail: "Demo payable", status: "860.00", dueDate: "2026-12-15" },
+        // Growth founding demo row lives in applyV190GrowthSeed — no growth
+        // rows here, so that guarded seed can still land its demo row.
+        // Trip page checklist (demo data)
+        { section: "china", title: "Book the airport transfer", detail: "Demo item" },
+        { section: "china", title: "Get a travel eSIM", detail: "Demo item" },
+        { section: "china", title: "Pack gifts for family", detail: "Demo item" },
       ];
 
       for (const [index, seed] of seeds.entries()) {

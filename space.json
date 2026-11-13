@@ -2,7 +2,7 @@
   "runtime": "typescript",
   "platformVersion": 28,
   "entry": "client/dist/index.html",
-  "name": "Tina Ops Board",
+  "name": "OpsDeck",
   "slug": "tina-ops-board",
   "managedCronJobs": []
 }
