@@ -434,9 +434,6 @@ const PROGRAM_REGISTRY: ProgramDef[] = [
   // 📖 纯只读 · 非红线
   { id: "closet-studio", name: "Closet Studio 托管壳", nameEn: "Closet Studio hosted shell", device: "Mini PC", category: "info", note: "别人家的产品，我们只托管", noteEn: "Third-party product — we only host it", runLabel: false, confirm: false },
   { id: "ollama-supervisor", name: "Ollama 守护进程", nameEn: "Ollama supervisor", device: "office server", category: "info", note: "", noteEn: "", runLabel: false, confirm: false },
-  { id: "site-main", name: "example.com 网站本体", nameEn: "example.com site", device: "网站", category: "info", note: "部署时间见审计行", noteEn: "Deploy time in the audit line", runLabel: false, confirm: false },
-  { id: "site-shop", name: "shop.example.com 网站本体", nameEn: "shop.example.com site", device: "网站", category: "info", note: "部署时间见审计行", noteEn: "Deploy time in the audit line", runLabel: false, confirm: false },
-  { id: "site-blog", name: "blog.example.com 网站本体", nameEn: "blog.example.com site", device: "网站", category: "info", note: "部署时间见审计行", noteEn: "Deploy time in the audit line", runLabel: false, confirm: false },
   // 🟡 可按需开关 · 开关键 + 重启键
   { id: "foxshare", name: "FoxShare 组", nameEn: "FoxShare group", device: "cloud server + Mini PC + office server", category: "foxshare", note: "一个开关管全组：云端中继 · 办公 PC 客户端 · 办公室服务器备份通道 · TURN 容器", noteEn: "One switch for the whole group: cloud relay · office PC client · office server backup leg · TURN container", runLabel: false, confirm: false },
   { id: "paperless", name: "Paperless-ngx", nameEn: "Paperless-ngx", device: "office server", category: "toggle", note: "", noteEn: "", runLabel: false, confirm: false },

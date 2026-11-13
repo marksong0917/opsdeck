@@ -811,8 +811,27 @@ function uiLocale(): string {
  * ease-out curve, per the UI/UX handbook §2.5); the today page's
  * own skeleton is untouched. The baseline extracted from this board
  * lives in ~/workspace/newood-ops/semi-baseline/ and is the single
- * source for future Semi passes. */
-const BOARD_VERSION = "v2.3";
+ * source for future Semi passes.
+ *
+ * v2.3.1 = shell shrink (Mark, 2026-11-13, on the v2.3 today page):
+ * the nav shell drops one size — rail 240px → 208px, desktop nav
+ * rows 40px → 36px at 13px type, phone grid rows 36px → 32px (the
+ * board's own 32px tap floor in theme.css — never below), count
+ * badges stay 11px so nothing gets harder to read; the top bar
+ * loses vertical padding (12/8px → 8/6px) and the hero count drops
+ * one type step (30px → 24px), so the header sits ~10px shorter
+ * and the reclaimed width/height goes to the content column.
+ * Active/hover feedback, the 3×2 phone grid and the no-sideways-
+ * scroll rule are unchanged; no data, action or feed is touched.
+ * The final shell numbers are written into the Semi baseline
+ * (semi-baseline/layout-rules.md 「壳/导航」 + components.md 导航轨).
+ * Same release, Mark's correction: the three website-body program
+ * rows (site-main / site-shop / site-blog) are
+ * removed from PROGRAM_REGISTRY entirely (41 → 38) — folded or not,
+ * they duplicated the 网站状态 card; website status lives only in
+ * that card now. Closet Studio stays alone in the 折叠区 (1/1);
+ * the site rows' stored state/audit history is kept, unlisted. */
+const BOARD_VERSION = "v2.3.1";
 
 const LANE_ORDER = ["QuickBooks", "Foxuma", "General Ops", "外联", "设备与机器", "Mir2"];
 
@@ -2261,13 +2280,16 @@ type ProgramActionName = "start" | "stop" | "restart" | "run" | "autostart-toggl
  * a program and keeps its own group. Rows keep registry order inside
  * a group; categories still drive each row's buttons, unchanged.
  * A fourth 折叠区 group holds the v2.3 subtraction audit's folded
- * rows: the third-party hosted shell (ours to run, not ours to
+ * row: the third-party hosted shell (ours to run, not ours to
  * show off — the ops red line protects hosted services from hard
- * removal, so it folds instead) and the three website-body rows,
- * whose status already lives in the 网站状态 card above. The fold
- * starts collapsed; the registry, states and audit data behind
- * these rows are untouched, so unfolding is all it takes to see
- * them again. */
+ * removal, so it folds instead). The fold starts collapsed; the
+ * registry, states and audit data behind the row are untouched,
+ * so unfolding is all it takes to see it again. (v2.3.1: the three
+ * website-body rows that shared this fold in v2.3 are REMOVED from
+ * the registry outright — Mark ruled folding still duplicated the
+ * 网站状态 card; website status now lives only in that card.
+ * Their stored program_state / program_audit rows stay in the DB
+ * as history, simply unlisted.) */
 const PROG_COMPANY_IDS: readonly string[] = [
   // Fleet infra (readonly): the pipes every company service rides on.
   "tailscale", "sshd", "frps", "frpc", "cloudflared-mini", "derper",
@@ -2294,7 +2316,6 @@ const PROG_PERSONAL_IDS: readonly string[] = [
 ];
 const PROG_FOLDED_IDS: readonly string[] = [
   "closet-studio",
-  "site-main", "site-shop", "site-blog",
 ];
 type ProgGroupDef = {
   titleKey: StrKey;
@@ -3021,7 +3042,9 @@ type BoardPage = "main" | "more" | "china" | "history" | "jason" | "growth";
  * (display: contents) and the six tabs form a 3×2 grid that fits
  * 390px exactly — the v2.0–v2.2 horizontal scroll row (573px of
  * content in a 390px viewport, flagged by the v2.2 audit) is gone,
- * and no page hides behind a hamburger menu. */
+ * and no page hides behind a hamburger menu. v2.3.1 sizes: rail
+ * 208px wide, rows 36px desktop / 32px phone (the 32px tap floor),
+ * 13px type on both faces, count badges unchanged at 11px. */
 function RailNav({
   page,
   chinaCount,
@@ -3075,16 +3098,16 @@ function RailNav({
       ref={listRef}
       role="tablist"
       aria-label={t("navAria")}
-      className="grid grid-cols-3 gap-1 px-3 pb-2 pt-2 lg:flex lg:flex-col lg:items-stretch lg:gap-0 lg:px-0 lg:pb-0 lg:pt-0"
+      className="grid grid-cols-3 gap-1 px-3 pb-1.5 pt-1.5 lg:flex lg:flex-col lg:items-stretch lg:gap-0 lg:px-0 lg:pb-0 lg:pt-0"
     >
       {groups.map((group, gi) => (
         <div
           key={group.caption}
-          className="contents lg:mb-4 lg:flex lg:flex-col lg:items-stretch lg:gap-1"
+          className="contents lg:mb-3 lg:flex lg:flex-col lg:items-stretch lg:gap-1"
         >
           <span
             aria-hidden="true"
-            className={`hidden shrink-0 select-none whitespace-nowrap px-1 text-[11px] font-semibold tracking-wide text-[var(--dim)] lg:block lg:px-2.5 lg:pb-1.5 ${gi > 0 ? "ml-2 lg:ml-0" : ""}`}
+            className={`hidden shrink-0 select-none whitespace-nowrap px-1 text-[11px] font-semibold tracking-wide text-[var(--dim)] lg:block lg:px-2 lg:pb-1 ${gi > 0 ? "ml-2 lg:ml-0" : ""}`}
           >
             {group.caption}
           </span>
@@ -3100,11 +3123,11 @@ function RailNav({
                 onClick={() => onChange(tab.target)}
                 className={
                   active
-                    ? "flex h-9 w-full items-center justify-center gap-2 whitespace-nowrap rounded-[8px] bg-[var(--accent)]/10 px-3 text-[13px] font-semibold text-[var(--accent)] transition lg:h-10 lg:justify-start lg:px-2.5 lg:text-sm"
-                    : "flex h-9 w-full items-center justify-center gap-2 whitespace-nowrap rounded-[8px] px-3 text-[13px] font-medium text-[var(--dim)] transition hover:bg-[var(--fill)] hover:text-[var(--text)] lg:h-10 lg:justify-start lg:px-2.5 lg:text-sm"
+                    ? "flex h-8 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-[8px] bg-[var(--accent)]/10 px-2.5 text-[13px] font-semibold text-[var(--accent)] transition lg:h-9 lg:justify-start lg:px-2"
+                    : "flex h-8 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-[8px] px-2.5 text-[13px] font-medium text-[var(--dim)] transition hover:bg-[var(--fill)] hover:text-[var(--text)] lg:h-9 lg:justify-start lg:px-2"
                 }
               >
-                <NavIcon page={tab.target} />
+                <NavIcon page={tab.target} size={16} />
                 {tab.label}
                 {tab.count !== undefined && tab.count > 0 ? (
                   <span
@@ -4656,11 +4679,11 @@ export function App() {
       {/* 顶栏 (v2.0)：只留品牌 + 关键状态片 — Hero 计数（待拍板 /
           等跟进）、服务器总状态、更新时间，外加刷新与偏好开关。天气 /
           汇率 / Spotify 已移入状态页的信息卡，不再堆在顶栏。 */}
-      <header className="border-b border-[var(--header-border)] bg-[var(--header-bg)] px-4 pb-2 pt-safe-or-3 text-[var(--header-text)] sm:px-5 [@media(max-height:949px)]:pb-1">
+      <header className="border-b border-[var(--header-border)] bg-[var(--header-bg)] px-4 pb-1.5 pt-safe-or-2 text-[var(--header-text)] sm:px-5 [@media(max-height:949px)]:pb-1">
         <div className="mx-auto w-full max-w-[1600px]">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <div className="flex shrink-0 items-baseline gap-2.5">
-              <h1 className="text-lg font-bold leading-tight tracking-tight text-[var(--header-text)]">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+            <div className="flex shrink-0 items-baseline gap-2">
+              <h1 className="text-base font-bold leading-tight tracking-tight text-[var(--header-text)]">
                 {t("boardTitle")}
               </h1>
               <span className="shrink-0 text-[11px] font-medium tracking-wide text-[var(--header-dim)]">
@@ -4691,14 +4714,14 @@ export function App() {
                           ? "View the 1 item that needs you"
                           : `View the ${actionCount} items that need you`
                   }
-                  className="rounded-lg px-2 py-1 transition hover:bg-[var(--header-chip)] active:scale-[0.99] motion-reduce:transition-none"
+                  className="rounded-lg px-2 py-0.5 transition hover:bg-[var(--header-chip)] active:scale-[0.99] motion-reduce:transition-none"
                 >
-                  <span className="flex flex-col items-center gap-1">
+                  <span className="flex flex-col items-center gap-0.5">
                     <span className="flex items-baseline justify-center gap-2 leading-none">
-                      <span className="text-3xl font-black tabular-nums text-[var(--header-accent)]">
+                      <span className="text-2xl font-black tabular-nums text-[var(--header-accent)]">
                         {actionCount}
                       </span>
-                      <span className="text-base font-semibold text-[var(--header-text)]">
+                      <span className="text-sm font-semibold text-[var(--header-text)]">
                         {activeLang === "zh"
                           ? followOnly
                             ? "件等你跟进"
@@ -4762,8 +4785,8 @@ export function App() {
                     <polyline points="20 6 9 17 4 12" />
                   </SvgIcon>
                 </span>
-                <span className="text-2xl font-black tabular-nums text-[var(--header-text)]">0</span>
-                <span className="text-base font-semibold text-[var(--header-text)]">
+                <span className="text-xl font-black tabular-nums text-[var(--header-text)]">0</span>
+                <span className="text-sm font-semibold text-[var(--header-text)]">
                   {activeLang === "zh" ? "样需要你处理" : "items need your call"}
                 </span>
                 <span className="text-xs text-[var(--header-dim)]">{t("heroNoneNote")}</span>
@@ -4808,8 +4831,8 @@ export function App() {
         </div>
       </header>
 
-      <div className="mx-auto flex w-full max-w-[1600px] flex-col lg:flex-row lg:items-start lg:gap-5 lg:px-5">
-        <aside className="shrink-0 border-b border-[var(--border)] lg:sticky lg:top-0 lg:w-60 lg:border-b-0 lg:py-3">
+      <div className="mx-auto flex w-full max-w-[1600px] flex-col lg:flex-row lg:items-start lg:gap-4 lg:px-5">
+        <aside className="shrink-0 border-b border-[var(--border)] lg:sticky lg:top-0 lg:w-52 lg:border-b-0 lg:py-2.5">
           <RailNav page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
         </aside>
         <main className="min-w-0 flex-1 px-4 pb-3 sm:px-5 lg:px-0 lg:py-1">

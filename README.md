@@ -41,6 +41,11 @@ This repo is the **sanitized public twin** of the live board. The live OpsDeck r
 
 ## Version notes
 
+**v2.3.1 (2026-11-13)**
+
+- **The shell drops one size.** The navigation rail narrows (240px → 208px) and its rows shorten (40px → 36px on desktop, at 13px type); the phone grid rows go 36px → 32px — the board's own 32px tap floor, never below it — while the count badges stay 11px so nothing gets harder to read. The top bar loses vertical padding (12/8px → 8/6px) and the hero count drops one type step (30px → 24px): the header sits about 10px shorter, and the reclaimed width and height go to the content column. Active/hover feedback, the 3×2 phone grid, and the no-sideways-scroll rule are unchanged, and no data, action, or feed is touched. The final shell numbers are written into the Semi baseline, so future shells are built to them.
+- **One correction to v2.3's fold.** The three website-body program rows are removed from the registry outright (41 → 38) — folded or not, they duplicated the website status card, and website status now lives only in that card. The folded card holds the hosted third-party shell alone (1/1); the removed rows' stored state and audit history are kept, simply unlisted.
+
 **v2.3 (2026-11-13)**
 
 - **Subtraction first.** Every page was re-audited against one ruler — is it ours, is it actually used, does it need to be seen? The three website-body program rows duplicated the website status cards directly above them, and one hosted third-party shell is not board content; all four move into a new folded card at the end of the Programs section: collapsed by default behind its "4/4 normal" summary, anomalies still float out of it, one click restores every row. The footer's four outward profile links (portfolio / GitHub / Typebook / file sharing) are gone — every page's footer is now the single version line. Nothing was deleted: the cuts are surface-level and reversible, and the data underneath is untouched.
@@ -88,4 +93,4 @@ This repo is the **sanitized public twin** of the live board. The live OpsDeck r
 
 ---
 
-OpsDeck · v2.3 · Built by Tina for Mark
+OpsDeck · v2.3.1 · Built by Tina for Mark
