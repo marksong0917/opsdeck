@@ -41,6 +41,13 @@ This repo is the **sanitized public twin** of the live board. The live OpsDeck r
 
 ## Version notes
 
+**v2.2 (2026-11-13)**
+
+- **Status page slimmed to conclusions.** A program row's face is now its name, its state, and its controls — the evidence line, the last-verified time, and the audit detail move behind a per-row expand. A row that is down, unverified, or stale (no verified report in 24 hours) expands itself and floats to the top of its group; every group header carries an "N/N normal · N anomalies" summary and can fold shut, with anomalies staying visible even while folded. A normal row shows no timestamp anywhere on the page face.
+- **One home per datum, corrected.** The deadline list, the weather, the exchange rate, and Spotify leave the status page — that page is websites/servers, programs, and devices only. The deadlines return to the Today page as the full inline list (the morning glance beat the dedupe rule); weather, the rate, and Spotify shrink to a one-line environment strip at the bottom of Today — condition and temperature for Toronto and for the destination, the CAD→CNY rate, and Spotify's state with play/pause.
+- **Weather phrases render as natural Chinese.** The English source phrases map through a compositional table — exact phrases, sky-condition nouns, modifiers, time-of-day suffixes — with precipitation-probability and phrase-composition rules, instead of a word-for-word gloss; anything unmapped falls back to the source text rather than a guess.
+- Presentation only, as in v2.1: data, action contracts, and program-button behavior are untouched.
+
 **v2.1 (2026-11-13)**
 
 - **Polish pass: one home per datum, one spec per element, no dead space.** Mark's two review notes — "messages must not appear twice, keep it consistent and clean" and "compact — there is too much dead space" — drive the whole release. Data, action contracts, and program-button behavior are untouched; this is presentation only.
@@ -73,4 +80,4 @@ This repo is the **sanitized public twin** of the live board. The live OpsDeck r
 
 ---
 
-OpsDeck · v2.1 · Built by Tina for Mark
+OpsDeck · v2.2 · Built by Tina for Mark

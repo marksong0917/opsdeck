@@ -52,15 +52,10 @@ const STR = {
     sunsetLabel: "日落",
     tomorrow: "明日",
     staleData: "上次数据",
-    weatherLoading: "天气加载中…",
     weatherUnavailable: "天气暂时取不到",
     destinationLoading: "目的地天气加载中…",
     destinationUnavailable: "目的地天气暂时取不到",
-    fxLabel: "汇率 CAD→CNY",
-    fxLoading: "汇率加载中…",
     fxUnavailable: "汇率暂时取不到",
-    fxUpdated: "更新",
-    fxSource: "来源 open.er-api.com",
     forecastWeek: "未来一周",
     aqiLabel: "空气",
     uvLabel: "紫外线",
@@ -221,6 +216,7 @@ const STR = {
     themeLight: "浅色",
     themeDark: "深色",
     langAria: "语言 / Language",
+    envStripLabel: "环境信息：天气 · 汇率 · Spotify",
     spotifyLabel: "Spotify",
     spotifyLoading: "Spotify 加载中…",
     spotifyUnavailable: "Spotify 暂时取不到",
@@ -228,29 +224,24 @@ const STR = {
     spotifyIdle: "现在没在播放",
     spotifyPlayingOn: "播放中",
     spotifyPausedOn: "已暂停",
-    prevTrack: "上一首",
-    nextTrack: "下一首",
     playLabel: "播放",
     pauseLabel: "暂停",
-    volumeLabel: "音量",
     navAria: "主导航",
     railTodayPage: "今天 · 工作台",
-    weatherCardTitle: "天气",
     progTitle: "程序",
-    progSub:
-      "按钮只登记控制请求 — Tina 经 SSH 真实执行后回写结果，回写落地前状态不会变。状态均为最后一次核验结果，过期就显旧时间戳。",
     progLoading: "程序状态加载中…",
     progUnavailable: "程序状态暂时取不到",
     progGroupReadonly: "状态只读",
     progGroupAlways: "必须常开",
-    progGroupProxy: "代理组",
-    progGroupInfo: "只读信息",
     progGroupToggle: "可按需开关",
     progGroupDevices: "设备",
     progRunning: "在跑",
     progDown: "不在",
     progUnverified: "未核验",
     progVerifiedAt: "核验",
+    progStale: "核验过期",
+    progDetailShow: "展开记录",
+    progDetailHide: "收起记录",
     progPending: "已登记 · 待执行",
     progStart: "启动",
     progStop: "停止",
@@ -267,7 +258,6 @@ const STR = {
     progConfirmGo: "已喊话，登记请求",
     progConfirmCancel: "再等等",
     progRequestFailed: "请求没登记成功，再试一次。",
-    statusGoDeadlines: "在状态页查看全部到期事项",
     statusGoChina: "查看回国页",
     expandDay: "展开",
     collapseDay: "收起",
@@ -305,15 +295,10 @@ const STR = {
     sunsetLabel: "Sunset",
     tomorrow: "Tomorrow",
     staleData: "last known",
-    weatherLoading: "Loading weather…",
     weatherUnavailable: "Weather unavailable",
     destinationLoading: "Loading Destination City weather…",
     destinationUnavailable: "Destination City weather unavailable",
-    fxLabel: "FX CAD→CNY",
-    fxLoading: "Loading FX…",
     fxUnavailable: "FX unavailable",
-    fxUpdated: "Updated",
-    fxSource: "Source open.er-api.com",
     forecastWeek: "Next 7 days",
     aqiLabel: "AQI",
     uvLabel: "UV",
@@ -474,6 +459,7 @@ const STR = {
     themeLight: "Light",
     themeDark: "Dark",
     langAria: "语言 / Language",
+    envStripLabel: "At a glance: weather · FX · Spotify",
     spotifyLabel: "Spotify",
     spotifyLoading: "Loading Spotify…",
     spotifyUnavailable: "Spotify unavailable right now",
@@ -481,29 +467,24 @@ const STR = {
     spotifyIdle: "Nothing playing right now",
     spotifyPlayingOn: "Playing",
     spotifyPausedOn: "Paused",
-    prevTrack: "Previous track",
-    nextTrack: "Next track",
     playLabel: "Play",
     pauseLabel: "Pause",
-    volumeLabel: "Volume",
     navAria: "Main navigation",
     railTodayPage: "Today · Workbench",
-    weatherCardTitle: "Weather",
     progTitle: "Programs",
-    progSub:
-      "Buttons only register a control request — Tina executes over SSH and reports the result back; the shown state never changes before that report lands. Every state is the latest verified result, shown with its real timestamp even when stale.",
     progLoading: "Loading program states…",
     progUnavailable: "Program states unavailable right now",
     progGroupReadonly: "Status only",
     progGroupAlways: "Always on",
-    progGroupProxy: "Proxy group",
-    progGroupInfo: "Read-only info",
     progGroupToggle: "On-demand",
     progGroupDevices: "Devices",
     progRunning: "Running",
     progDown: "Not running",
     progUnverified: "Not verified yet",
     progVerifiedAt: "Verified",
+    progStale: "Verification stale",
+    progDetailShow: "Show records",
+    progDetailHide: "Hide records",
     progPending: "Registered · awaiting execution",
     progStart: "Start",
     progStop: "Stop",
@@ -520,7 +501,6 @@ const STR = {
     progConfirmGo: "Announced — register request",
     progConfirmCancel: "Not yet",
     progRequestFailed: "Couldn't register the request — try again.",
-    statusGoDeadlines: "View all deadlines on the status page",
     statusGoChina: "View the China page",
     expandDay: "Expand",
     collapseDay: "Collapse",
@@ -743,8 +723,52 @@ function uiLocale(): string {
  * applied board-wide via CARD_CLASS and the stack/gap utilities; the
  * page-1 three-column grid no longer equal-height-stretches its cards
  * (items-start, no h-full) so card height hugs content. Data, action
- * contracts and program-button behavior are untouched. */
-const BOARD_VERSION = "v2.1";
+ * contracts and program-button behavior are untouched.
+ * v2.2 = page-scope reshuffle + conclusions-only status page +
+ * weather phrases in Chinese (Mark, 2026-11-13, three rulings in one
+ * review): (1) PAGE SCOPE SETTLED — the status page now holds ONLY
+ * the site/server status cards and the programs section; the
+ * deadlines card, weather card, FX card and Spotify card are REMOVED
+ * from it entirely (no folds, no link rows). Deadlines' only home is
+ * the today page again: the near-14-day list is restored as a FULL
+ * inline list (the v2.1 one-line link row is reverted — Mark's
+ * glance habit beats one-home purity; this is a settled keeper,
+ * never dedupe it away) with the 14天后 subsection under it, so no
+ * deadline renders anywhere else. Weather / FX / Spotify return to
+ * the today page as ONE slim bottom strip (EnvStrip: both cities'
+ * condition + temperature · the CAD→CNY rate · Spotify state with a
+ * play/pause entry — one line tall, no big cards). The china page's
+ * full Destination City weather card is untouched. The hero jump fallback
+ * now only needs the today page. (2) PROGRAMS, CONCLUSIONS ONLY —
+ * each row's face is just name + status dot/word + its allowed
+ * buttons: verification timestamps, evidence text, row notes and the
+ * bottom 审计流水 wall are off the face; a row's chevron expands its
+ * detail (note + evidence + verified-at + that program's audit
+ * entries from the same getPrograms payload). Rows that are down,
+ * unverified or stale (verified > 24 h ago) are anomalies: they sort
+ * to the top of their group and render expanded by default with the
+ * reason + time showing. Groups are the four Mark named — 状态只读
+ * (readonly + info), 必须常开 (always), 可按需开关 (proxy + toggle +
+ * foxshare; the proxy 默认自启 switch rides in this group's header),
+ * 设备 (device + status-only devices) — each collapsible via its
+ * header, with a summary on the header (「N/N 正常」 when all is
+ * well, the anomaly count otherwise); collapsing hides only normal
+ * rows — group headers and anomaly rows always stay visible. Groups
+ * start expanded, as before. Registry, categories, allowed actions,
+ * the request/report mechanism and all server data are unchanged.
+ * (3) WEATHER CHINESE — wxZh is now a small system, not a phrase
+ * list: an exact-phrase table (63 entries) + condition nouns (24) +
+ * intensity modifiers (11) composed by pattern rules (time-of-day
+ * suffixes, AM/PM prefixes, "X possible / likely / expected",
+ * "Chance of X", "in the vicinity", "X with Y", "X and Y", slash
+ * combos, "Periods of X", modifier+noun composition), so sentences
+ * like "Showers possible in the afternoon" render whole as
+ * 「下午可能有阵雨」. Unknown phrases fall back to the raw source
+ * text — never blank. One function serves every condition render
+ * point: the today strip, the china page (current line + 7-day
+ * forecast grid). Data fetching, caches and action contracts are
+ * untouched — this is render-layer only. */
+const BOARD_VERSION = "v2.2";
 
 const LANE_ORDER = ["QuickBooks", "Foxuma", "General Ops", "外联", "设备与机器", "Mir2"];
 
@@ -1226,68 +1250,284 @@ function WeatherGlyph() {
 
 type Weather = ApiResponse<typeof api, "getWeather">["weather"];
 
-/** The weather source reports condition phrases in English; map the
- * common ones to Chinese for the board, falling back to the raw text. */
-const WX_ZH: Record<string, string> = {
-  Fair: "晴",
-  Sunny: "晴",
-  Clear: "晴",
-  "Mostly Clear": "晴朗",
-  "Mostly Sunny": "晴间多云",
-  "Partly Cloudy": "多云间晴",
-  "Mostly Cloudy": "多云",
-  Cloudy: "多云",
-  Overcast: "阴",
-  Rain: "雨",
-  "Light Rain": "小雨",
-  "Heavy Rain": "大雨",
-  Showers: "阵雨",
-  "PM Showers": "午后阵雨",
-  Snow: "雪",
-  "Light Snow": "小雪",
-  Thunderstorm: "雷阵雨",
-  Thunderstorms: "雷阵雨",
-  Fog: "雾",
-  Mist: "薄雾",
-  Wind: "有风",
-  Windy: "大风",
-  "Sunny/Wind": "晴·有风",
-  Sunshine: "晴",
-  "Mainly Clear": "晴",
-  "Plenty Of Sun": "晴",
-  "More Sun Than Clouds": "晴间多云",
-  "Mix Of Sun And Clouds": "晴间多云",
-  "Times Of Sun And Clouds": "晴间多云",
-  "Considerable Cloudiness": "多云",
-  "Snow Showers In The Morning": "上午阵雪",
-  "Showers In The Vicinity": "附近阵雨",
+/** 天气状况中文化（v2.2）— 纯展示层翻译，数据源与缓存一律不动。
+ * 这是一套小体系，不是一张短语清单：整句表 WX_EXACT（63 条，键为
+ * 小写）先行；未命中时按句式规则拆解 — 时段后缀（in the morning /
+ * afternoon / evening…）、AM/PM 前缀、概率句式（X possible /
+ * X likely / X expected / Chance of X）、in the vicinity — 剩下的
+ * 状况核心交给 wxCore：斜杠与 and 组合逐段译、"X with Y" 译为
+ * 「X伴Y」、"Periods of X" 译为「时有X」，最后按 修饰词 + 状况
+ * 词根 组合（WX_MOD 11 条 × WX_NOUN 24 条）。任何一环译不出就
+ * 整句回退原文，绝不显示空白或半截译文。 */
+
+/** Whole-phrase table (keys lowercase): sky / sun / cloud states and
+ * fixed collocations that composition would render awkwardly. */
+const WX_EXACT: Record<string, string> = {
+  fair: "晴",
+  sunny: "晴",
+  "a few clouds": "少量云",
+  clear: "晴",
+  "clear sky": "晴",
+  "sunny skies": "晴",
+  sunshine: "晴",
+  "plenty of sun": "晴",
+  "plenty of sunshine": "阳光充足",
+  "abundant sunshine": "阳光充足",
+  "mostly clear": "晴朗",
+  "mainly clear": "晴",
+  "mainly sunny": "以晴为主",
+  "mostly sunny": "晴间多云",
+  "partly sunny": "晴间多云",
+  "more sun than clouds": "晴间多云",
+  "mix of sun and clouds": "晴间多云",
+  "times of sun and clouds": "晴间多云",
+  "clouds and sun": "晴间多云",
+  "partly cloudy": "多云间晴",
+  "mostly cloudy": "多云",
+  cloudy: "多云",
+  "cloudy skies": "多云",
+  "considerable cloudiness": "多云",
+  "more clouds than sun": "多云为主",
+  "increasing clouds": "云量增多",
+  "decreasing clouds": "云量减少",
+  clearing: "转晴",
+  "becoming cloudy": "转多云",
+  overcast: "阴",
+  rain: "雨",
+  "light rain": "小雨",
+  "heavy rain": "大雨",
+  showers: "阵雨",
+  "rain showers": "阵雨",
+  "pm showers": "午后阵雨",
+  drizzle: "毛毛雨",
+  "light drizzle": "毛毛雨",
+  snow: "雪",
+  "light snow": "小雪",
+  "heavy snow": "大雪",
+  "snow showers": "阵雪",
+  flurries: "小雪",
+  "blowing snow": "风雪",
+  sleet: "雨夹雪",
+  "wintry mix": "雨夹雪",
+  "rain and snow": "雨夹雪",
+  "freezing rain": "冻雨",
+  "freezing drizzle": "冻毛毛雨",
+  hail: "冰雹",
+  thunderstorm: "雷阵雨",
+  thunderstorms: "雷阵雨",
+  fog: "雾",
+  mist: "薄雾",
+  haze: "霾",
+  smoke: "烟雾",
+  wind: "有风",
+  windy: "大风",
+  breezy: "微风",
+  humid: "潮湿",
+  "sunny/wind": "晴·有风",
+  "snow showers in the morning": "上午阵雪",
+  "showers in the vicinity": "附近阵雨",
 };
 
-/**
- * Chinese label for an English weather condition phrase. Tries an exact
- * match, then a case-insensitive one, then translates each part of a
- * slash combo ("Sunny/Wind" → "晴·有风"); anything unmapped stays raw.
- */
-function wxZh(description: string): string {
-  const exact = WX_ZH[description];
+/** Condition roots: the noun a phrase is built around. */
+const WX_NOUN: Record<string, string> = {
+  shower: "阵雨",
+  showers: "阵雨",
+  rain: "雨",
+  drizzle: "毛毛雨",
+  thunderstorm: "雷阵雨",
+  thunderstorms: "雷阵雨",
+  thunder: "雷电",
+  snow: "雪",
+  flurries: "小雪",
+  sleet: "雨夹雪",
+  hail: "冰雹",
+  fog: "雾",
+  mist: "薄雾",
+  haze: "霾",
+  smoke: "烟雾",
+  dust: "扬尘",
+  sun: "晴",
+  sunshine: "晴",
+  cloud: "多云",
+  clouds: "多云",
+  cloudiness: "多云",
+  wind: "有风",
+  breeze: "微风",
+  squalls: "飑风",
+};
+
+/** Intensity / distribution modifiers that prefix a condition root. */
+const WX_MOD: Record<string, string> = {
+  light: "小",
+  heavy: "大",
+  moderate: "中",
+  scattered: "分散",
+  isolated: "局地",
+  occasional: "偶有",
+  brief: "短时",
+  patchy: "局部",
+  widespread: "大范围",
+  intermittent: "间歇",
+  frequent: "频繁",
+};
+
+/** Translate one condition core (already lowercased, no time or
+ * probability fragments left in it). Returns null when any part is
+ * unknown, so the caller can fall back to the raw sentence. */
+function wxCore(phrase: string): string | null {
+  const exact = WX_EXACT[phrase];
   if (exact) return exact;
-  const lower = description.toLowerCase();
-  for (const [key, value] of Object.entries(WX_ZH)) {
-    if (key.toLowerCase() === lower) return value;
+  if (phrase.includes("/")) {
+    const out: string[] = [];
+    for (const part of phrase.split("/")) {
+      const hit = wxCore(part.trim());
+      if (!hit) return null;
+      out.push(hit);
+    }
+    return out.join("·");
   }
-  if (description.includes("/")) {
-    const parts = description.split("/").map((part) => part.trim());
-    const translated = parts.map((part) => {
-      const hit = Object.entries(WX_ZH).find(
-        ([key]) => key.toLowerCase() === part.toLowerCase(),
-      );
-      return hit ? hit[1] : null;
-    });
-    if (translated.every((part): part is string => part !== null)) {
-      return translated.join("·");
+  const withIdx = phrase.indexOf(" with ");
+  if (withIdx > 0) {
+    const main = wxCore(phrase.slice(0, withIdx).trim());
+    const sub = wxCore(phrase.slice(withIdx + " with ".length).trim());
+    if (main && sub) return `${main}伴${sub}`;
+    return null;
+  }
+  if (phrase.includes(" and ")) {
+    const out: string[] = [];
+    for (const part of phrase.split(" and ")) {
+      const hit = wxCore(part.trim());
+      if (!hit) return null;
+      out.push(hit);
+    }
+    return out.join("·");
+  }
+  const periods = /^periods of (.+)$/.exec(phrase);
+  if (periods?.[1]) {
+    const hit = wxCore(periods[1]);
+    return hit ? `时有${hit}` : null;
+  }
+  const allWords = phrase.split(/\s+/).filter(Boolean);
+  // A leading bare time word composes as 「下午有…」 around whatever
+  // the rest of the core translates to.
+  const leadTime = allWords.length >= 2 ? WX_TIME_WORD[allWords[0] ?? ""] : undefined;
+  const words = leadTime ? allWords.slice(1) : allWords;
+  const lastWord = words[words.length - 1];
+  let composed: string | null = null;
+  if (words.length >= 2 && lastWord) {
+    // The core may be a two-word exact entry ("rain showers",
+    // "snow showers") with modifiers in front of it, or a single
+    // noun root as the last word.
+    const tailZh = WX_EXACT[`${words[words.length - 2]} ${lastWord}`];
+    const noun = tailZh ?? WX_NOUN[lastWord];
+    if (noun) {
+      const mods = tailZh ? words.slice(0, -2) : words.slice(0, -1);
+      let modZh = "";
+      let ok = true;
+      for (const w of mods) {
+        const mod = WX_MOD[w];
+        if (!mod) {
+          ok = false;
+          break;
+        }
+        modZh += mod;
+      }
+      if (ok) composed = `${modZh}${noun}`;
     }
   }
-  return description;
+  if (!composed && words.length === 1) {
+    composed = WX_EXACT[words[0] ?? ""] ?? WX_NOUN[words[0] ?? ""] ?? null;
+  }
+  if (!composed) return null;
+  return leadTime ? `${leadTime}有${composed}` : composed;
+}
+
+/** Bare time words that can lead a condition core ("Afternoon rain",
+ * "Morning snow showers") — composed as 「下午有雨」. */
+const WX_TIME_WORD: Record<string, string> = {
+  morning: "上午",
+  afternoon: "下午",
+  evening: "晚上",
+};
+
+/** Time-of-day suffixes the source appends to condition sentences. */
+const WX_TIME_SUFFIX: { re: RegExp; zh: string }[] = [
+  { re: /\s+early$/, zh: "清晨" },
+  { re: /\s+in the early morning$/, zh: "清晨" },
+  { re: /\s+in the late afternoon$/, zh: "傍晚" },
+  { re: /\s+in the morning$/, zh: "上午" },
+  { re: /\s+in the afternoon$/, zh: "下午" },
+  { re: /\s+in the evening$/, zh: "晚上" },
+  { re: /\s+in the night$/, zh: "夜间" },
+  { re: /\s+this morning$/, zh: "今晨" },
+  { re: /\s+this afternoon$/, zh: "今天下午" },
+  { re: /\s+this evening$/, zh: "今晚" },
+  { re: /\s+tonight$/, zh: "今晚" },
+  { re: /\s+overnight$/, zh: "夜间" },
+  { re: /\s+at night$/, zh: "夜间" },
+];
+
+/**
+ * Chinese label for an English weather condition phrase — the ONE
+ * translation entry point for every condition the board renders
+ * (today-page strip, china-page current line + 7-day forecast grid).
+ * Sentence patterns compose around the translated core (e.g.
+ * "Showers possible in the afternoon" → 「下午可能有阵雨」);
+ * anything the system cannot fully translate stays raw.
+ */
+function wxZh(description: string): string {
+  const raw = description.trim().replace(/\.$/, "");
+  if (!raw) return description;
+  let work = raw.toLowerCase().replace(/\s+/g, " ");
+  const exact = WX_EXACT[work];
+  if (exact) return exact;
+  let timeZh = "";
+  for (const { re, zh } of WX_TIME_SUFFIX) {
+    if (re.test(work)) {
+      timeZh = zh;
+      work = work.replace(re, "");
+      break;
+    }
+  }
+  const ampm = /^(am|pm)\s+(.+)$/.exec(work);
+  if (ampm?.[2]) {
+    timeZh = ampm[1] === "am" ? "上午" : "下午";
+    work = ampm[2];
+  }
+  let vicinity = false;
+  if (work.endsWith(" in the vicinity")) {
+    vicinity = true;
+    work = work.slice(0, work.length - " in the vicinity".length);
+  }
+  let probZh = "";
+  const chance = /^(?:a\s+)?chance of\s+(.+)$/.exec(work);
+  if (chance?.[1]) {
+    probZh = "可能有";
+    work = chance[1];
+  } else if (work.endsWith(" possible")) {
+    probZh = "可能有";
+    work = work.slice(0, work.length - " possible".length);
+  } else if (work.endsWith(" likely")) {
+    probZh = "大概率有";
+    work = work.slice(0, work.length - " likely".length);
+  } else if (work.endsWith(" expected")) {
+    probZh = "预计有";
+    work = work.slice(0, work.length - " expected".length);
+  }
+  const few = /^a few\s+(.+)$/.exec(work);
+  if (few?.[1]) {
+    const core = wxCore(few[1]);
+    return core ? `${timeZh}少量${core}` : description;
+  }
+  const core = wxCore(work.trim());
+  if (!core) return description;
+  // A core that already carries 有 (「下午有雨」「有风」) drops the
+  // probability wrapper's own 有 — 可能有下午有雨 becomes 可能下午有雨.
+  const prob = probZh.endsWith("有") && core.includes("有")
+    ? probZh.slice(0, -1)
+    : probZh;
+  if (vicinity) return `附近${prob}${core}`;
+  return `${timeZh}${prob}${core}`;
 }
 
 function fmtTemp(value: number | null): string {
@@ -1381,105 +1621,7 @@ function WeatherCardLine({
   );
 }
 
-/** Status-page weather info card (v2.0): both cities, one card. */
-function WeatherInfoCard({
-  weather,
-  destination,
-  pending,
-  onRetry,
-}: {
-  weather: Weather;
-  destination: Weather;
-  pending: boolean;
-  onRetry: () => void;
-}) {
-  return (
-    <section aria-label={t("weatherCardTitle")} className={`${CARD_CLASS} min-w-0`}>
-      <SectionHeading icon={<SectionTile kind="weather" />}>
-        {t("weatherCardTitle")}
-      </SectionHeading>
-      <div className="flex flex-col gap-1.5">
-        <WeatherCardLine
-          w={weather}
-          label={t("weatherToday")}
-          pending={pending}
-          loadingText={t("weatherLoading")}
-          unavailableText={t("weatherUnavailable")}
-          onRetry={onRetry}
-        />
-        <WeatherCardLine
-          w={destination}
-          label={`${t("weatherDestination")} · 河北`}
-          pending={pending}
-          loadingText={t("destinationLoading")}
-          unavailableText={t("destinationUnavailable")}
-          onRetry={onRetry}
-        />
-      </div>
-    </section>
-  );
-}
-
 type Fx = ApiResponse<typeof api, "getFx">["fx"];
-
-/** Status-page FX info card (v2.0 — the rate moved here from the
- * header): today's CAD→CNY rate with the 100-CAD equivalent and the
- * source update date as visible text. The tooltip keeps only the
- * extras (source name, inverse rate, raw UTC stamp). */
-function FxInfoCard({
-  fx,
-  pending,
-  onRetry,
-}: {
-  fx: Fx;
-  pending: boolean;
-  onRetry: () => void;
-}) {
-  return (
-    <section aria-label={t("fxLabel")} className={`${CARD_CLASS} min-w-0`}>
-      <SectionHeading icon={<SectionTile kind="fx" />}>{t("fxLabel")}</SectionHeading>
-      {!fx ? (
-        pending ? (
-          <p className="text-[13px] text-[var(--dim)]">{t("fxLoading")}</p>
-        ) : (
-          <p className="text-[13px] text-[var(--dim)]">
-            {t("fxUnavailable")}
-            <button
-              type="button"
-              onClick={onRetry}
-              aria-label={t("retry")}
-              className="ml-2 font-medium text-[var(--text)] underline underline-offset-2"
-            >
-              {t("retry")}
-            </button>
-          </p>
-        )
-      ) : (
-        <p
-          className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[13px] tabular-nums text-[var(--dim)]"
-          title={`${t("fxSource")} · 1 CNY ≈ $${fx.inverse.toFixed(3)} CAD${fx.sourceUpdatedUtc ? ` · ${fx.sourceUpdatedUtc}` : ""}`}
-        >
-          <span className="text-xl font-extrabold leading-none tabular-nums text-[var(--text)]">
-            {activeLang === "zh"
-              ? `1 加币 ≈ ¥${fx.rate.toFixed(2)}`
-              : `1 CAD ≈ ¥${fx.rate.toFixed(2)}`}
-          </span>
-          <span className="whitespace-nowrap">
-            {activeLang === "zh"
-              ? `100 加币 ≈ ¥${Math.round(fx.rate * 100)}`
-              : `100 CAD ≈ ¥${Math.round(fx.rate * 100)}`}
-          </span>
-          {fx.sourceDate ? (
-            <span className="whitespace-nowrap">
-              · {t("fxUpdated")} {formatDateLabel(fx.sourceDate)}
-            </span>
-          ) : null}
-          {fx.stale ? <span className="whitespace-nowrap">· {t("staleData")}</span> : null}
-        </p>
-      )}
-    </section>
-  );
-}
 
 /** Weekday + date label for one forecast day. The source date may be an
  * ISO date or another parseable string; unparseable dates fall back to
@@ -1905,187 +2047,141 @@ function SpotifyGlyph() {
 }
 
 /**
- * Spotify card (v2.0: on the status page): now-playing (track /
- * artist / device) with previous / play-pause / next buttons and a
- * volume slider. Polls every 45 s; every control refetches the state
- * immediately after it lands. Quiet empty states when Spotify is not
- * connected or nothing is playing.
+ * 今天页底部 slim 环境条 (v2.2): ONE line holding the three ambient
+ * items — weather (both cities: condition via wxZh + temperature) ·
+ * the CAD→CNY rate · Spotify state with a play/pause entry button.
+ * The status page no longer renders any of the three (page scope
+ * settled in v2.2); this strip is their only render point board-wide
+ * besides the china page's full Destination City card. Deliberately one row
+ * tall: segments truncate instead of wrapping.
  */
-function SpotifyStrip({
-  state,
-  pending,
+function EnvStrip({
+  weather,
+  destination,
+  fx,
+  spotify,
+  spotifyPending,
   controlPending,
-  onControl,
-  onRetry,
+  onSpotifyControl,
 }: {
-  state: SpotifyState | undefined;
-  pending: boolean;
+  weather: Weather;
+  destination: Weather;
+  fx: Fx;
+  spotify: SpotifyState | undefined;
+  spotifyPending: boolean;
   controlPending: boolean;
-  onControl: (args: {
+  onSpotifyControl: (args: {
     command: "pause" | "resume" | "skip" | "previous" | "setVolume";
     volumePercent: number | null;
     deviceId: string | null;
   }) => void;
-  onRetry: () => void;
 }) {
-  const [volume, setVolume] = useState<number | null>(null);
-  const serverVolume = state?.volumePercent ?? null;
-  useEffect(() => {
-    if (!controlPending) setVolume(serverVolume);
-  }, [serverVolume, controlPending]);
-  const shownVolume = volume ?? serverVolume ?? 0;
-  const hasTrack = Boolean(state?.connected && state.trackName);
-  const btnCls =
-    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[var(--text)] transition hover:bg-[var(--bg)] active:scale-95 motion-reduce:transition-none disabled:opacity-40";
-
+  const divider = (
+    <span aria-hidden="true" className="h-4 w-px shrink-0 bg-[var(--border)]" />
+  );
+  const citySegment = (label: string, w: Weather) =>
+    w ? (
+      <span>
+        <span className="font-medium text-[var(--text)]">{label}</span>{" "}
+        {fmtTemp(w.temperature)}{" "}
+        {activeLang === "zh" ? wxZh(w.description) : w.description}
+      </span>
+    ) : null;
+  const toronto = citySegment(t("weatherToday"), weather);
+  const destinationSeg = citySegment(t("weatherDestination"), destination);
   return (
     <div
-      aria-label={t("spotifyLabel")}
-      className={`${CARD_CLASS} mt-[var(--space-stack)] flex flex-wrap items-center gap-x-3 gap-y-1`}
+      aria-label={t("envStripLabel")}
+      className="mt-[var(--space-stack)] flex min-w-0 flex-nowrap items-center gap-2 overflow-hidden rounded-[10px] border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-[13px] tabular-nums text-[var(--dim)]"
     >
-      <span className="flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-[var(--text)]">
-        <SpotifyGlyph />
-        {t("spotifyLabel")}
+      {/* The weather glyph yields its width at phone size so the
+          line's fixed costs (FX value, Spotify button) always fit. */}
+      <span className="flex shrink-0 items-center gap-1.5 max-sm:hidden">
+        <WeatherGlyph />
       </span>
-      {state === undefined && pending ? (
-        <span className="text-[13px] text-[var(--dim)]">{t("spotifyLoading")}</span>
-      ) : state === null || state === undefined ? (
-        <span className="flex items-center gap-2 text-[13px] text-[var(--dim)]">
-          {t("spotifyUnavailable")}
-          <button
-            type="button"
-            onClick={onRetry}
-            className="font-medium text-[var(--text)] underline underline-offset-2"
-          >
-            {t("retry")}
-          </button>
-        </span>
-      ) : !state.connected ? (
-        <span className="text-[13px] text-[var(--dim)]">{t("spotifyNotConnected")}</span>
-      ) : !hasTrack ? (
-        <span className="min-w-0 truncate text-[13px] text-[var(--dim)]">
-          {t("spotifyIdle")}
-          {state.devices.length > 0
-            ? ` · ${state.devices.map((d) => d.name).join("、")}`
-            : ""}
+      {toronto || destinationSeg ? (
+        // One truncating text run: at phone width the second city
+        // ellipsizes first so the FX value and the Spotify button
+        // always stay reachable on the same line.
+        <span className="min-w-0 truncate">
+          {toronto}
+          {toronto && destinationSeg ? (
+            <span aria-hidden="true"> · </span>
+          ) : null}
+          {destinationSeg}
         </span>
       ) : (
-        <>
-          <span className="flex min-w-0 flex-1 items-center gap-2">
+        <span className="shrink-0">{t("weatherUnavailable")}</span>
+      )}
+      {divider}
+      <span className="shrink-0 whitespace-nowrap">
+        {fx ? (
+          <>
+            <span className="font-medium text-[var(--text)]">
+              {activeLang === "zh"
+                ? `1 加币 ≈ ¥${fx.rate.toFixed(2)}`
+                : `1 CAD ≈ ¥${fx.rate.toFixed(2)}`}
+            </span>
+            {fx.stale ? ` · ${t("staleData")}` : ""}
+          </>
+        ) : (
+          t("fxUnavailable")
+        )}
+      </span>
+      {divider}
+      <span className="flex min-w-0 flex-1 items-center gap-1.5">
+        <SpotifyGlyph />
+        {spotify === undefined && spotifyPending ? (
+          <span className="shrink-0">{t("spotifyLoading")}</span>
+        ) : !spotify ? (
+          <span className="shrink-0">{t("spotifyUnavailable")}</span>
+        ) : !spotify.connected ? (
+          <span className="shrink-0">{t("spotifyNotConnected")}</span>
+        ) : spotify.trackName ? (
+          <>
             <span
               aria-hidden="true"
               className={
-                state.isPlaying
+                spotify.isPlaying
                   ? "h-2 w-2 shrink-0 animate-pulse rounded-full bg-[#1db954] motion-reduce:animate-none"
                   : "h-2 w-2 shrink-0 rounded-full bg-[var(--dim)]"
               }
             />
-            <span className="min-w-0 truncate text-sm text-[var(--text)]">
-              <span className="font-medium">{state.trackName}</span>
-              {state.artistName ? (
-                <span className="text-[var(--dim)]"> · {state.artistName}</span>
-              ) : null}
-              {state.deviceName ? (
-                <span className="text-[var(--dim)]">
-                  {" "}
-                  · {state.isPlaying ? t("spotifyPlayingOn") : t("spotifyPausedOn")} ·{" "}
-                  {state.deviceName}
-                </span>
+            <span className="min-w-0 truncate text-[var(--text)]">
+              <span className="font-medium">{spotify.trackName}</span>
+              {spotify.artistName ? (
+                <span className="text-[var(--dim)]"> · {spotify.artistName}</span>
               ) : null}
             </span>
-          </span>
-          <span className="flex shrink-0 items-center gap-0.5">
             <button
               type="button"
               disabled={controlPending}
               onClick={() =>
-                onControl({ command: "previous", volumePercent: null, deviceId: null })
-              }
-              aria-label={t("prevTrack")}
-              className={btnCls}
-            >
-              <SvgIcon size={17} className="shrink-0">
-                <polygon points="19 20 9 12 19 4 19 20" fill="currentColor" stroke="none" />
-                <line x1="5" x2="5" y1="19" y2="5" />
-              </SvgIcon>
-            </button>
-            <button
-              type="button"
-              disabled={controlPending}
-              onClick={() =>
-                onControl({
-                  command: state.isPlaying ? "pause" : "resume",
+                onSpotifyControl({
+                  command: spotify.isPlaying ? "pause" : "resume",
                   volumePercent: null,
                   deviceId: null,
                 })
               }
-              aria-label={state.isPlaying ? t("pauseLabel") : t("playLabel")}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1db954] text-white shadow-sm transition hover:brightness-110 active:scale-95 motion-reduce:transition-none disabled:opacity-40"
+              aria-label={spotify.isPlaying ? t("pauseLabel") : t("playLabel")}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1db954] text-white shadow-sm transition hover:brightness-110 active:scale-95 motion-reduce:transition-none disabled:opacity-40"
             >
-              {state.isPlaying ? (
-                <SvgIcon size={17} className="shrink-0">
+              {spotify.isPlaying ? (
+                <SvgIcon size={15} className="shrink-0">
                   <rect x="6" y="4" width="4" height="16" fill="currentColor" stroke="none" />
                   <rect x="14" y="4" width="4" height="16" fill="currentColor" stroke="none" />
                 </SvgIcon>
               ) : (
-                <SvgIcon size={17} className="shrink-0">
+                <SvgIcon size={15} className="shrink-0">
                   <polygon points="7 4 20 12 7 20 7 4" fill="currentColor" stroke="none" />
                 </SvgIcon>
               )}
             </button>
-            <button
-              type="button"
-              disabled={controlPending}
-              onClick={() =>
-                onControl({ command: "skip", volumePercent: null, deviceId: null })
-              }
-              aria-label={t("nextTrack")}
-              className={btnCls}
-            >
-              <SvgIcon size={17} className="shrink-0">
-                <polygon points="5 4 15 12 5 20 5 4" fill="currentColor" stroke="none" />
-                <line x1="19" x2="19" y1="5" y2="19" />
-              </SvgIcon>
-            </button>
-          </span>
-          {serverVolume !== null ? (
-            <span className="flex shrink-0 items-center gap-1.5">
-              <SvgIcon color="var(--dim)" size={15} className="shrink-0">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-              </SvgIcon>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                step={1}
-                value={shownVolume}
-                disabled={controlPending}
-                onChange={(e) => setVolume(Number(e.target.value))}
-                onPointerUp={() =>
-                  onControl({
-                    command: "setVolume",
-                    volumePercent: shownVolume,
-                    deviceId: state.deviceId,
-                  })
-                }
-                onKeyUp={() =>
-                  onControl({
-                    command: "setVolume",
-                    volumePercent: shownVolume,
-                    deviceId: state.deviceId,
-                  })
-                }
-                aria-label={t("volumeLabel")}
-                className="w-20 accent-[#1db954] sm:w-28"
-              />
-              <span className="w-8 text-xs tabular-nums text-[var(--dim)]">
-                {shownVolume}%
-              </span>
-            </span>
-          ) : null}
-        </>
-      )}
+          </>
+        ) : (
+          <span className="min-w-0 truncate">{t("spotifyIdle")}</span>
+        )}
+      </span>
     </div>
   );
 }
@@ -2106,14 +2202,40 @@ type ProgramActionName = "start" | "stop" | "restart" | "run" | "autostart-toggl
  * request is pending the row shows 已登记 · 待执行 and the verified
  * state stays exactly as last reported — nothing pretends to have
  * happened until reportProgramResult writes the outcome back. */
+/** v2.2: the four groups Mark named. Server categories fold in
+ * without changing any row's allowed controls: info rows render no
+ * buttons just like readonly ones, so they share 状态只读； the proxy
+ * pair is switched on demand like the toggles, so it shares
+ * 可按需开关 (its group-level 默认自启 switch rides in that group's
+ * header). */
 const PROG_GROUPS: { titleKey: StrKey; categories: ProgramEntry["category"][] }[] = [
-  { titleKey: "progGroupReadonly", categories: ["readonly"] },
+  { titleKey: "progGroupReadonly", categories: ["readonly", "info"] },
   { titleKey: "progGroupAlways", categories: ["always"] },
-  { titleKey: "progGroupProxy", categories: ["proxy"] },
-  { titleKey: "progGroupInfo", categories: ["info"] },
-  { titleKey: "progGroupToggle", categories: ["toggle", "foxshare"] },
+  { titleKey: "progGroupToggle", categories: ["proxy", "toggle", "foxshare"] },
   { titleKey: "progGroupDevices", categories: ["device", "device-status"] },
 ];
+
+/** A verified state older than this renders as 核验过期 (stale) —
+ * the board would rather show an honest old check than imply the
+ * program was just confirmed. */
+const PROG_STALE_MS = 24 * 60 * 60 * 1000;
+
+type ProgAnomaly = "down" | "unverified" | "stale";
+
+/** Why a row is NOT a quiet normal row, or null when it is one.
+ * Anomalies surface on the group face (sorted first, detail shown);
+ * normal rows show no timestamp, no evidence, no audit text. */
+function programAnomaly(program: ProgramEntry, now: number): ProgAnomaly | null {
+  if (!program.state) return "unverified";
+  if (program.state.status === "down") return "down";
+  if (
+    program.state.verifiedAt &&
+    now - new Date(program.state.verifiedAt).getTime() > PROG_STALE_MS
+  ) {
+    return "stale";
+  }
+  return null;
+}
 
 function programActionText(action: string): string {
   if (activeLang === "en") {
@@ -2153,6 +2275,9 @@ function ProgramStateLine({ program }: { program: ProgramEntry }) {
       </span>
     );
   }
+  // v2.2 conclusions only: dot + word. The verified-at instant moved
+  // into the row's expanded detail (and shows by default only when
+  // the row is an anomaly).
   return (
     <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-[var(--dim)]">
       <span
@@ -2162,24 +2287,31 @@ function ProgramStateLine({ program }: { program: ProgramEntry }) {
       <span className={program.state.status === "up" ? "font-semibold text-[#00915f] dark:text-[#5ee0a8]" : "font-semibold text-[#d92d20] dark:text-[#ff9d97]"}>
         {program.state.status === "up" ? t("progRunning") : t("progDown")}
       </span>
-      {program.state.verifiedAt
-        ? `${t("progVerifiedAt")} ${formatStampToronto(program.state.verifiedAt)}`
-        : null}
     </span>
   );
 }
 
 function ProgramRowView({
   program,
+  anomaly,
+  audit,
   busy,
   onRequest,
 }: {
   program: ProgramEntry;
+  anomaly: ProgAnomaly | null;
+  audit: ProgramsData["audit"];
   busy: boolean;
   onRequest: (program: ProgramEntry, action: ProgramActionName) => void;
 }) {
   const name = activeLang === "zh" ? program.name : program.nameEn;
   const note = activeLang === "zh" ? program.note : program.noteEn;
+  // v2.2: detail (note / evidence / verified-at / audit entries) sits
+  // behind the row's chevron. Anomaly rows start expanded — the
+  // reason surfaces without a tap — and Mark can still fold them.
+  const [toggled, setToggled] = useState<boolean | null>(null);
+  const expanded = toggled ?? anomaly !== null;
+  const entries = audit.filter((entry) => entry.programId === program.id);
   const btnCls =
     "h-8 shrink-0 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-3 text-[13px] font-medium text-[var(--text)] transition hover:bg-[var(--fill)] active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50";
   const primaryBtnCls =
@@ -2199,9 +2331,6 @@ function ProgramRowView({
             {name}
             <span className="ml-2 text-xs font-normal text-[var(--dim)]">{program.device}</span>
           </p>
-          {note ? (
-            <p className="mt-0.5 text-xs leading-snug text-[var(--dim)]">{note}</p>
-          ) : null}
         </div>
         <ProgramStateLine program={program} />
         {showButtons ? (
@@ -2261,11 +2390,73 @@ function ProgramRowView({
             ) : null}
           </span>
         ) : null}
+        <button
+          type="button"
+          onClick={() => setToggled(!expanded)}
+          aria-expanded={expanded}
+          aria-label={`${expanded ? t("progDetailHide") : t("progDetailShow")}：${name}`}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] text-[var(--dim)] transition hover:bg-[var(--fill)] hover:text-[var(--text)]"
+        >
+          <span
+            aria-hidden="true"
+            className={`flex transition-transform ${expanded ? "rotate-180" : ""} motion-reduce:transition-none`}
+          >
+            <ChevronDownIcon size={15} />
+          </span>
+        </button>
       </div>
-      {program.lastAudit ? (
-        <p className="mt-1 text-xs leading-snug text-[var(--dim)]">
-          {formatStampToronto(program.lastAudit.at)} · {program.lastAudit.text}
-        </p>
+      {expanded ? (
+        <div className="mt-1.5 border-t border-dashed border-[var(--border)] pt-1.5">
+          {note ? (
+            <p className="text-xs leading-snug text-[var(--dim)]">{note}</p>
+          ) : null}
+          {program.state ? (
+            <p className="mt-0.5 text-xs leading-snug text-[var(--dim)]">
+              {anomaly === "down" ? (
+                <span className="font-semibold text-[#d92d20] dark:text-[#ff9d97]">
+                  {t("progDown")} ·{" "}
+                </span>
+              ) : null}
+              {anomaly === "stale" ? (
+                <span className="font-semibold text-[#a15e00] dark:text-[#ffc65c]">
+                  {t("progStale")} ·{" "}
+                </span>
+              ) : null}
+              {program.state.evidence ? `${program.state.evidence} · ` : ""}
+              {program.state.verifiedAt
+                ? `${t("progVerifiedAt")} ${formatStampToronto(program.state.verifiedAt)}`
+                : t("progUnverified")}
+            </p>
+          ) : null}
+          {program.pending ? (
+            <p className="mt-0.5 text-xs leading-snug text-[var(--dim)]">
+              {t("progPending")} · {programActionText(program.pending.action)} ·{" "}
+              {formatStampToronto(program.pending.requestedAt)}
+            </p>
+          ) : null}
+          <p className="mt-1.5 text-xs font-semibold text-[var(--text)]">
+            {t("progAuditTitle")}
+          </p>
+          {entries.length === 0 ? (
+            <p className="mt-0.5 text-xs leading-snug text-[var(--dim)]">
+              {t("progAuditEmpty")}
+            </p>
+          ) : (
+            <ul className="mt-0.5 flex flex-col gap-0.5">
+              {entries.map((entry) => (
+                <li
+                  key={entry.id}
+                  className="flex flex-wrap items-baseline gap-x-2 text-xs leading-relaxed text-[var(--dim)]"
+                >
+                  <span className="shrink-0 tabular-nums">
+                    {formatStampToronto(entry.at)}
+                  </span>
+                  <span className="min-w-0">{entry.text}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       ) : null}
     </li>
   );
@@ -2282,6 +2473,9 @@ function ProgramsSection() {
     program: ProgramEntry;
     action: ProgramActionName;
   } | null>(null);
+  const [collapsedGroups, setCollapsedGroups] = useState<ReadonlySet<StrKey>>(
+    new Set(),
+  );
   const [requestError, setRequestError] = useState(false);
   const requestMutation = useMutation({
     mutationFn: async (args: { programId: string; action: ProgramActionName }) =>
@@ -2310,7 +2504,6 @@ function ProgramsSection() {
   return (
     <section aria-label={t("progTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)] min-w-0`}>
       <SectionHeading icon={<SectionTile kind="programs" />}>{t("progTitle")}</SectionHeading>
-      <p className="-mt-1 text-[13px] leading-relaxed text-[var(--dim)]">{t("progSub")}</p>
       {requestError ? (
         <p role="alert" className="mt-2 rounded-lg border border-[#d92d20] px-3 py-2 text-sm text-[#d92d20] dark:text-[#ff9d97]">
           {t("progRequestFailed")}
@@ -2334,13 +2527,64 @@ function ProgramsSection() {
           {PROG_GROUPS.map((group) => {
             const rows = data.programs.filter((p) => group.categories.includes(p.category));
             if (rows.length === 0) return null;
+            // v2.2: anomalies (down / unverified / stale) sort to the
+            // top of the group and stay visible even when the group
+            // is collapsed; the header carries the group's verdict —
+            // 「N/N 正常」 when all is well, the anomaly count when
+            // it is not.
+            const now = Date.now();
+            const anomalyOf = new Map(
+              rows.map((p) => [p.id, programAnomaly(p, now)] as const),
+            );
+            const anomalies = rows.filter((p) => anomalyOf.get(p.id) !== null);
+            const ordered = [
+              ...anomalies,
+              ...rows.filter((p) => anomalyOf.get(p.id) === null),
+            ];
+            const collapsed = collapsedGroups.has(group.titleKey);
+            const visible = collapsed ? anomalies : ordered;
+            const groupTitle = t(group.titleKey);
             return (
               <div key={group.titleKey} className="mt-3 first:mt-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="text-[13px] font-semibold text-[var(--text)]">
-                    {t(group.titleKey)}
-                  </h3>
-                  {group.titleKey === "progGroupProxy" ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCollapsedGroups((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(group.titleKey)) next.delete(group.titleKey);
+                        else next.add(group.titleKey);
+                        return next;
+                      })
+                    }
+                    aria-expanded={!collapsed}
+                    aria-label={`${groupTitle} · ${collapsed ? t("progDetailShow") : t("progDetailHide")}`}
+                    className="flex min-w-0 items-center gap-1.5 text-left"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`flex shrink-0 text-[var(--dim)] transition-transform ${collapsed ? "-rotate-90" : ""} motion-reduce:transition-none`}
+                    >
+                      <ChevronDownIcon size={13} />
+                    </span>
+                    <span className="text-[13px] font-semibold text-[var(--text)]">
+                      {groupTitle}
+                    </span>
+                    {anomalies.length === 0 ? (
+                      <span className="text-xs tabular-nums text-[var(--dim)]">
+                        {activeLang === "zh"
+                          ? `${rows.length}/${rows.length} 正常`
+                          : `${rows.length}/${rows.length} OK`}
+                      </span>
+                    ) : (
+                      <span className="text-xs font-semibold tabular-nums text-[#d92d20] dark:text-[#ff9d97]">
+                        {activeLang === "zh"
+                          ? `${anomalies.length} 项异常`
+                          : `${anomalies.length} need attention`}
+                      </span>
+                    )}
+                  </button>
+                  {group.categories.includes("proxy") ? (
                     <span className="flex items-center gap-2">
                       <span className="text-xs font-medium text-[var(--dim)]">{t("progAutostart")}</span>
                       {proxyPending ? (
@@ -2372,37 +2616,23 @@ function ProgramsSection() {
                     </span>
                   ) : null}
                 </div>
-                <ul className="divide-y divide-[var(--border)]">
-                  {rows.map((program) => (
-                    <ProgramRowView
-                      key={program.id}
-                      program={program}
-                      busy={requestMutation.isPending}
-                      onRequest={handleRequest}
-                    />
-                  ))}
-                </ul>
+                {visible.length > 0 ? (
+                  <ul className="divide-y divide-[var(--border)]">
+                    {visible.map((program) => (
+                      <ProgramRowView
+                        key={program.id}
+                        program={program}
+                        anomaly={anomalyOf.get(program.id) ?? null}
+                        audit={data.audit}
+                        busy={requestMutation.isPending}
+                        onRequest={handleRequest}
+                      />
+                    ))}
+                  </ul>
+                ) : null}
               </div>
             );
           })}
-          <div className="mt-4 border-t border-[var(--border)] pt-3">
-            <h3 className="text-[13px] font-semibold text-[var(--text)]">
-              {t("progAuditTitle")}
-            </h3>
-            {data.audit.length === 0 ? (
-              <p className="mt-1.5 text-[13px] text-[var(--dim)]">{t("progAuditEmpty")}</p>
-            ) : (
-              <ul className="mt-1.5 flex flex-col gap-1">
-                {data.audit.map((entry) => (
-                  <li key={entry.id} className="flex flex-wrap items-baseline gap-x-2 text-xs leading-relaxed text-[var(--dim)]">
-                    <span className="shrink-0 tabular-nums">{formatStampToronto(entry.at)}</span>
-                    <span className="shrink-0 font-medium text-[var(--text)]">{entry.programName}</span>
-                    <span className="min-w-0">{entry.text}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
         </>
       )}
       {confirmFor ? (
@@ -3909,16 +4139,15 @@ export function App() {
 
   const jumpToItem = (id: number) => {
     setHeroOpen(false);
-    // Hero items live on the today page, except far-future deadlines,
-    // which live on the status page: try the current page, then today,
-    // then status, retrying as each page renders.
-    const fallbacks: BoardPage[] = ["main", "more"];
+    // v2.2: every hero item lives on the today page — deadlines
+    // included, near and far (the status page renders no board items
+    // at all now) — so the only fallback is today itself, retried as
+    // the page renders.
     const attempt = (triesLeft: number) => {
       const el = document.getElementById(`board-item-${id}`);
       if (!el) {
         if (triesLeft > 0) {
-          const next = fallbacks[fallbacks.length - triesLeft];
-          if (next) setPage(next);
+          setPage("main");
           setTimeout(() => attempt(triesLeft - 1), 120);
         }
         return;
@@ -3929,7 +4158,7 @@ export function App() {
       el.classList.add("item-flash");
       setTimeout(() => el.classList.remove("item-flash"), 1900);
     };
-    requestAnimationFrame(() => attempt(2));
+    requestAnimationFrame(() => attempt(3));
   };
 
   // A 30-second heartbeat so the header date, the timeline's
@@ -4114,8 +4343,10 @@ export function App() {
 
   const data = board.data;
 
-  // Pagination rule: page 1 shows deadlines due within 14 days (undated
-  // ones included); anything dated beyond 14 days lives on page 2.
+  // Pagination rule (v2.2): the today page carries ALL deadlines —
+  // the near list (due within 14 days, undated ones included) as the
+  // main list and anything dated beyond 14 days in the 14 天后
+  // subsection under it. The status page renders none of them.
   const nearDeadlines = data.deadlines.filter(
     (item) => !item.dueDate || daysUntil(item.dueDate) <= 14,
   );
@@ -4414,8 +4645,8 @@ export function App() {
         <main className="min-w-0 flex-1 px-4 pb-3 sm:px-5 lg:px-0 lg:py-1">
         {page === "more" ? (
           <>
-            {/* 状态页 (v2.1 重排)：网站/服务器状态 → 程序（控制面提前）
-                → 到期事项（全板唯一主场）→ 天气 / 汇率 / Spotify 垫底。 */}
+            {/* 状态页 (v2.2 分工定稿)：只有 网站/服务器状态卡 → 程序
+                四组，别无他物 — 到期 / 天气 / 汇率 / Spotify 都在今天页。 */}
             <div className="mt-[var(--space-stack)] flex items-center justify-between gap-3">
               <h2 className="text-lg font-semibold tracking-tight text-[var(--text)]">
                 {t("statusDetail")}
@@ -4445,53 +4676,11 @@ export function App() {
               {t("statusFootnote")}
             </p>
 
-            {/* 程序区：注册表 + 核验状态 + 控制请求 / 回写（行为不变） */}
+            {/* 程序区：注册表 + 核验状态 + 控制请求 / 回写（行为不变）。
+                v2.2 页面分工定稿：状态页到此为止 — 到期 / 天气 / 汇率 /
+                Spotify 已整卡撤下，它们的家在今天页（到期完整列表 +
+                底部 slim 环境条），本页零残留。 */}
             <ProgramsSection />
-
-            {/* 到期事项 — 全板唯一主场（v2.1 去重）：近 14 天 + 14 天后
-                同卡分区；今天页只留一行链接指到这里。 */}
-            <section aria-label={t("deadlinesTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)] min-w-0`}>
-              <SectionHeading icon={<SectionTile kind="deadlines" />}>
-                {t("deadlinesTitle")}
-              </SectionHeading>
-              {nearDeadlines.length === 0 ? (
-                <EmptyLineCompact text={t("deadlinesEmpty")} />
-              ) : (
-                <DeadlineGroups items={nearDeadlines} />
-              )}
-              {farDeadlines.length > 0 ? (
-                <>
-                  <h3 className="mb-1 mt-2.5 border-t border-[var(--border)] pt-2.5 text-[13px] font-semibold text-[var(--text)]">
-                    {t("farTitle")}
-                  </h3>
-                  <DeadlineGroups items={farDeadlines} />
-                </>
-              ) : null}
-            </section>
-
-            {/* 氛围件垫底：天气 / 汇率 / Spotify 只在本页出现（v2.0 起
-                自顶栏与今天页移入，v2.1 顺序沉底）。 */}
-            <div className="mt-[var(--space-stack)] grid items-start gap-[var(--space-gap)] md:grid-cols-2">
-              <WeatherInfoCard
-                weather={weatherQuery.data?.weather ?? null}
-                destination={weatherQuery.data?.destination ?? null}
-                pending={weatherQuery.isPending}
-                onRetry={() => void weatherQuery.refetch()}
-              />
-              <FxInfoCard
-                fx={fxQuery.data?.fx ?? null}
-                pending={fxQuery.isPending}
-                onRetry={() => void fxQuery.refetch()}
-              />
-            </div>
-
-            <SpotifyStrip
-              state={spotifyQuery.data?.spotify}
-              pending={spotifyQuery.isPending}
-              controlPending={spotifyControlMutation.isPending}
-              onControl={(args) => spotifyControlMutation.mutate(args)}
-              onRetry={() => void spotifyQuery.refetch()}
-            />
           </>
         ) : page === "china" ? (
           <>
@@ -4813,7 +5002,7 @@ export function App() {
         {/* 今日已完成 — 瘦身摘要行，点进第 4 页看 7 天归档 */}
         <DoneTodayStrip count={data.doneToday.length} onOpen={() => setPage("history")} />
 
-        {/* 宽屏三列：今日时间线 | 到期链接行 | Lane。v2.1 COMPACT：
+        {/* 宽屏三列：今日时间线 | 到期列表 | Lane。v2.1 COMPACT：
             items-start + 无 h-full — 卡高贴内容走，不再等高拉伸。 */}
         <div className="mt-[var(--space-stack)] grid items-start gap-[var(--space-gap)] md:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0">
         {/* 2. 今日定时与动态 — 时间轴 */}
@@ -4904,48 +5093,24 @@ export function App() {
           )}
         </section>
 
-        {/* 3. 到期事项 — v2.1 去重后只留一行链接：清单的唯一主场在
-            状态页，这里只报总数 + 最近一件，点整行过去。 */}
+        {/* 3. 到期事项 — v2.2 恢复完整内联列表（Mark 裁定 keeper：
+            扫一眼优先于「一个信息一个家」，不许再被去重收敛）。
+            近 14 天逐行全列，14 天后分区同卡在下；状态页零渲染。 */}
         <section aria-label={t("deadlinesTitle")} className={CARD_CLASS}>
           <SectionHeading icon={<SectionTile kind="deadlines" />}>{t("deadlinesTitle")}</SectionHeading>
-          <button
-            type="button"
-            onClick={() => setPage("more")}
-            aria-label={t("statusGoDeadlines")}
-            className="group flex w-full items-center gap-2 text-left"
-          >
-            {data.deadlines.length === 0 ? (
-              <span className="min-w-0 flex-1 text-[13px] leading-snug text-[var(--dim)]">
-                {t("deadlinesEmpty")}
-              </span>
-            ) : (
-              <span className="min-w-0 flex-1 text-[13px] leading-snug text-[var(--dim)]">
-                <span className="font-medium text-[var(--text)]">
-                  {activeLang === "zh"
-                    ? `共 ${data.deadlines.length} 件`
-                    : `${data.deadlines.length} total`}
-                </span>
-                {(() => {
-                  const first =
-                    [...nearDeadlines, ...farDeadlines].find((i) => i.dueDate) ??
-                    data.deadlines[0];
-                  return first ? (
-                    <>
-                      {" · "}
-                      {activeLang === "zh" ? "最近：" : "Next: "}
-                      {first.title}
-                      {first.dueDate
-                        ? ` · ${formatDateLabel(first.dueDate)}`
-                        : ""}
-                    </>
-                  ) : null;
-                })()}
-              </span>
-            )}
-            <span aria-hidden="true" className="flex shrink-0 text-[var(--dim)] transition group-hover:text-[var(--accent)]">
-              <ChevronRightIcon size={16} />
-            </span>
-          </button>
+          {nearDeadlines.length === 0 ? (
+            <EmptyLineCompact text={t("deadlinesEmpty")} />
+          ) : (
+            <DeadlineGroups items={nearDeadlines} />
+          )}
+          {farDeadlines.length > 0 ? (
+            <>
+              <h3 className="mb-1 mt-2.5 border-t border-[var(--border)] pt-2.5 text-[13px] font-semibold text-[var(--text)]">
+                {t("farTitle")}
+              </h3>
+              <DeadlineGroups items={farDeadlines} />
+            </>
+          ) : null}
         </section>
 
         {/* 4. 各 Lane 开放事项 — 可增删改 */}
@@ -5034,6 +5199,18 @@ export function App() {
           )}
         </section>
         </div>
+
+        {/* 页面底部 slim 环境条 (v2.2)：天气 · 汇率 · Spotify 一行
+            压完 — 状态页撤下的三样在这里安家，不做大卡不占版面。 */}
+        <EnvStrip
+          weather={weatherQuery.data?.weather ?? null}
+          destination={weatherQuery.data?.destination ?? null}
+          fx={fxQuery.data?.fx ?? null}
+          spotify={spotifyQuery.data?.spotify}
+          spotifyPending={spotifyQuery.isPending}
+          controlPending={spotifyControlMutation.isPending}
+          onSpotifyControl={(args) => spotifyControlMutation.mutate(args)}
+        />
 
         <footer className="mt-[var(--space-stack)] border-t border-[var(--border)] pt-2 text-center">
           <p className="text-xs text-[var(--dim)]">
