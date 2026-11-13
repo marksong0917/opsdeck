@@ -210,7 +210,6 @@ const STR = {
     torontoParen: "（多伦多）",
     viewStatusAria: "查看状态详情",
     statusLabel: "状态",
-    portfolioLink: "作品集",
     themeAria: "显示模式",
     themeSystem: "跟随系统",
     themeLight: "浅色",
@@ -231,10 +230,13 @@ const STR = {
     progTitle: "程序",
     progLoading: "程序状态加载中…",
     progUnavailable: "程序状态暂时取不到",
-    progGroupReadonly: "状态只读",
-    progGroupAlways: "必须常开",
-    progGroupToggle: "可按需开关",
+    progGroupCompany: "公司",
+    progGroupPersonal: "个人",
     progGroupDevices: "设备",
+    progGroupFolded: "折叠区",
+    jasonBucketLong: "拖了 14 天以上",
+    jasonBucketWeek: "拖了 7–13 天",
+    jasonBucketFresh: "7 天以内",
     progRunning: "在跑",
     progDown: "不在",
     progUnverified: "未核验",
@@ -453,7 +455,6 @@ const STR = {
     torontoParen: "(Toronto)",
     viewStatusAria: "View status details",
     statusLabel: "Status",
-    portfolioLink: "Portfolio",
     themeAria: "Display theme",
     themeSystem: "System",
     themeLight: "Light",
@@ -474,10 +475,13 @@ const STR = {
     progTitle: "Programs",
     progLoading: "Loading program states…",
     progUnavailable: "Program states unavailable right now",
-    progGroupReadonly: "Status only",
-    progGroupAlways: "Always on",
-    progGroupToggle: "On-demand",
+    progGroupCompany: "Company",
+    progGroupPersonal: "Personal",
     progGroupDevices: "Devices",
+    progGroupFolded: "Folded away",
+    jasonBucketLong: "Waiting 14+ days",
+    jasonBucketWeek: "Waiting 7–13 days",
+    jasonBucketFresh: "Under 7 days",
     progRunning: "Running",
     progDown: "Not running",
     progUnverified: "Not verified yet",
@@ -767,8 +771,48 @@ function uiLocale(): string {
  * text — never blank. One function serves every condition render
  * point: the today strip, the china page (current line + 7-day
  * forecast grid). Data fetching, caches and action contracts are
- * untouched — this is render-layer only. */
-const BOARD_VERSION = "v2.2";
+ * untouched — this is render-layer only.
+ * v2.3 = subtraction audit + grouping/layout restructure + visual
+ * alignment to the today page (Mark, 2026-11-13, four-step car):
+ * (1) SUBTRACTION — the three site-body program rows (the websites'
+ * own status already has its home in the 网站状态 card directly
+ * above) leave the programs face, and the third-party hosted shell
+ * (closet-studio, hosted by us, so protected from hard removal by
+ * the ops red line) plus those site rows move into a collapsed
+ * 折叠区 group at the end of the programs section; the today-page
+ * footer drops its four outward profile links (portfolio / GitHub /
+ * Typebook / FoxShare — not board content). Registry, control
+ * chain, state/audit data and every action contract are untouched —
+ * this is face-level only, reversible on Mark's word. (2) GROUPS +
+ * LAYOUT — the programs section regroups from the four v2.2
+ * category groups into 公司 (Newood/Foxuma ops: fleet infra, Hub,
+ * Ollama, Drive mirrors, backup, Paperless…) and 个人 (Mir2, proxy
+ * nodes, FoxShare, personal tools…) cards, each program in exactly
+ * one group by primary use; 设备 stays its own group; the 折叠区
+ * is a fourth. Group headers keep the v2.2 summary caliber
+ * (「N/N 正常」 / anomaly count, anomalies pinned + visible when
+ * collapsed); the proxy 默认自启 switch now rides in the 个人
+ * card's header (the proxy nodes live there). The 待拍板 page
+ * splits its one long list into drag-age bucket cards (14 天以上 /
+ * 7–13 天 / 7 天以内) laid out in the today page's card grid — the
+ * buckets are contiguous slices of the same age-sorted list, so
+ * content, order, drag badges and the ledger mirror are unchanged.
+ * LAYOUT LAW, board-wide: every page is a 2–3 column card grid at
+ * desktop width and stacks at 390px — growth's three cards and the
+ * history day cards join grids, the china page pairs its flight /
+ * key-dates cards, the status page keeps its status cards side by
+ * side above the program group cards. The phone nav rail is now a
+ * 3×2 grid instead of a horizontal scroll row (the v2.2 audit's
+ * 573px-in-390px overflow advisory is closed — nothing scrolls
+ * sideways). (3) VISUALS — the other pages align to the today page
+ * (Mark's benchmark: card ratio, density, timeline rhythm): one
+ * card spec, one spacing scale, transition duration/easing now set
+ * once via the Tailwind default-transition tokens (200 ms,
+ * ease-out curve, per the UI/UX handbook §2.5); the today page's
+ * own skeleton is untouched. The baseline extracted from this board
+ * lives in ~/workspace/newood-ops/semi-baseline/ and is the single
+ * source for future Semi passes. */
+const BOARD_VERSION = "v2.3";
 
 const LANE_ORDER = ["QuickBooks", "Foxuma", "General Ops", "外联", "设备与机器", "Mir2"];
 
@@ -1975,7 +2019,9 @@ function DoneHistoryPage({ groups }: { groups: DoneGroup[] }) {
       return next;
     });
   return (
-    <div className="mt-[var(--space-stack)] flex flex-col gap-[var(--space-gap)]">
+    // v2.3 layout law: day cards join a 2–3 column grid (stacked at
+    // 390px) instead of one vertical column of full-width cards.
+    <div className="mt-[var(--space-stack)] grid items-start gap-[var(--space-gap)] md:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0">
       {groups.map((group) => {
         const open = openDays.has(group.date);
         const label = historyGroupLabel(group.date);
@@ -2208,11 +2254,60 @@ type ProgramActionName = "start" | "stop" | "restart" | "run" | "autostart-toggl
  * pair is switched on demand like the toggles, so it shares
  * 可按需开关 (its group-level 默认自启 switch rides in that group's
  * header). */
-const PROG_GROUPS: { titleKey: StrKey; categories: ProgramEntry["category"][] }[] = [
-  { titleKey: "progGroupReadonly", categories: ["readonly", "info"] },
-  { titleKey: "progGroupAlways", categories: ["always"] },
-  { titleKey: "progGroupToggle", categories: ["proxy", "toggle", "foxshare"] },
+/** v2.3 program grouping (Mark's ruling): the section splits by WHO
+ * the program serves, not by control category — 公司 (Newood /
+ * Foxuma operations) and 个人 (personal kit), each program in
+ * exactly one group by primary use, never listed twice; 设备 is not
+ * a program and keeps its own group. Rows keep registry order inside
+ * a group; categories still drive each row's buttons, unchanged.
+ * A fourth 折叠区 group holds the v2.3 subtraction audit's folded
+ * rows: the third-party hosted shell (ours to run, not ours to
+ * show off — the ops red line protects hosted services from hard
+ * removal, so it folds instead) and the three website-body rows,
+ * whose status already lives in the 网站状态 card above. The fold
+ * starts collapsed; the registry, states and audit data behind
+ * these rows are untouched, so unfolding is all it takes to see
+ * them again. */
+const PROG_COMPANY_IDS: readonly string[] = [
+  // Fleet infra (readonly): the pipes every company service rides on.
+  "tailscale", "sshd", "frps", "frpc", "cloudflared-mini", "derper",
+  "caddy", "teamviewer",
+  // Always-on company services: Hub, Fox's brain, Drive mirrors,
+  // backup sync, Docker engines, monitoring.
+  "hub", "ollama-mini", "ollama-office", "gdrive-mini",
+  "hub-backup-sync", "docker-mini", "docker-office", "uptime-kuma",
+  // Info: the office server Ollama supervisor.
+  "ollama-supervisor",
+  // On-demand company services.
+  "paperless", "hub-standby", "docker-desktop-mini",
+  "docker-desktop-office", "gdrive-redmi",
+];
+const PROG_PERSONAL_IDS: readonly string[] = [
+  // Mir nightly backup rides with the game it protects.
+  "mir-backup",
+  // The proxy pair (the 默认自启 switch rides in this group's header).
+  "proxy-cloud", "proxy-mini",
+  // FoxShare (personal file sharing across Mark's own machines).
+  "foxshare",
+  // Personal tools + the Mir2 server itself.
+  "open-webui", "stirling-pdf", "wechat-redmi", "douyin-redmi", "mir2",
+];
+const PROG_FOLDED_IDS: readonly string[] = [
+  "closet-studio",
+  "site-main", "site-shop", "site-blog",
+];
+type ProgGroupDef = {
+  titleKey: StrKey;
+  ids?: readonly string[];
+  categories?: ProgramEntry["category"][];
+  startCollapsed?: boolean;
+  proxySwitch?: boolean;
+};
+const PROG_GROUPS: ProgGroupDef[] = [
+  { titleKey: "progGroupCompany", ids: PROG_COMPANY_IDS },
+  { titleKey: "progGroupPersonal", ids: PROG_PERSONAL_IDS, proxySwitch: true },
   { titleKey: "progGroupDevices", categories: ["device", "device-status"] },
+  { titleKey: "progGroupFolded", ids: PROG_FOLDED_IDS, startCollapsed: true },
 ];
 
 /** A verified state older than this renders as 核验过期 (stale) —
@@ -2473,8 +2568,13 @@ function ProgramsSection() {
     program: ProgramEntry;
     action: ProgramActionName;
   } | null>(null);
+  // v2.3: groups marked startCollapsed (the 折叠区) begin folded;
+  // every other group starts expanded, as before.
   const [collapsedGroups, setCollapsedGroups] = useState<ReadonlySet<StrKey>>(
-    new Set(),
+    () =>
+      new Set(
+        PROG_GROUPS.filter((g) => g.startCollapsed).map((g) => g.titleKey),
+      ),
   );
   const [requestError, setRequestError] = useState(false);
   const requestMutation = useMutation({
@@ -2502,36 +2602,51 @@ function ProgramsSection() {
   };
   const proxyPending = data?.proxyPending ?? null;
   return (
-    <section aria-label={t("progTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)] min-w-0`}>
-      <SectionHeading icon={<SectionTile kind="programs" />}>{t("progTitle")}</SectionHeading>
+    <section aria-label={t("progTitle")} className="mt-[var(--space-stack)] min-w-0">
+      {/* v2.3: the section is a heading + a grid of group cards —
+          公司 / 个人 side by side at desktop width, 设备 and the
+          折叠区 under them; the status cards above keep their own
+          side-by-side grid, so the page never becomes one long list. */}
+      <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight text-[var(--text)]">
+        <SectionTile kind="programs" />
+        {t("progTitle")}
+      </h2>
       {requestError ? (
         <p role="alert" className="mt-2 rounded-lg border border-[#d92d20] px-3 py-2 text-sm text-[#d92d20] dark:text-[#ff9d97]">
           {t("progRequestFailed")}
         </p>
       ) : null}
       {programsQuery.isPending && !data ? (
-        <p className="py-3 text-sm text-[var(--dim)]">{t("progLoading")}</p>
+        <div className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
+          <p className="py-3 text-sm text-[var(--dim)]">{t("progLoading")}</p>
+        </div>
       ) : !data ? (
-        <p className="py-3 text-sm text-[var(--dim)]">
-          {t("progUnavailable")}
-          <button
-            type="button"
-            onClick={() => void programsQuery.refetch()}
-            className="ml-2 font-medium text-[var(--text)] underline underline-offset-2"
-          >
-            {t("retry")}
-          </button>
-        </p>
+        <div className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
+          <p className="py-3 text-sm text-[var(--dim)]">
+            {t("progUnavailable")}
+            <button
+              type="button"
+              onClick={() => void programsQuery.refetch()}
+              className="ml-2 font-medium text-[var(--text)] underline underline-offset-2"
+            >
+              {t("retry")}
+            </button>
+          </p>
+        </div>
       ) : (
-        <>
+        <div className="mt-[var(--space-stack)] grid items-start gap-[var(--space-gap)] xl:grid-cols-2 [&>*]:min-w-0">
           {PROG_GROUPS.map((group) => {
-            const rows = data.programs.filter((p) => group.categories.includes(p.category));
+            const rows = data.programs.filter((p) =>
+              group.ids !== undefined
+                ? group.ids.includes(p.id)
+                : (group.categories ?? []).includes(p.category),
+            );
             if (rows.length === 0) return null;
-            // v2.2: anomalies (down / unverified / stale) sort to the
-            // top of the group and stay visible even when the group
-            // is collapsed; the header carries the group's verdict —
-            // 「N/N 正常」 when all is well, the anomaly count when
-            // it is not.
+            // v2.2 header caliber, kept: anomalies (down / unverified
+            // / stale) sort to the top of the group and stay visible
+            // even when the group is collapsed; the header carries
+            // the group's verdict — 「N/N 正常」 when all is well,
+            // the anomaly count when it is not.
             const now = Date.now();
             const anomalyOf = new Map(
               rows.map((p) => [p.id, programAnomaly(p, now)] as const),
@@ -2545,7 +2660,7 @@ function ProgramsSection() {
             const visible = collapsed ? anomalies : ordered;
             const groupTitle = t(group.titleKey);
             return (
-              <div key={group.titleKey} className="mt-3 first:mt-2">
+              <section key={group.titleKey} aria-label={groupTitle} className={CARD_CLASS}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <button
                     type="button"
@@ -2584,7 +2699,7 @@ function ProgramsSection() {
                       </span>
                     )}
                   </button>
-                  {group.categories.includes("proxy") ? (
+                  {group.proxySwitch ? (
                     <span className="flex items-center gap-2">
                       <span className="text-xs font-medium text-[var(--dim)]">{t("progAutostart")}</span>
                       {proxyPending ? (
@@ -2630,10 +2745,10 @@ function ProgramsSection() {
                     ))}
                   </ul>
                 ) : null}
-              </div>
+              </section>
             );
           })}
-        </>
+        </div>
       )}
       {confirmFor ? (
         <div
@@ -2897,13 +3012,16 @@ function StatusChip({
 
 type BoardPage = "main" | "more" | "china" | "history" | "jason" | "growth";
 
-/** Navigation (v2.0): a Semi-style left rail. Pages keep their v1.9.0
- * groups — 日常 (daily): 今天 / 待拍板 / 状态 · 专题 (topics): 增长 /
- * 回国 · 记录 (records): 历史 — each group with a small heading and
- * every tab carrying the board's one line-icon set. At desktop width
- * the rail is a vertical column beside the content; below lg it
- * collapses to a single horizontally scrollable tab row — it never
- * wraps and never hides pages behind a hamburger menu. */
+/** Navigation (v2.0, phone face reworked v2.3): a Semi-style left
+ * rail. Pages keep their v1.9.0 groups — 日常 (daily): 今天 /
+ * 待拍板 / 状态 · 专题 (topics): 增长 / 回国 · 记录 (records):
+ * 历史 — each group with a small heading and every tab carrying the
+ * board's one line-icon set. At desktop width the rail is a vertical
+ * column beside the content; below lg the groups dissolve
+ * (display: contents) and the six tabs form a 3×2 grid that fits
+ * 390px exactly — the v2.0–v2.2 horizontal scroll row (573px of
+ * content in a 390px viewport, flagged by the v2.2 audit) is gone,
+ * and no page hides behind a hamburger menu. */
 function RailNav({
   page,
   chinaCount,
@@ -2957,12 +3075,12 @@ function RailNav({
       ref={listRef}
       role="tablist"
       aria-label={t("navAria")}
-      className="flex max-w-full items-center gap-1 overflow-x-auto px-4 pb-1 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:max-h-none lg:flex-col lg:items-stretch lg:gap-0 lg:overflow-visible lg:px-0 lg:pb-0 lg:pt-0"
+      className="grid grid-cols-3 gap-1 px-3 pb-2 pt-2 lg:flex lg:flex-col lg:items-stretch lg:gap-0 lg:px-0 lg:pb-0 lg:pt-0"
     >
       {groups.map((group, gi) => (
         <div
           key={group.caption}
-          className="flex shrink-0 items-center gap-1 lg:mb-4 lg:flex-col lg:items-stretch"
+          className="contents lg:mb-4 lg:flex lg:flex-col lg:items-stretch lg:gap-1"
         >
           <span
             aria-hidden="true"
@@ -2982,8 +3100,8 @@ function RailNav({
                 onClick={() => onChange(tab.target)}
                 className={
                   active
-                    ? "flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-[8px] bg-[var(--accent)]/10 px-3 text-[13px] font-semibold text-[var(--accent)] transition lg:h-10 lg:px-2.5 lg:text-sm"
-                    : "flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-[8px] px-3 text-[13px] font-medium text-[var(--dim)] transition hover:bg-[var(--fill)] hover:text-[var(--text)] lg:h-10 lg:px-2.5 lg:text-sm"
+                    ? "flex h-9 w-full items-center justify-center gap-2 whitespace-nowrap rounded-[8px] bg-[var(--accent)]/10 px-3 text-[13px] font-semibold text-[var(--accent)] transition lg:h-10 lg:justify-start lg:px-2.5 lg:text-sm"
+                    : "flex h-9 w-full items-center justify-center gap-2 whitespace-nowrap rounded-[8px] px-3 text-[13px] font-medium text-[var(--dim)] transition hover:bg-[var(--fill)] hover:text-[var(--text)] lg:h-10 lg:justify-start lg:px-2.5 lg:text-sm"
                 }
               >
                 <NavIcon page={tab.target} />
@@ -3436,6 +3554,66 @@ function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
       </span>
     );
   };
+  // v2.3: the one long list becomes drag-age bucket cards in the
+  // today page's card grid. The buckets are contiguous slices of the
+  // SAME age-sorted list (≥14d / 7–13d / <7d or undated), so reading
+  // the cards left-to-right, top-to-bottom reproduces the old order
+  // exactly — content, sort caliber, drag badges and the 1:1 ledger
+  // mirror are unchanged; only the layout moved.
+  const buckets: { titleKey: StrKey; rows: Item[] }[] = [
+    {
+      titleKey: "jasonBucketLong",
+      rows: ordered.filter((i) => (dragOf(i) ?? -1) >= 14),
+    },
+    {
+      titleKey: "jasonBucketWeek",
+      rows: ordered.filter((i) => {
+        const d = dragOf(i);
+        return d !== null && d >= 7 && d < 14;
+      }),
+    },
+    {
+      titleKey: "jasonBucketFresh",
+      rows: ordered.filter((i) => {
+        const d = dragOf(i);
+        return d === null || d < 7;
+      }),
+    },
+  ];
+  const renderRow = (item: Item) => {
+    const drag = dragOf(item);
+    const hard = ISO_DATE_RE.test(item.status.trim())
+      ? item.status.trim()
+      : null;
+    return (
+      <li key={item.id} id={`board-item-${item.id}`} className="scroll-mt-24 py-2">
+        <div className="flex items-start justify-between gap-3">
+          <p className="min-w-0 text-[15px] font-medium leading-snug text-[var(--text)]">
+            {item.title}
+          </p>
+          {drag !== null && drag > 0 ? dragChip(drag) : null}
+        </div>
+        {item.detail ? (
+          <p className="mt-0.5 text-sm leading-relaxed text-[var(--dim)]">{item.detail}</p>
+        ) : null}
+        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="text-xs tabular-nums text-[var(--dim)]">
+            {item.dueDate
+              ? `${t("jasonAskedOn")} ${formatDateLabel(item.dueDate)}`
+              : t("jasonNoDate")}
+          </span>
+          {hard ? (
+            <span className="flex items-center gap-1.5">
+              <span className="text-xs text-[var(--dim)]">{t("jasonHardDate")}</span>
+              <DeadlineChip left={daysUntil(hard)} />
+            </span>
+          ) : item.status ? (
+            <StatusPill status={item.status} />
+          ) : null}
+        </div>
+      </li>
+    );
+  };
   return (
     <>
       <NewPageHeader
@@ -3444,48 +3622,35 @@ function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
         sub={t("jasonSub")}
         items={[...open, ...cleared]}
       />
-      <section aria-label={t("jasonTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
-        {ordered.length === 0 ? (
+      {ordered.length === 0 ? (
+        <section aria-label={t("jasonTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
           <EmptyLine text={cleared.length > 0 ? t("jasonNoneOpen") : t("jasonEmpty")} />
-        ) : (
-          <ul className="divide-y divide-[var(--border)]">
-            {ordered.map((item) => {
-              const drag = dragOf(item);
-              const hard = ISO_DATE_RE.test(item.status.trim())
-                ? item.status.trim()
-                : null;
-              return (
-                <li key={item.id} id={`board-item-${item.id}`} className="scroll-mt-24 py-2">
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="min-w-0 text-[15px] font-medium leading-snug text-[var(--text)]">
-                      {item.title}
-                    </p>
-                    {drag !== null && drag > 0 ? dragChip(drag) : null}
-                  </div>
-                  {item.detail ? (
-                    <p className="mt-0.5 text-sm leading-relaxed text-[var(--dim)]">{item.detail}</p>
-                  ) : null}
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <span className="text-xs tabular-nums text-[var(--dim)]">
-                      {item.dueDate
-                        ? `${t("jasonAskedOn")} ${formatDateLabel(item.dueDate)}`
-                        : t("jasonNoDate")}
-                    </span>
-                    {hard ? (
-                      <span className="flex items-center gap-1.5">
-                        <span className="text-xs text-[var(--dim)]">{t("jasonHardDate")}</span>
-                        <DeadlineChip left={daysUntil(hard)} />
-                      </span>
-                    ) : item.status ? (
-                      <StatusPill status={item.status} />
-                    ) : null}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
+        </section>
+      ) : (
+        <div className="mt-[var(--space-stack)] grid items-start gap-[var(--space-gap)] md:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0">
+          {buckets
+            .filter((bucket) => bucket.rows.length > 0)
+            .map((bucket) => (
+              <section
+                key={bucket.titleKey}
+                aria-label={`${t("jasonTitle")} · ${t(bucket.titleKey)}`}
+                className={CARD_CLASS}
+              >
+                <div className="mb-1.5 flex items-center gap-2">
+                  <h3 className="text-base font-semibold tracking-tight text-[var(--text)]">
+                    {t(bucket.titleKey)}
+                  </h3>
+                  <span className={`${BADGE_CLASS} bg-[var(--fill)] font-medium tabular-nums text-[var(--dim)]`}>
+                    {bucket.rows.length}
+                  </span>
+                </div>
+                <ul className="divide-y divide-[var(--border)]">
+                  {bucket.rows.map(renderRow)}
+                </ul>
+              </section>
+            ))}
+        </div>
+      )}
       <section aria-label={t("jasonClearedTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
         <SectionHeading icon={<SectionTile kind="jason" />}>
           {t("jasonClearedTitle")}
@@ -3545,7 +3710,11 @@ function GrowthPage({ items }: { items: Item[] }) {
   return (
     <>
       <NewPageHeader kind="growth" title={t("growthTitle")} sub={t("growthSub")} items={items} />
-      <section aria-label={t("foundingTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
+      {/* v2.3 layout law: the three feed cards sit in the today
+          page's grid (3 across at desktop, stacked at 390px) instead
+          of one vertical stack. */}
+      <div className="mt-[var(--space-stack)] grid items-start gap-[var(--space-gap)] md:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0">
+      <section aria-label={t("foundingTitle")} className={CARD_CLASS}>
         <SectionHeading icon={<SectionTile kind="growth" />}>{t("foundingTitle")}</SectionHeading>
         {founding.length === 0 ? (
           <EmptyLineCompact text={t("growthEmpty")} />
@@ -3569,14 +3738,15 @@ function GrowthPage({ items }: { items: Item[] }) {
           </ul>
         )}
       </section>
-      <section aria-label={t("funnelTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
+      <section aria-label={t("funnelTitle")} className={CARD_CLASS}>
         <SectionHeading icon={<SectionTile kind="growth" />}>{t("funnelTitle")}</SectionHeading>
         {funnel.length === 0 ? <EmptyLineCompact text={t("growthEmpty")} /> : valueRows(funnel)}
       </section>
-      <section aria-label={t("outreachTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
+      <section aria-label={t("outreachTitle")} className={CARD_CLASS}>
         <SectionHeading icon={<SectionTile kind="growth" />}>{t("outreachTitle")}</SectionHeading>
         {outreach.length === 0 ? <EmptyLineCompact text={t("growthEmpty")} /> : valueRows(outreach)}
       </section>
+      </div>
     </>
   );
 }
@@ -4677,9 +4847,10 @@ export function App() {
             </p>
 
             {/* 程序区：注册表 + 核验状态 + 控制请求 / 回写（行为不变）。
-                v2.2 页面分工定稿：状态页到此为止 — 到期 / 天气 / 汇率 /
-                Spotify 已整卡撤下，它们的家在今天页（到期完整列表 +
-                底部 slim 环境条），本页零残留。 */}
+                v2.3：分组改 公司 / 个人 / 设备 / 折叠区 四张卡（见
+                ProgramsSection）；状态页到此为止 — 到期 / 天气 / 汇率 /
+                Spotify 的家在今天页（到期完整列表 + 底部 slim 环境条），
+                本页零残留（v2.2 分工定稿，继续成立）。 */}
             <ProgramsSection />
           </>
         ) : page === "china" ? (
@@ -4702,7 +4873,12 @@ export function App() {
             {/* 航班卡（v1.9.0）：行程定稿信息卡的演示版 — DEMO 101 去程 12A
                 靠窗 / DEMO 102 回程 12F 靠窗，座位盯梢开启；航班号、座位与
                 订座号均为虚构演示数据。 */}
-            <section aria-label={t("flightTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
+            {/* v2.3 layout law: 航班 + 关键日期 pair up in a 2-column
+                grid at desktop width (stacked at 390px); the weather
+                card (its 7-day grid needs the width) and the checklist
+                keep full-width cards below. */}
+            <div className="mt-[var(--space-stack)] grid items-start gap-[var(--space-gap)] xl:grid-cols-2 [&>*]:min-w-0">
+            <section aria-label={t("flightTitle")} className={CARD_CLASS}>
               <SectionHeading icon={<SectionTile kind="china" />}>{t("flightTitle")}</SectionHeading>
               <ul className="divide-y divide-[var(--border)]">
                 <li className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
@@ -4729,7 +4905,7 @@ export function App() {
 
             {/* 关键日期条（v1.9.0）：出发前带硬日期的清尾节点，徽章口径
                 与到期清单一致（DeadlineChip）。日期为定稿静态信息。 */}
-            <section aria-label={t("hardDatesTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
+            <section aria-label={t("hardDatesTitle")} className={CARD_CLASS}>
               <SectionHeading icon={<SectionTile kind="deadlines" />}>{t("hardDatesTitle")}</SectionHeading>
               <ul className="divide-y divide-[var(--border)]">
                 {[
@@ -4750,6 +4926,7 @@ export function App() {
                 ))}
               </ul>
             </section>
+            </div>
 
             {/* 目的地当地天气（v2.1 一致性）：当前天气改用与状态页天气卡
                 完全相同的 WeatherCardLine 行式，不再另起一套排版；
@@ -5212,45 +5389,13 @@ export function App() {
           onSpotifyControl={(args) => spotifyControlMutation.mutate(args)}
         />
 
+        {/* v2.3 subtraction: the footer is the plain version line on
+            every page now — the four outward profile links that rode
+            here since v1.2.4 (portfolio / GitHub / Typebook /
+            FoxShare) are not board content and are gone. */}
         <footer className="mt-[var(--space-stack)] border-t border-[var(--border)] pt-2 text-center">
           <p className="text-xs text-[var(--dim)]">
             OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
-            {" · "}
-            <a
-              href="https://yourname.github.io/"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[var(--accent)] underline underline-offset-2 decoration-[var(--accent)]/40 transition-colors hover:text-[var(--text)] hover:decoration-[var(--accent)]"
-            >
-              {t("portfolioLink")}
-            </a>
-            {" · "}
-            <a
-              href="https://github.com/marksong0917"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[var(--accent)] underline underline-offset-2 decoration-[var(--accent)]/40 transition-colors hover:text-[var(--text)] hover:decoration-[var(--accent)]"
-            >
-              GitHub
-            </a>
-            {" · "}
-            <a
-              href="https://yourname.github.io/typebook-zh/"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[var(--accent)] underline underline-offset-2 decoration-[var(--accent)]/40 transition-colors hover:text-[var(--text)] hover:decoration-[var(--accent)]"
-            >
-              Typebook
-            </a>
-            {" · "}
-            <a
-              href="https://share.example.com/"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[var(--accent)] underline underline-offset-2 decoration-[var(--accent)]/40 transition-colors hover:text-[var(--text)] hover:decoration-[var(--accent)]"
-            >
-              FoxShare
-            </a>
           </p>
         </footer>
           </>

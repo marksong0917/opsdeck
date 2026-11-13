@@ -41,6 +41,14 @@ This repo is the **sanitized public twin** of the live board. The live OpsDeck r
 
 ## Version notes
 
+**v2.3 (2026-11-13)**
+
+- **Subtraction first.** Every page was re-audited against one ruler — is it ours, is it actually used, does it need to be seen? The three website-body program rows duplicated the website status cards directly above them, and one hosted third-party shell is not board content; all four move into a new folded card at the end of the Programs section: collapsed by default behind its "4/4 normal" summary, anomalies still float out of it, one click restores every row. The footer's four outward profile links (portfolio / GitHub / Typebook / file sharing) are gone — every page's footer is now the single version line. Nothing was deleted: the cuts are surface-level and reversible, and the data underneath is untouched.
+- **Programs regrouped by whose they are.** The old control-category groups （状态只读 / 必须常开 / 可按需开关 / 设备） give way to four cards by primary use: 公司 (22 — fleet infrastructure, the work hub, model runtimes, drive mirrors, backups, document services), 个人 (9 — the game server and its kit, the proxy nodes, personal tools; the proxy start-by-default switch rides in this card's header), 设备 (6, unchanged), and the folded card (4). Each program sits in exactly one card; group headers keep the v2.2 summary style — one "N/N normal" line, anomalies expanded on top.
+- **待拍板 leaves the long scroll.** The waiting-on-decision list becomes age-bucket cards side by side (this build: "waiting 7–13 days" and "under 7 days"); the buckets are consecutive slices of the same aging order, so reading across the cards reproduces the old list exactly — waited-days badges, hard-date badges, and the cleared-this-week strip unchanged.
+- **One layout law, board-wide.** Every page is a 2–3 column card grid — no single-column long lists anywhere: the growth cards and the history day-cards join 3-column grids, the trip page puts its flight card and key dates side by side, and the status page keeps its website/server cards beside the 2-column program grid. At phone width the navigation rail becomes a 3×2 grid instead of a horizontal scroll — the last overflow on the board is gone.
+- **Visual alignment pass.** The other five pages align to the Today page's card spec and spacing ramp; motion is unified into a single theme token (200 ms on an ease-out entry curve) instead of per-element values. As in v2.2: presentation only — the registry, the control chain, and the data are untouched.
+
 **v2.2 (2026-11-13)**
 
 - **Status page slimmed to conclusions.** A program row's face is now its name, its state, and its controls — the evidence line, the last-verified time, and the audit detail move behind a per-row expand. A row that is down, unverified, or stale (no verified report in 24 hours) expands itself and floats to the top of its group; every group header carries an "N/N normal · N anomalies" summary and can fold shut, with anomalies staying visible even while folded. A normal row shows no timestamp anywhere on the page face.
@@ -80,4 +88,4 @@ This repo is the **sanitized public twin** of the live board. The live OpsDeck r
 
 ---
 
-OpsDeck · v2.2 · Built by Tina for Mark
+OpsDeck · v2.3 · Built by Tina for Mark
