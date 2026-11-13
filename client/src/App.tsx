@@ -612,8 +612,16 @@ function uiLocale(): string {
  * "money" section, getBoard's money array, and the generic
  * addItem/updateItem/closeItem feed path all remain for future reuse
  * elsewhere. Every other page and the done write-back chain are
- * byte-identical. */
-const BOARD_VERSION = "v1.9.1";
+ * byte-identical.
+ * v1.9.2 = money rows gain a real numeric `amount` field (QB-room
+ * finding: addItem/updateItem accepted an amount argument but
+ * getBoard never returned one, because no such column existed).
+ * Migration 0010 adds `items.amount` (real, nullable); addItem /
+ * updateItem accept it and getBoard's item shape returns it for
+ * every section (null outside money). The QB room backfills existing
+ * money rows' amounts from the ledger in one pass. No page changes —
+ * the CFO page stays retired; this is data plumbing only. */
+const BOARD_VERSION = "v1.9.2";
 
 const LANE_ORDER = ["QuickBooks", "Foxuma", "General Ops", "外联", "设备与机器", "Mir2"];
 
@@ -2198,7 +2206,7 @@ type BoardPage = "main" | "more" | "china" | "history" | "jason" | "growth";
 
 /** Page switch, grouped since v1.9.0 (Semi button-type Tabs — the fill
  * container + white selected tab the board has used since v1.7.0, now
- * arranged in three labelled groups so seven pages stay one-glance):
+ * arranged in three labelled groups so six pages stay one-glance):
  *   日常 (daily):  今天 (page 1 workbench) / 待拍板 (waiting-on-decision)
  *                  / 状态 (page 2: later deadlines + status detail —
  *                  page 1's own drill-down, last in the daily group;

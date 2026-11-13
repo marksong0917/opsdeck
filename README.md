@@ -41,6 +41,10 @@ This repo is the **sanitized public twin** of the live board. The live OpsDeck r
 
 ## Version notes
 
+**v1.9.2 (2026-11-13)**
+
+- **Money rows gained a real numeric `amount` field, end to end.** The actions had accepted an amount argument all along, but with no column behind it the value silently vanished — read-backs returned nothing. Migration 0010 adds `items.amount` (numeric, nullable); `addItem` / `updateItem` now persist it and `getBoard` returns `amount: number | null` on every row (null outside the money section). The page set is unchanged at six and the CFO display remains retired — the money pipeline is dormant, but now field-complete for whatever surface uses it next. The one-word fix to a stale “seven pages” code comment rides along in this sync's export copy.
+
 **v1.9.1 (2026-11-13)**
 
 - **CFO page retired, one day after it shipped, on Mark's call** — collections are not his job and he never opened it, so the page answered a question he doesn't ask. The tab and the page are removed; the board is six pages. Only the display is gone: the money data pipeline — the server-side `money` section, its rows, and the write-back actions the bookkeeping lane feeds — is retained dormant server-side, ready to power another surface if one is ever wanted.
@@ -55,4 +59,4 @@ This repo is the **sanitized public twin** of the live board. The live OpsDeck r
 
 ---
 
-OpsDeck · v1.9.1 · Built by Tina for Mark
+OpsDeck · v1.9.2 · Built by Tina for Mark

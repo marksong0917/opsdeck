@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 // One row per board item. `section` is one of:
 //   "decisions" | "today" | "deadlines" | "lanes" | "china"
@@ -12,10 +12,12 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 //     `status` carries a hard date as an ISO date string when the item
 //     has one. Closed rows surface in getBoard as this Toronto week's
 //     本周已清 strip instead of disappearing.
-//   "money"  = the CFO page: lane is "ar" （应收） or "ap" （应付）,
-//     dueDate is the due date, and `status` carries the CAD amount as
-//     a plain decimal string (e.g. "4267.50") written by the QB-room
-//     feed — the page renders it verbatim and never estimates.
+//   "money"  = the CFO page (page retired in v1.9.1; the data
+//     pipeline stays): lane is "ar" （应收） or "ap" （应付）, dueDate
+//     is the due date. The CAD amount lives in the numeric `amount`
+//     column since v1.9.2 (migration 0010) — `status` carried it as a
+//     plain decimal string (e.g. "4267.50") before that, and the
+//     QB-room feed backfills `amount` from the ledger.
 //   "growth" = the 增长 page: lane groups rows ("founding" | "funnel"
 //     | "outreach"); values are feed-written strings shown as-is.
 // `lane` groups items in the "lanes" section (and is free text elsewhere).
@@ -40,6 +42,9 @@ export const items = sqliteTable("items", {
   title: text("title").notNull(),
   detail: text("detail").notNull().default(""),
   status: text("status").notNull().default(""),
+  // Numeric amount (v1.9.2): the money rows' CAD amount as a real
+  // number. Optional — null for every other section's rows.
+  amount: real("amount"),
   dueDate: text("due_date"),
   // Mark's verdict on a "decisions" item, set when he taps 是/否 on the
   // board: "yes" | "no" | "" (not answered yet). Distinguishes

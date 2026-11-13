@@ -30,6 +30,9 @@ const itemShape = z.object({
   title: z.string(),
   detail: z.string(),
   status: z.string(),
+  // v1.9.2: real numeric amount (money rows carry the CAD amount
+  // here; every other section's rows return null).
+  amount: z.number().nullable(),
   dueDate: z.string().nullable(),
   verdict: z.string(),
   sort: z.number(),
@@ -50,6 +53,7 @@ function toItem(row: ItemRow): z.infer<typeof itemShape> {
     title: row.title,
     detail: row.detail,
     status: row.status,
+    amount: row.amount,
     dueDate: row.dueDate,
     verdict: row.verdict,
     sort: row.sort,
@@ -1040,13 +1044,15 @@ export const Actions = {
 
   addItem: defineAction({
     description:
-      "Adds one item to a board section (decisions, today, deadlines, lanes, china, jason, money, or growth) and returns its id. Feed conventions for the v1.9.0 pages: jason rows carry the ask date in dueDate and an optional hard date as an ISO date in status; money rows use lane \"ar\"/\"ap\", the due date in dueDate, and the CAD amount as a plain decimal string in status; growth rows group by lane (\"founding\"/\"funnel\"/\"outreach\") with the feed's value string in status.",
+      "Adds one item to a board section (decisions, today, deadlines, lanes, china, jason, money, or growth) and returns its id. Feed conventions for the v1.9.0 pages: jason rows carry the ask date in dueDate and an optional hard date as an ISO date in status; money rows use lane \"ar\"/\"ap\", the due date in dueDate, and (since v1.9.2) the CAD amount as a number in `amount`; growth rows group by lane (\"founding\"/\"funnel\"/\"outreach\") with the feed's value string in status.",
     request: z.object({
       section: sectionEnum,
       title: z.string().min(1),
       detail: z.string().default(""),
       lane: z.string().default(""),
       status: z.string().default(""),
+      // v1.9.2: numeric amount, money rows only; null/absent elsewhere.
+      amount: z.number().nullable().default(null),
       dueDate: z.string().nullable().default(null),
       sort: z.number().int().default(0),
     }),
@@ -1061,6 +1067,7 @@ export const Actions = {
           detail: args.detail,
           lane: args.lane,
           status: args.status,
+          amount: args.amount,
           dueDate: args.dueDate,
           sort: args.sort,
         })
@@ -1083,6 +1090,8 @@ export const Actions = {
       detail: z.string().optional(),
       lane: z.string().optional(),
       status: z.string().optional(),
+      // v1.9.2: numeric amount (null clears it); omitted = unchanged.
+      amount: z.number().nullable().optional(),
       dueDate: z.string().nullable().optional(),
       sort: z.number().int().optional(),
     }),
