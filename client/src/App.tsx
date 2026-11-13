@@ -149,7 +149,6 @@ const STR = {
     tabToday: "今天",
     tabStatus: "状态",
     tabJason: "待拍板",
-    tabCfo: "CFO",
     tabGrowth: "增长",
     tabChina: "回国",
     tabHistory: "历史",
@@ -167,19 +166,6 @@ const STR = {
     jasonHardDate: "硬日期",
     jasonClearedTitle: "本周已清",
     jasonClearedEmpty: "本周还没有清掉的项。",
-    cfoTitle: "CFO",
-    cfoSub: "未来 30 天的钱：什么时候进来、什么时候出去",
-    cfoArTitle: "应收",
-    cfoApTitle: "应付",
-    cfoTopTitle: "催收前五名",
-    cfoEmpty:
-      "尚未同步 — 数字只从 QB 房的 AR 账本与登记册回写，这里不手填、不估算。",
-    cfoColItem: "事项",
-    cfoColDue: "到期",
-    cfoColAmount: "金额",
-    cfoTotal: "合计",
-    cfoOverdueDays: "逾期",
-    cfoNoDate: "未定日期",
     growthTitle: "增长",
     growthSub: "Foxuma 漏斗 + 外联三线 · 每周更新一次",
     growthEmpty: "尚未同步 — Foxuma 房与外联登记回写后显示。",
@@ -378,7 +364,6 @@ const STR = {
     tabToday: "Today",
     tabStatus: "Status",
     tabJason: "Decisions",
-    tabCfo: "CFO",
     tabGrowth: "Growth",
     tabChina: "China",
     tabHistory: "History",
@@ -396,19 +381,6 @@ const STR = {
     jasonHardDate: "Hard date",
     jasonClearedTitle: "Cleared this week",
     jasonClearedEmpty: "Nothing cleared yet this week.",
-    cfoTitle: "CFO",
-    cfoSub: "Money over the next 30 days: what comes in, what goes out, and when",
-    cfoArTitle: "Receivables",
-    cfoApTitle: "Payables",
-    cfoTopTitle: "Top 5 to collect",
-    cfoEmpty:
-      "Not synced yet — figures come only from the QB room's AR ledger and registers; nothing is typed in or estimated here.",
-    cfoColItem: "Item",
-    cfoColDue: "Due",
-    cfoColAmount: "Amount",
-    cfoTotal: "Total",
-    cfoOverdueDays: "overdue",
-    cfoNoDate: "No date set",
     growthTitle: "Growth",
     growthSub: "Foxuma funnel + three outreach lines · updated weekly",
     growthEmpty: "Not synced yet — appears once the Foxuma room and outreach register write back.",
@@ -631,8 +603,17 @@ function uiLocale(): string {
  * Dead code this build proved dead and removed: BOARD_VERSION_DATE
  * (only the old footers used it) and the STR footer/versionWord
  * entries (same); the grouped PageTabs also dropped the farCount
- * prop and the per-tab page-number labels. */
-const BOARD_VERSION = "v1.9.0";
+ * prop and the per-tab page-number labels.
+ * v1.9.1 = CFO page retired (Mark: "CFO 页没啥用、我也不太看、收款也
+ * 不是我做"): the CFO tab and its client page (CfoPage / MoneyTable /
+ * amount helpers / cfo strings / cfo tile) are removed and the daily
+ * tab group is back to 今天 / 待拍板 / 状态. Display only — the money
+ * data pipeline stays dormant server-side, untouched: the items
+ * "money" section, getBoard's money array, and the generic
+ * addItem/updateItem/closeItem feed path all remain for future reuse
+ * elsewhere. Every other page and the done write-back chain are
+ * byte-identical. */
+const BOARD_VERSION = "v1.9.1";
 
 const LANE_ORDER = ["QuickBooks", "Foxuma", "General Ops", "外联", "设备与机器", "Mir2"];
 
@@ -675,7 +656,7 @@ function SvgIcon({
   );
 }
 
-type SectionKind = "decisions" | "today" | "deadlines" | "lanes" | "sites" | "servers" | "china" | "jason" | "cfo" | "growth";
+type SectionKind = "decisions" | "today" | "deadlines" | "lanes" | "sites" | "servers" | "china" | "jason" | "growth";
 
 function SectionGlyph({
   kind,
@@ -751,16 +732,6 @@ function SectionGlyph({
       </SvgIcon>
     );
   }
-  if (kind === "cfo") {
-    // Wallet: the money page.
-    return (
-      <SvgIcon color={c} size={s} className="shrink-0">
-        <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
-        <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
-        <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
-      </SvgIcon>
-    );
-  }
   if (kind === "growth") {
     // Trending-up arrow: the growth page.
     return (
@@ -792,7 +763,6 @@ const TILE_STYLE: Record<SectionKind, { bg: string; fg: string }> = {
   servers: { bg: "rgba(134,144,156,0.13)", fg: "#86909c" },
   china: { bg: "rgba(245,63,63,0.10)", fg: "#f53f3f" },
   jason: { bg: "rgba(255,157,10,0.12)", fg: "#fa7a08" },
-  cfo: { bg: "rgba(0,168,112,0.10)", fg: "#00a870" },
   growth: { bg: "rgba(0,119,250,0.10)", fg: "#0077fa" },
 };
 
@@ -2224,15 +2194,15 @@ function StatusChip({
   );
 }
 
-type BoardPage = "main" | "more" | "china" | "history" | "jason" | "cfo" | "growth";
+type BoardPage = "main" | "more" | "china" | "history" | "jason" | "growth";
 
 /** Page switch, grouped since v1.9.0 (Semi button-type Tabs — the fill
  * container + white selected tab the board has used since v1.7.0, now
  * arranged in three labelled groups so seven pages stay one-glance):
  *   日常 (daily):  今天 (page 1 workbench) / 待拍板 (waiting-on-decision)
- *                  / CFO (money) / 状态 (page 2: later deadlines +
- *                  status detail — page 1's own drill-down, last in
- *                  the daily group)
+ *                  / 状态 (page 2: later deadlines + status detail —
+ *                  page 1's own drill-down, last in the daily group;
+ *                  the CFO tab left this group in v1.9.1)
  *   专题 (topics): 增长 (growth) / 回国 (page 3, expanded in place)
  *   记录 (records): 历史 (done-history archive)
  * The bar is ONE line at every width: it never wraps and never hides
@@ -2316,7 +2286,6 @@ function PageTabs({
         {caption(t("tabGroupDaily"), true)}
         {tab("main", t("tabToday"), t("page1"))}
         {tab("jason", t("tabJason"), t("jasonTitle"), jasonCount)}
-        {tab("cfo", t("tabCfo"), t("cfoTitle"))}
         {tab("more", t("tabStatus"), activeLang === "zh" ? "第 2 页 · 更远到期 + 状态详情" : "Page 2 · Later deadlines + Status")}
         {divider}
         {caption(t("tabGroupTopic"), false)}
@@ -2829,169 +2798,6 @@ function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
               </li>
             ))}
           </ul>
-        )}
-      </section>
-    </>
-  );
-}
-
-/** CFO feed convention (QB room writes via the generic item actions,
- * section "money"): lane "ar" = 应收 / "ap" = 应付， dueDate = due
- * date, `status` = the CAD amount as a plain decimal string. Amounts
- * are rendered verbatim from the feed — an unparseable amount shows
- * "—", never an estimate. */
-function parseAmount(status: string): number | null {
-  const raw = status.trim().replace(/[$,]/g, "");
-  if (!raw) return null;
-  const n = Number(raw);
-  return Number.isFinite(n) ? n : null;
-}
-
-function formatMoney(n: number): string {
-  return `$${n.toLocaleString(uiLocale(), {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-}
-
-/** One Semi-Table-shaped money card: hairline header row （事项 / 到期 /
- * 金额）, divider rows, right-aligned tabular amounts, a 合计 footer
- * summed from the feed rows only (shown when at least one amount
- * parses — never a fabricated zero). */
-function MoneyTable({
-  title,
-  items,
-  emptyText,
-}: {
-  title: string;
-  items: Item[];
-  emptyText: string;
-}) {
-  const amounts = items
-    .map((i) => parseAmount(i.status))
-    .filter((n): n is number => n !== null);
-  const total = amounts.length > 0 ? amounts.reduce((a, b) => a + b, 0) : null;
-  return (
-    <section aria-label={title} className={`${CARD_CLASS} mt-3`}>
-      <SectionHeading icon={<SectionTile kind="cfo" />}>{title}</SectionHeading>
-      {items.length === 0 ? (
-        <EmptyLineCompact text={emptyText} />
-      ) : (
-        <>
-          <div
-            aria-hidden="true"
-            className="grid grid-cols-[minmax(0,1fr)_92px_96px] gap-x-2 border-b border-[var(--border)] pb-1.5 text-xs font-medium text-[var(--dim)]"
-          >
-            <span>{t("cfoColItem")}</span>
-            <span>{t("cfoColDue")}</span>
-            <span className="text-right">{t("cfoColAmount")}</span>
-          </div>
-          <ul className="divide-y divide-[var(--border)]">
-            {items.map((item) => {
-              const amount = parseAmount(item.status);
-              const left = item.dueDate ? daysUntil(item.dueDate) : null;
-              return (
-                <li
-                  key={item.id}
-                  id={`board-item-${item.id}`}
-                  className="grid scroll-mt-24 grid-cols-[minmax(0,1fr)_92px_96px] items-start gap-x-2 py-[5px]"
-                >
-                  <span className="min-w-0">
-                    <span className="block text-sm font-medium leading-snug text-[var(--text)]">{item.title}</span>
-                    {item.detail ? (
-                      <span className="block text-[13px] leading-snug text-[var(--dim)]">{item.detail}</span>
-                    ) : null}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-xs font-semibold tabular-nums text-[var(--text)]">
-                      {item.dueDate ? formatDateLabel(item.dueDate) : t("cfoNoDate")}
-                    </span>
-                    {left !== null && left <= 3 ? (
-                      <span className="mt-0.5 block">
-                        <DeadlineChip left={left} />
-                      </span>
-                    ) : null}
-                  </span>
-                  <span className="text-right text-sm font-semibold tabular-nums text-[var(--text)]">
-                    {amount !== null ? formatMoney(amount) : "—"}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-          {total !== null ? (
-            <div className="flex items-baseline justify-between border-t border-[var(--border)] pt-2">
-              <span className="text-[13px] font-medium text-[var(--dim)]">{t("cfoTotal")}</span>
-              <span className="text-[15px] font-bold tabular-nums text-[var(--text)]">{formatMoney(total)}</span>
-            </div>
-          ) : null}
-        </>
-      )}
-    </section>
-  );
-}
-
-/** CFO page: the next 30 days of money in/out （应收 / 应付）, plus the
- * top-5 collection list derived from the AR rows alone — most overdue
- * first, then largest amount. No feed rows → honest 尚未同步. */
-function CfoPage({ items }: { items: Item[] }) {
-  const inWindow = (item: Item) =>
-    !item.dueDate || daysUntil(item.dueDate) <= 30;
-  const byDue = (a: Item, b: Item) => {
-    if (a.dueDate && b.dueDate) return a.dueDate < b.dueDate ? -1 : a.dueDate > b.dueDate ? 1 : a.id - b.id;
-    if (a.dueDate) return -1;
-    if (b.dueDate) return 1;
-    return a.sort - b.sort || a.id - b.id;
-  };
-  const ar = items.filter((i) => i.lane === "ar" && inWindow(i)).sort(byDue);
-  const ap = items.filter((i) => i.lane === "ap" && inWindow(i)).sort(byDue);
-  const top5 = [...ar]
-    .sort((a, b) => {
-      const od = (i: Item) => (i.dueDate ? Math.max(0, -daysUntil(i.dueDate)) : 0);
-      return od(b) - od(a) || (parseAmount(b.status) ?? 0) - (parseAmount(a.status) ?? 0);
-    })
-    .slice(0, 5);
-  return (
-    <>
-      <NewPageHeader kind="cfo" title={t("cfoTitle")} sub={t("cfoSub")} items={items} />
-      <MoneyTable title={t("cfoArTitle")} items={ar} emptyText={t("cfoEmpty")} />
-      <MoneyTable title={t("cfoApTitle")} items={ap} emptyText={t("cfoEmpty")} />
-      <section aria-label={t("cfoTopTitle")} className={`${CARD_CLASS} mt-3`}>
-        <SectionHeading icon={<SectionTile kind="cfo" />}>{t("cfoTopTitle")}</SectionHeading>
-        {top5.length === 0 ? (
-          <EmptyLineCompact text={t("cfoEmpty")} />
-        ) : (
-          <ol className="divide-y divide-[var(--border)]">
-            {top5.map((item, idx) => {
-              const amount = parseAmount(item.status);
-              const overdue = item.dueDate ? Math.max(0, -daysUntil(item.dueDate)) : 0;
-              return (
-                <li key={item.id} className="flex items-center gap-2 py-[5px]">
-                  <span aria-hidden="true" className="w-5 shrink-0 text-center text-[13px] font-bold tabular-nums text-[var(--dim)]">
-                    {idx + 1}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium text-[var(--text)]">{item.title}</span>
-                    {item.detail ? (
-                      <span className="block truncate text-[13px] text-[var(--dim)]">{item.detail}</span>
-                    ) : null}
-                  </span>
-                  {overdue > 0 ? (
-                    <span className="shrink-0 rounded-[6px] bg-[#f53f3f] px-2 py-0.5 text-xs font-medium text-white">
-                      {t("cfoOverdueDays")} {overdue} {t("jasonDragDays")}
-                    </span>
-                  ) : item.dueDate ? (
-                    <span className="shrink-0 text-xs tabular-nums text-[var(--dim)]">
-                      {formatDateLabel(item.dueDate)}
-                    </span>
-                  ) : null}
-                  <span className="w-24 shrink-0 text-right text-sm font-semibold tabular-nums text-[var(--text)]">
-                    {amount !== null ? formatMoney(amount) : "—"}
-                  </span>
-                </li>
-              );
-            })}
-          </ol>
         )}
       </section>
     </>
@@ -4411,16 +4217,6 @@ export function App() {
           <>
             <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
             <JasonPage open={data.jasonOpen} cleared={data.jasonCleared} />
-            <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
-              <p className="text-xs text-[var(--dim)]">
-                OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
-              </p>
-            </footer>
-          </>
-        ) : page === "cfo" ? (
-          <>
-            <PageTabs page={page} chinaCount={data.china.length} jasonCount={data.jasonOpen.length} onChange={setPage} />
-            <CfoPage items={data.money} />
             <footer className="mt-2 border-t border-[var(--border)] pt-2 text-center">
               <p className="text-xs text-[var(--dim)]">
                 OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
