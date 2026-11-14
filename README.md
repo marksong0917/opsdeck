@@ -91,6 +91,12 @@ This repo is the **sanitized public twin** of the live board. The live OpsDeck r
 - **Navigation:** the flat tab row becomes grouped Semi-style tabs （日常 / 专题 / 记录）, one line at every width, scrolling horizontally on narrow screens with the active tab kept in view.
 - **Every page footer** now reads, in one line: the version stamp below.
 
+
+## License
+
+This project was previously released under the MIT License. It is now source-available under the PolyForm Noncommercial License 1.0.0 — free for personal and noncommercial use; commercial use requires a separate license from the author. See [LICENSE](LICENSE).
+
+For a commercial license, contact Ze (Mark) Song via https://github.com/marksong0917.
 ---
 
 OpsDeck · v2.3.1 · Built by Tina for Mark
