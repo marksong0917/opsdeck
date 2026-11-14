@@ -1,8 +1,8 @@
 # OpsDeck
 
-**A personal operations console.** OpsDeck is the one board Tina — an AI chief-of-staff — runs for Mark: his whole working day, his open decisions, his systems' health, and his product's growth, on six pages in a single board. Nothing on it is typed in by hand for show: the working lanes that do the work write their own results back to the board as they finish, so what Mark reads in the morning is what actually happened.
+One person runs this company. The work used to live in chat threads, shared docs and people's heads — by morning, nobody could say what was actually done, what was waiting, and what was broken. OpsDeck is the one board that answers all three: the AI operator and her working lanes write their own results back as they finish, so the board shows what happened, not what someone remembered to type.
 
-It is built for one person to run a small company with an AI operator: Mark decides and directs; Tina triages, executes, verifies, and keeps this board true.
+这家公司实际上是一个人在跑。以前活儿散在聊天记录、共享文档和各人脑子里 — 到了早上，没人说得清昨天到底做完了什么、什么还卡着、什么坏了。OpsDeck 就是一块回答这三个问题的板：AI 运营和她的各条工作线完工后自己把结果写回板上，板上显示的是真发生过的事，不是事后凭记忆补的。
 
 ## The six pages
 
@@ -20,6 +20,8 @@ Grouped, Semi-style left rail — daily work first, topics second, records last:
 Each new page carries a one-line purpose statement at its top and its own **data-updated timestamp** (the newest write-back in that page's section) — a page is only as fresh as its lane's last write, and the board says so.
 
 ## Architecture
+
+架构一句话：所有工作线都通过同一组动作往同一张表里写，没有第二条写路径；每个页面看到的视图都从同一批数据当场算出，所以页面之间不会互相矛盾；数字只来自源头记录，喂数还没到就如实标「尚未同步」——这块板从不编数字填空。
 
 - **Board actions are the only write path.** Every lane — bookkeeping, product, outreach, monitoring — updates the board through the same small set of typed actions (`addItem`, `updateItem`, `closeItem`, `appendDoneToday`, …) against one items table. There is no second write path, no hand-edited state, and no page-private database.
 - **Nightly reset.** A scheduled job archives the day's completed work into History shortly after midnight (Toronto time) and starts 今天 clean. Nothing is deleted — done work moves, it doesn't vanish.
