@@ -4,7 +4,7 @@ One person runs this company. The work used to live in chat threads, shared docs
 
 这家公司实际上是一个人在跑。以前活儿散在聊天记录、共享文档和各人脑子里 — 到了早上，没人说得清昨天到底做完了什么、什么还卡着、什么坏了。OpsDeck 就是一块回答这三个问题的板：AI 运营和她的各条工作线完工后自己把结果写回板上，板上显示的是真发生过的事，不是事后凭记忆补的。
 
-## The six pages
+## The seven pages
 
 Grouped, Semi-style left rail — daily work first, topics second, records last:
 
@@ -16,6 +16,7 @@ Grouped, Semi-style left rail — daily work first, topics second, records last:
 | **增长** Growth | Foxuma 在长吗、Founding 还剩几席 — Is Foxuma growing, and how many Founding seats are left |
 | **回国** China trip | 走之前要清什么、在华要办什么、航班什么状态 — What to clear before departure, what to handle in China, and the flight status |
 | **历史** History | 做完的事去哪查、哪天做的 — Where finished work goes, and on which day it was done |
+| **Tina 面板** Tina Control Panel | Tina 自己健不健康 — 记忆与系统文件、空间、技能、定时任务、联动服务、邮件与 AI 席位用量，每项带健康判定 — Tina's own health check: memory and system files, spaces, skills, scheduled jobs, linked services, mail and AI-seat usage, each with a health verdict |
 
 Each new page carries a one-line purpose statement at its top and its own **data-updated timestamp** (the newest write-back in that page's section) — a page is only as fresh as its lane's last write, and the board says so.
 
@@ -39,9 +40,19 @@ This repo is the **sanitized public twin** of the live board. The live OpsDeck r
 
 - Client: React + TypeScript, with a Semi Design–informed component layer (grouped left rail, tables, tags, deadline chips), bilingual （中文 / English) throughout.
 - Server: typed action layer over a single SQLite database (Drizzle schema + migrations), Toronto-time day boundaries everywhere.
-- One artifact, one board: the six pages are tabs of a single app, not six apps.
+- One artifact, one board: the seven pages are tabs of a single app, not seven apps.
 
 ## Version notes
+
+**v2.5 (2026-11-17)**
+
+- **A seventh page: Tina Control Panel.** The board gains a page that watches the watcher — the AI operator's own health: memory and system files, spaces, skills, scheduled jobs, linked services, mail checks and AI-seat usage, filed as weekly snapshots through a new `reportControlPanel` action (migration 0013 adds the snapshots table). Each quantity carries a plain health verdict, the headline numbers get a week-by-week trend, and a 「该整理了」 cleanup list carries a suggested action per row (close / delete / keep) that the owner applies with a tap — cleanup rows ride the same items table via a new `panel` section, no second write path. Until the first snapshot lands, the page says 尚未同步 and shows no numbers at all.
+- **Status page cleanup.** The programs area's group headers now count only true anomalies — unverified rows and deliberate offs are no longer folded into an "abnormal" total; a stale verification reads as a quiet age instead of an alarm, offs sink to the bottom of their group, and every program row collapses to one line by default. The page got roughly 40% shorter without losing a single row.
+
+**v2.4 (2026-11-16)**
+
+- **The lists became clickable.** Rows on the deadline and decisions pages open a detail panel with full create / edit / mark-done / delete against the same items table — the board's own source, no new write path. Migration 0012 stamps how each row was closed (`closed_kind`), so "marked done" and "deleted" stay distinguishable afterwards, and a recently-closed list makes undoing a misclick trivial.
+
 
 **v2.3.1 (2026-11-13)**
 
@@ -101,4 +112,4 @@ This project was previously released under the MIT License. It is now source-ava
 For a commercial license, contact Ze (Mark) Song via https://github.com/marksong0917.
 ---
 
-OpsDeck · v2.3.1 · Built by Tina for Mark
+OpsDeck · v2.5 · Built by Tina for Mark

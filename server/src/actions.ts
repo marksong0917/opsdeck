@@ -6,7 +6,7 @@
 // the one-time seed_board action that imports the brief's real items.
 
 import { defineAction, z, type Ctx, type ActionsModule } from "@hatch/space-sdk";
-import { asc, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import * as schema from "./schema";
 import { privileged } from "@space/privileged";
 
@@ -19,6 +19,7 @@ const sectionEnum = z.enum([
   "jason",
   "money",
   "growth",
+  "panel",
 ]);
 
 const verdictEnum = z.enum(["yes", "no"]);
@@ -37,9 +38,12 @@ const itemShape = z.object({
   verdict: z.string(),
   sort: z.number(),
   // v1.9.0: per-item stamps so each new page can show its own
-  // 数据更新时间 (the newest updatedAt among its rows) and the
-  // decisions page can date its 本周已清 rows (additive fields).
+  // 数据更新时间 (the newest updatedAt among its rows) and the jason
+  // page can date its 本周已清 rows. Additive — older fields untouched.
   closedAt: z.string().nullable(),
+  // v2.4: "done" | "delete" | null — how the row was closed, when
+  // closeItem was told. Null for open rows and unmarked closures.
+  closedKind: z.string().nullable(),
   updatedAt: z.string(),
 });
 
@@ -58,6 +62,7 @@ function toItem(row: ItemRow): z.infer<typeof itemShape> {
     verdict: row.verdict,
     sort: row.sort,
     closedAt: row.closedAt ? row.closedAt.toISOString() : null,
+    closedKind: row.closedKind ?? null,
     updatedAt: row.updatedAt.toISOString(),
   };
 }
@@ -135,6 +140,15 @@ function torontoDateKey(instant: Date): string {
     month: "2-digit",
     day: "2-digit",
   }).format(instant);
+}
+
+/** Toronto Monday (YYYY-MM-DD) of the week containing an instant —
+ * the week key control-panel snapshots are filed under. */
+function torontoMondayKey(instant: Date): string {
+  const day = new Date(`${torontoDateKey(instant)}T12:00:00Z`);
+  const offset = (day.getUTCDay() + 6) % 7; // days since Monday
+  day.setUTCDate(day.getUTCDate() - offset);
+  return day.toISOString().slice(0, 10);
 }
 
 type BoardMetaRow = typeof schema.boardMeta.$inferSelect;
@@ -531,6 +545,88 @@ const programAuditShape = z.object({
   action: z.string(),
   text: z.string(),
   at: z.string(),
+});
+
+// ---------------------------------------------------------------------------
+// v2.5 Tina Control Panel: Tina's own health-check page. The page
+// never reads Tina's filesystem — Tina files a weekly snapshot
+// through reportControlPanel (Monday digest + on demand) and the page
+// renders the latest one with its report stamp, so a stale snapshot
+// is visible at a glance. Every metric and list entry carries Tina's
+// health verdict ("ok" 正常 | "watch" 注意 | "act" 该处理); the page
+// additionally enforces the one hard threshold itself — MEMORY.md
+// over 80 KB always reads 该瘦身 whatever the snapshot says.
+// ---------------------------------------------------------------------------
+
+const controlHealthEnum = z.enum(["ok", "watch", "act"]);
+
+const controlMetricShape = z.object({
+  key: z.string(),
+  label: z.string(),
+  // Numeric value in the metric's natural unit (bytes for memoryMd,
+  // MB for memoryTotal, GB for workspace, plain counts elsewhere) —
+  // this is what the trend series plots.
+  value: z.number(),
+  display: z.string(),
+  health: controlHealthEnum,
+  note: z.string().default(""),
+});
+
+const controlEntryShape = z.object({
+  name: z.string(),
+  detail: z.string().default(""),
+  health: controlHealthEnum,
+});
+
+const controlCostShape = z.object({
+  name: z.string(),
+  display: z.string(),
+  health: controlHealthEnum,
+  note: z.string().default(""),
+  idle: z.boolean().default(false),
+});
+
+const controlSnapshotPayload = z.object({
+  metrics: z.array(controlMetricShape),
+  // Enabled cron jobs that failed in the last 7 days; null = the
+  // snapshot did not carry the number (rendered as 待回报, never 0).
+  cronFailures7d: z.number().nullable().default(null),
+  memoryFiles: z.array(controlEntryShape),
+  spaces: z.array(controlEntryShape),
+  skills: z.array(controlEntryShape),
+  services: z.array(controlEntryShape),
+  costs: z.array(controlCostShape),
+  mail: z
+    .object({
+      checkedAt: z.string(),
+      summary: z.string(),
+      health: controlHealthEnum,
+    })
+    .nullable()
+    .default(null),
+});
+
+type ControlSnapshotPayload = z.infer<typeof controlSnapshotPayload>;
+
+/** Metric keys the trend strip plots, in display order. */
+const CONTROL_TREND_KEYS = ["memoryMd", "memoryTotal", "cron", "projects"];
+
+const controlPanelResponse = z.object({
+  snapshot: z
+    .object({
+      payload: controlSnapshotPayload,
+      reportedAt: z.string(),
+      weekKey: z.string(),
+    })
+    .nullable(),
+  trends: z.array(
+    z.object({
+      key: z.string(),
+      points: z.array(
+        z.object({ weekKey: z.string(), value: z.number() }),
+      ),
+    }),
+  ),
 });
 
 export const Actions = {
@@ -985,6 +1081,8 @@ export const Actions = {
       jasonCleared: z.array(itemShape),
       money: z.array(itemShape),
       growth: z.array(itemShape),
+      // v2.5: Tina Control Panel 的「该整理了」清单 (section "panel").
+      panel: z.array(itemShape),
       updatedAt: z.string().nullable(),
       tinaStatus: z.string(),
       doneToday: z.array(z.string()),
@@ -1113,6 +1211,7 @@ export const Actions = {
         jasonCleared,
         money: items.filter((i) => i.section === "money"),
         growth: items.filter((i) => i.section === "growth"),
+        panel: items.filter((i) => i.section === "panel"),
         updatedAt: metaRow ? metaRow.updatedAt.toISOString() : null,
         tinaStatus: metaRow?.tinaStatus || "待命，随时喊我",
         doneToday: doneTodayMerged,
@@ -1226,7 +1325,7 @@ export const Actions = {
 
   addItem: defineAction({
     description:
-      "Adds one item to a board section (decisions, today, deadlines, lanes, china, jason, money, or growth) and returns its id. Feed conventions for the v1.9.0 pages: jason rows carry the ask date in dueDate and an optional hard date as an ISO date in status; money rows use lane \"ar\"/\"ap\", the due date in dueDate, and (since v1.9.2) the CAD amount as a number in `amount`; growth rows group by lane (\"founding\"/\"funnel\"/\"outreach\") with the feed's value string in status.",
+      "Adds one item to a board section (decisions, today, deadlines, lanes, china, jason, money, growth, or panel) and returns its id. Feed conventions for the v1.9.0 pages: jason rows carry the ask date in dueDate and an optional hard date as an ISO date in status; money rows use lane \"ar\"/\"ap\", the due date in dueDate, and (since v1.9.2) the CAD amount as a number in `amount`; growth rows group by lane (\"founding\"/\"funnel\"/\"outreach\") with the feed's value string in status. Panel rows (v2.5 Tina Control Panel cleanup list) use lane \"cleanup\" and carry Tina's suggested action in status: \"close\" | \"delete\" | \"keep\".",
     request: z.object({
       section: sectionEnum,
       title: z.string().min(1),
@@ -1407,7 +1506,7 @@ export const Actions = {
 
   applyV190GrowthSeed: defineAction({
     description:
-      "One-time v1.9.0 seed for the 增长 page: inserts the single verified Founding fact (10 seats total, a demo tenant — Maple & Grain — holds seat 1, 9 remaining) as a growth row in lane \"founding\". Guarded — if any growth row already exists it changes nothing, so the Foxuma room's live feed always wins over the seed. Returns how many rows were seeded.",
+      "One-time v1.9.0 seed for the 增长 page: inserts the single verified Founding fact (10 seats total, org 1 Newood holds 1, 9 remaining) as a growth row in lane \"founding\". Guarded — if any growth row already exists it changes nothing, so the Foxuma room's live feed always wins over the seed. Returns how many rows were seeded.",
     request: z.object({}),
     response: z.object({ seeded: z.number() }),
     handler: async (ctx): Promise<{ seeded: number }> => {
@@ -1422,7 +1521,7 @@ export const Actions = {
         section: "growth",
         lane: "founding",
         title: "Founding 名额",
-        detail: "共 10 个名额 · Maple & Grain（演示租户）已占 1",
+        detail: "共 10 个名额 · org 1（Newood）已占 1",
         status: "余 9",
         dueDate: null,
         sort: 0,
@@ -1455,19 +1554,70 @@ export const Actions = {
 
   closeItem: defineAction({
     description:
-      "Closes one board item by id so it no longer appears on the board.",
-    request: z.object({ id: z.number().int().positive() }),
+      "Closes one board item by id so it no longer appears on the board (soft close — the row is kept). Optional `kind` (\"done\" = marked complete, \"delete\" = deleted) is stamped onto the row's closed_kind so the two stay distinguishable afterwards; callers that pass no kind (lanes, decisions) leave closed_kind untouched, exactly as before.",
+    request: z.object({
+      id: z.number().int().positive(),
+      kind: z.enum(["done", "delete"]).optional(),
+    }),
     response: okResponse,
     handler: async (ctx, args): Promise<z.infer<typeof okResponse>> => {
       const db = ctx.db<typeof schema>();
       const now = new Date();
       await db
         .update(schema.items)
-        .set({ closedAt: now, updatedAt: now })
+        .set({
+          closedAt: now,
+          updatedAt: now,
+          ...(args.kind !== undefined ? { closedKind: args.kind } : {}),
+        })
         .where(eq(schema.items.id, args.id));
       await touchMeta(ctx);
       ctx.invalidateQueries();
       return { ok: true };
+    },
+  }),
+
+  reopenItem: defineAction({
+    description:
+      "Reopens one previously closed board item by id: clears closed_at and closed_kind so the row returns to its section's open list with its fields exactly as they were. The restore path behind the board's 最近关闭 list (deadlines + jason rows).",
+    request: z.object({ id: z.number().int().positive() }),
+    response: okResponse,
+    handler: async (ctx, args): Promise<z.infer<typeof okResponse>> => {
+      const db = ctx.db<typeof schema>();
+      await db
+        .update(schema.items)
+        .set({ closedAt: null, closedKind: null, updatedAt: new Date() })
+        .where(eq(schema.items.id, args.id));
+      await touchMeta(ctx);
+      ctx.invalidateQueries();
+      return { ok: true };
+    },
+  }),
+
+  getRecentlyClosed: defineAction({
+    description:
+      "Returns the most recently closed deadlines + jason items (newest closure first, up to `limit`), each carrying its closedAt stamp and closedKind (\"done\" / \"delete\" / null), for the board's 最近关闭 restore list. Other sections' closures are not listed — their close paths have their own surfaces (decisions verdicts, lanes).",
+    request: z.object({
+      limit: z.number().int().positive().max(50).default(20),
+    }),
+    response: z.object({ items: z.array(itemShape) }),
+    handler: async (
+      ctx,
+      args,
+    ): Promise<{ items: z.infer<typeof itemShape>[] }> => {
+      const db = ctx.db<typeof schema>();
+      const rows = await db
+        .select()
+        .from(schema.items)
+        .where(
+          and(
+            inArray(schema.items.section, ["deadlines", "jason"]),
+            isNotNull(schema.items.closedAt),
+          ),
+        )
+        .orderBy(desc(schema.items.closedAt))
+        .limit(args.limit);
+      return { items: rows.map(toItem) };
     },
   }),
 
@@ -1661,6 +1811,28 @@ export const Actions = {
         { section: "china", title: "Book the airport transfer", detail: "Demo item" },
         { section: "china", title: "Get a travel eSIM", detail: "Demo item" },
         { section: "china", title: "Pack gifts for family", detail: "Demo item" },
+        // Tina Control Panel 「该整理了」 cleanup suggestions (demo data)
+        {
+          section: "panel",
+          lane: "cleanup",
+          status: "close",
+          title: "Close the finished vendor-comparison thread",
+          detail: "Demo item — every cleanup row carries a suggested action; the owner applies it with one tap.",
+        },
+        {
+          section: "panel",
+          lane: "cleanup",
+          status: "delete",
+          title: "Delete the superseded onboarding draft (v1)",
+          detail: "Demo item — replaced by the current checklist; keeping both only invites the wrong one to be read.",
+        },
+        {
+          section: "panel",
+          lane: "cleanup",
+          status: "keep",
+          title: "Keep the 2024 tax working folder",
+          detail: "Demo item — retention rule: financial records stay seven years.",
+        },
       ];
 
       for (const [index, seed] of seeds.entries()) {
@@ -1899,6 +2071,182 @@ export const Actions = {
       });
       ctx.invalidateQueries();
       return { ok: true };
+    },
+  }),
+
+  getControlPanel: defineAction({
+    description:
+      "Returns the Tina Control Panel page's data: the latest weekly snapshot Tina filed via reportControlPanel (headline metrics with health verdicts, system-file / space / skill / service lists, AI-seat costs, mail check) with its report instant and week key, plus the trend series for the headline quantities (memoryMd / memoryTotal / cron / projects) built from every stored weekly snapshot, oldest first. Snapshot is null until the first report lands — the page renders its 尚未同步 state, never invented numbers.",
+    request: z.object({}),
+    response: controlPanelResponse,
+    handler: async (
+      ctx,
+    ): Promise<z.infer<typeof controlPanelResponse>> => {
+      const db = ctx.db<typeof schema>();
+      const rows = await db
+        .select()
+        .from(schema.controlSnapshots)
+        .orderBy(asc(schema.controlSnapshots.reportedAt));
+      const parsed: {
+        payload: ControlSnapshotPayload;
+        reportedAt: string;
+        weekKey: string;
+      }[] = [];
+      for (const row of rows) {
+        try {
+          const result = controlSnapshotPayload.safeParse(
+            JSON.parse(row.payload),
+          );
+          if (result.success) {
+            parsed.push({
+              payload: result.data,
+              reportedAt: row.reportedAt.toISOString(),
+              weekKey: row.weekKey,
+            });
+          }
+        } catch {
+          // A corrupt snapshot row is skipped, never rendered.
+        }
+      }
+      const trends = CONTROL_TREND_KEYS.map((key) => ({
+        key,
+        points: parsed.flatMap((snap) => {
+          const metric = snap.payload.metrics.find((m) => m.key === key);
+          return metric
+            ? [{ weekKey: snap.weekKey, value: metric.value }]
+            : [];
+        }),
+      })).filter((t) => t.points.length > 0);
+      return { snapshot: parsed[parsed.length - 1] ?? null, trends };
+    },
+  }),
+
+  reportControlPanel: defineAction({
+    description:
+      "Files Tina's weekly Control Panel snapshot (called from the Monday digest and on demand). The snapshot REPLACES any existing row for the same Toronto week (weekKey defaults to the current week's Monday), so the table keeps one row per week and the rows form the trend series. Every number is Tina-measured; the page adds no estimates of its own.",
+    request: z.object({
+      snapshot: controlSnapshotPayload,
+      weekKey: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+        .optional(),
+    }),
+    response: z.object({ ok: z.literal(true), weekKey: z.string() }),
+    handler: async (
+      ctx,
+      args,
+    ): Promise<{ ok: true; weekKey: string }> => {
+      const db = ctx.db<typeof schema>();
+      const weekKey = args.weekKey ?? torontoMondayKey(new Date());
+      await db
+        .delete(schema.controlSnapshots)
+        .where(eq(schema.controlSnapshots.weekKey, weekKey));
+      await db.insert(schema.controlSnapshots).values({
+        weekKey,
+        payload: JSON.stringify(args.snapshot),
+        reportedAt: new Date(),
+      });
+      await touchMeta(ctx);
+      ctx.invalidateQueries();
+      return { ok: true, weekKey };
+    },
+  }),
+
+  applyV250ControlPanelSeed: defineAction({
+    description:
+      "One-time v2.5 seed for the Tina Control Panel page: files the first snapshot (Tina's 2026-11-17 22:43 Toronto measurements — MEMORY.md 61,847 bytes, memory store 34 MB / 193 md files, 74 enabled cron jobs, 96 skills, 7 spaces, 81 tracked items, ~50 connectors, 77 GB workspace) and the first three cleanup-list rows. Guarded: a no-op when any snapshot or panel row already exists, so re-running it never overwrites a newer report or Mark's verdicts.",
+    request: z.object({}),
+    response: z.object({ seeded: z.boolean() }),
+    handler: async (ctx): Promise<{ seeded: boolean }> => {
+      const db = ctx.db<typeof schema>();
+      const existingSnapshots = await db
+        .select({ id: schema.controlSnapshots.id })
+        .from(schema.controlSnapshots)
+        .limit(1);
+      const existingPanel = await db
+        .select({ id: schema.items.id })
+        .from(schema.items)
+        .where(eq(schema.items.section, "panel"))
+        .limit(1);
+      if (existingSnapshots.length > 0 || existingPanel.length > 0) {
+        return { seeded: false };
+      }
+      const payload: ControlSnapshotPayload = {
+        metrics: [
+          { key: "memoryMd", label: "MEMORY.md", value: 61847, display: "61,847 字节", health: "ok", note: "80 KB 是瘦身线 · 2026-10-25、11-09 瘦过两次" },
+          { key: "memoryTotal", label: "记忆库总量", value: 34, display: "34 MB", health: "ok", note: "193 个 md · 日记 57 篇 · 人物档 128 个 · 群组档 3 个" },
+          { key: "cron", label: "定时任务", value: 74, display: "74 个启用中", health: "ok", note: "cron.status 实测" },
+          { key: "skills", label: "Skill", value: 96, display: "96", health: "ok", note: "系统 58 + 自定义 38" },
+          { key: "spaces", label: "Space", value: 7, display: "7", health: "ok", note: "含 OpsDeck 本身" },
+          { key: "projects", label: "在跟项目", value: 81, display: "81", health: "ok", note: "目标工作区共 139 个" },
+          { key: "connectors", label: "连接器", value: 50, display: "约 50", health: "ok", note: "自定义 10 + 系统约 40 在册" },
+          { key: "workspace", label: "工作区总量", value: 77, display: "77 GB", health: "ok", note: "" },
+        ],
+        cronFailures7d: null,
+        memoryFiles: [
+          { name: "MEMORY.md", detail: "61,847 字节", health: "ok" },
+          { name: "USER.md", detail: "用户档案", health: "ok" },
+          { name: "TOOLS.md", detail: "本机设备与工具注记", health: "ok" },
+          { name: "memory/ 日记", detail: "57 篇", health: "ok" },
+          { name: "memory/people/ 人物档", detail: "128 个", health: "ok" },
+          { name: "memory/groups/ 群组档", detail: "3 个", health: "ok" },
+        ],
+        spaces: [
+          { name: "OpsDeck", detail: "tina-ops-board · 本页所在", health: "ok" },
+          { name: "其余 6 个 Space", detail: "总数 7 · Tina 实测在册", health: "ok" },
+        ],
+        skills: [
+          { name: "系统 Skill", detail: "58 个", health: "ok" },
+          { name: "自定义 Skill", detail: "38 个", health: "ok" },
+        ],
+        services: [
+          { name: "自定义连接器", detail: "10 个在册", health: "ok" },
+          { name: "系统连接器", detail: "约 40 个在册", health: "ok" },
+        ],
+        costs: [],
+        mail: null,
+      };
+      await db.insert(schema.controlSnapshots).values({
+        weekKey: "2026-11-16",
+        payload: JSON.stringify(payload),
+        reportedAt: new Date("2026-11-18T03:43:00Z"),
+      });
+      const cleanupRows = [
+        {
+          title: "MEMORY.md 接近瘦身线，先盯着",
+          detail:
+            "现 61,847 字节，80 KB 是瘦身线（2026-10-25、11-09 已瘦过两次）。到线前再瘦一轮即可，现在不用动。",
+          status: "keep",
+          sort: 1,
+        },
+        {
+          title: "FoxShare 已关停，整组还挂在册",
+          detail:
+            "2026-11-16 Mark 拍板暂时不用、服务器已关——属已结束还开着的一类。保留可一键重开（状态页有组开关），不用删。",
+          status: "keep",
+          sort: 2,
+        },
+        {
+          title: "目标工作区 139 个，在跟的只有 81 个",
+          detail:
+            "差额里若有已结束的项目，关掉它的 tracked item 减负。具体名单由 Tina 在下期快照逐个点名。",
+          status: "close",
+          sort: 3,
+        },
+      ];
+      for (const row of cleanupRows) {
+        await db.insert(schema.items).values({
+          section: "panel",
+          lane: "cleanup",
+          title: row.title,
+          detail: row.detail,
+          status: row.status,
+          sort: row.sort,
+        });
+      }
+      await touchMeta(ctx);
+      ctx.invalidateQueries();
+      return { seeded: true };
     },
   }),
 } satisfies ActionsModule;

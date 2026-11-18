@@ -109,6 +109,27 @@ const STR = {
     farEmpty: "14 天后暂时没有到期的事项，都在近处盯着呢。",
     noDate: "未定日期",
     dueTodayChip: "今天到期",
+    newDeadlineAria: "新建到期项",
+    openDetailAria: "查看并编辑",
+    panelNewDeadline: "新建到期项",
+    panelEditDeadline: "到期项详情",
+    panelEditJason: "待拍板详情",
+    fieldTitle: "标题",
+    fieldDueDate: "到期日期",
+    fieldAskedDate: "提出日期",
+    fieldDetail: "备注",
+    fieldStatus: "状态",
+    fieldHardDate: "硬日期（可空）",
+    fieldStatusText: "状态（原文）",
+    markDone: "标完成",
+    restore: "恢复",
+    recentlyClosedTitle: "最近关闭",
+    recentlyClosedEmpty: "最近没有关闭的项。",
+    closedDoneTag: "已完成",
+    closedDeletedTag: "已删除",
+    closedPlainTag: "已关闭",
+    sectionDeadlineName: "到期",
+    sectionJasonName: "待拍板",
     lanesTitle: "各 Lane 开放事项",
     addNew: "+ 新增",
     collapse: "收起",
@@ -147,6 +168,7 @@ const STR = {
     tabGrowth: "增长",
     tabChina: "回国",
     tabHistory: "历史",
+    tabPanel: "Tina 面板",
     dataUpdatedAt: "数据更新于",
     notSynced: "尚未同步",
     jasonTitle: "待拍板",
@@ -167,6 +189,48 @@ const STR = {
     foundingTitle: "Founding 名额",
     funnelTitle: "Foxuma 漏斗",
     outreachTitle: "外联三线 · 本周",
+    panelTitle: "Tina Control Panel",
+    panelSub: "Tina 自己的健康检查 · 快照由 Tina 每周回报",
+    panelSnapshotAt: "快照更新于",
+    panelNotSynced: "快照尚未同步 — Tina 首次回报后显示。",
+    panelStale: "这份快照已超过一周没更新，等 Tina 下一期回报。",
+    panelHealthOk: "正常",
+    panelHealthWatch: "注意",
+    panelHealthAct: "该处理",
+    panelMetricsTitle: "总量速览",
+    panelFilesTitle: "系统文件",
+    panelSpacesTitle: "Space 列表",
+    panelSkillsTitle: "Skill 列表",
+    panelCronTitle: "定时任务",
+    panelCronEnabled: "启用中",
+    panelCronFailures: "近 7 天失败",
+    panelCronFailuresPending: "待 Tina 回报",
+    panelServicesTitle: "联动的服务",
+    panelCostsTitle: "AI 席位用量",
+    panelCostsEmpty: "尚未同步 — 周一综合包的 token 用量回写后显示。",
+    panelIdleSeat: "闲置",
+    panelMailTitle: "邮件检查",
+    panelMailEmpty: "尚未同步 — Tina 巡检邮箱后回写。",
+    panelMailCheckedAt: "最近检查",
+    panelTrendsTitle: "近几周走势",
+    panelTrendsEmpty: "每周存一份快照，攒够两周后这里开始画走势。",
+    panelTrendMemoryMd: "MEMORY.md",
+    panelTrendMemoryTotal: "记忆库",
+    panelTrendCron: "定时任务",
+    panelTrendProjects: "在跟项目",
+    panelCleanupTitle: "该整理了",
+    panelCleanupEmpty: "没有待整理的项 — 长期没动的、已结束还开着的，Tina 巡检发现会列在这里。",
+    panelSuggestClose: "建议：关",
+    panelSuggestDelete: "建议：删",
+    panelSuggestKeep: "建议：留",
+    panelKept: "已决定留",
+    panelBtnClose: "关掉",
+    panelBtnDelete: "删除",
+    panelBtnDeleteConfirm: "确认删除？",
+    panelBtnKeep: "留着",
+    panelActionFailed: "没处理成功，再试一次。",
+    panelLoading: "面板加载中…",
+    panelUnavailable: "面板数据暂时取不到",
     flightTitle: "航班",
     flightOut: "去程",
     flightBack: "回程",
@@ -239,9 +303,12 @@ const STR = {
     jasonBucketFresh: "7 天以内",
     progRunning: "在跑",
     progDown: "不在",
+    progOff: "已关",
+    progOffDevice: "已关机",
     progUnverified: "未核验",
     progVerifiedAt: "核验",
-    progStale: "核验过期",
+    progVerifiedToday: "今天核验",
+    progVerifiedYesterday: "昨天核验",
     progDetailShow: "展开记录",
     progDetailHide: "收起记录",
     progPending: "已登记 · 待执行",
@@ -354,6 +421,27 @@ const STR = {
     farEmpty: "Nothing due beyond 14 days for now.",
     noDate: "No date",
     dueTodayChip: "Due today",
+    newDeadlineAria: "New deadline item",
+    openDetailAria: "View and edit",
+    panelNewDeadline: "New deadline",
+    panelEditDeadline: "Deadline details",
+    panelEditJason: "Awaiting-decision details",
+    fieldTitle: "Title",
+    fieldDueDate: "Due date",
+    fieldAskedDate: "Date asked",
+    fieldDetail: "Note",
+    fieldStatus: "Status",
+    fieldHardDate: "Hard date (optional)",
+    fieldStatusText: "Status (as written)",
+    markDone: "Mark done",
+    restore: "Restore",
+    recentlyClosedTitle: "Recently closed",
+    recentlyClosedEmpty: "Nothing closed recently.",
+    closedDoneTag: "Done",
+    closedDeletedTag: "Deleted",
+    closedPlainTag: "Closed",
+    sectionDeadlineName: "Deadline",
+    sectionJasonName: "Decisions",
     lanesTitle: "Open items by lane",
     addNew: "+ Add",
     collapse: "Collapse",
@@ -392,6 +480,7 @@ const STR = {
     tabGrowth: "Growth",
     tabChina: "China",
     tabHistory: "History",
+    tabPanel: "Tina Panel",
     dataUpdatedAt: "Data updated",
     notSynced: "Not synced yet",
     jasonTitle: "Awaiting decisions",
@@ -412,6 +501,48 @@ const STR = {
     foundingTitle: "Founding seats",
     funnelTitle: "Foxuma funnel",
     outreachTitle: "Outreach · this week",
+    panelTitle: "Tina Control Panel",
+    panelSub: "Tina's own health check · snapshot reported by Tina weekly",
+    panelSnapshotAt: "Snapshot updated",
+    panelNotSynced: "No snapshot yet — appears after Tina's first report.",
+    panelStale: "This snapshot is over a week old — waiting for Tina's next report.",
+    panelHealthOk: "Healthy",
+    panelHealthWatch: "Watch",
+    panelHealthAct: "Act",
+    panelMetricsTitle: "At a glance",
+    panelFilesTitle: "System files",
+    panelSpacesTitle: "Spaces",
+    panelSkillsTitle: "Skills",
+    panelCronTitle: "Scheduled jobs",
+    panelCronEnabled: "Enabled",
+    panelCronFailures: "Failures, last 7 days",
+    panelCronFailuresPending: "Awaiting Tina's report",
+    panelServicesTitle: "Connected services",
+    panelCostsTitle: "AI seat usage",
+    panelCostsEmpty: "Not synced yet — appears once the Monday digest writes token usage back.",
+    panelIdleSeat: "Idle",
+    panelMailTitle: "Mail check",
+    panelMailEmpty: "Not synced yet — Tina writes back after a mailbox sweep.",
+    panelMailCheckedAt: "Last checked",
+    panelTrendsTitle: "Recent weeks",
+    panelTrendsEmpty: "One snapshot is stored per week — trends start drawing from the second week.",
+    panelTrendMemoryMd: "MEMORY.md",
+    panelTrendMemoryTotal: "Memory store",
+    panelTrendCron: "Scheduled jobs",
+    panelTrendProjects: "Tracked projects",
+    panelCleanupTitle: "Needs tidying",
+    panelCleanupEmpty: "Nothing to tidy — stale or finished-but-open items Tina spots will be listed here.",
+    panelSuggestClose: "Suggest: close",
+    panelSuggestDelete: "Suggest: delete",
+    panelSuggestKeep: "Suggest: keep",
+    panelKept: "Kept",
+    panelBtnClose: "Close it",
+    panelBtnDelete: "Delete",
+    panelBtnDeleteConfirm: "Confirm delete?",
+    panelBtnKeep: "Keep",
+    panelActionFailed: "That didn't go through — try again.",
+    panelLoading: "Loading panel…",
+    panelUnavailable: "Panel data is unavailable right now",
     flightTitle: "Flights",
     flightOut: "Outbound",
     flightBack: "Return",
@@ -484,9 +615,12 @@ const STR = {
     jasonBucketFresh: "Under 7 days",
     progRunning: "Running",
     progDown: "Not running",
+    progOff: "Off",
+    progOffDevice: "Powered off",
     progUnverified: "Not verified yet",
     progVerifiedAt: "Verified",
-    progStale: "Verification stale",
+    progVerifiedToday: "Verified today",
+    progVerifiedYesterday: "Verified yesterday",
     progDetailShow: "Show records",
     progDetailHide: "Hide records",
     progPending: "Registered · awaiting execution",
@@ -645,7 +779,7 @@ function uiLocale(): string {
  * decimal string in `status`, rendered verbatim — 30-day in/out plus
  * a top-5 collection list derived from the AR rows only. 「增长」:
  * lane-grouped feed rows shown as written; the only seeded fact is
- * Founding (10 seats, a demo tenant holds seat 1, 9 left) via the guarded
+ * Founding (10 seats, org 1 Newood holds 1, 9 left) via the guarded
  * applyV190GrowthSeed. Pages with no feed data yet say 尚未同步 —
  * nothing is invented. Each new page shows its own 数据更新时间 (the
  * newest item updatedAt in its section, Toronto time). Page 3 gains a
@@ -810,7 +944,7 @@ function uiLocale(): string {
  * once via the Tailwind default-transition tokens (200 ms,
  * ease-out curve, per the UI/UX handbook §2.5); the today page's
  * own skeleton is untouched. The baseline extracted from this board
- * lives in ~/workspace/newood-ops/semi-baseline/ and is the single
+ * lives in the Semi baseline docs and is the single
  * source for future Semi passes.
  *
  * v2.3.1 = shell shrink (Mark, 2026-11-13, on the v2.3 today page):
@@ -831,7 +965,7 @@ function uiLocale(): string {
  * they duplicated the 网站状态 card; website status lives only in
  * that card now. Closet Studio stays alone in the 折叠区 (1/1);
  * the site rows' stored state/audit history is kept, unlisted. */
-const BOARD_VERSION = "v2.3.1";
+const BOARD_VERSION = "v2.5";
 
 const LANE_ORDER = ["QuickBooks", "Foxuma", "General Ops", "外联", "设备与机器", "Mir2"];
 
@@ -874,7 +1008,7 @@ function SvgIcon({
   );
 }
 
-type SectionKind = "decisions" | "today" | "deadlines" | "lanes" | "sites" | "servers" | "china" | "jason" | "growth" | "programs" | "history" | "weather" | "fx";
+type SectionKind = "decisions" | "today" | "deadlines" | "lanes" | "sites" | "servers" | "china" | "jason" | "growth" | "programs" | "history" | "weather" | "fx" | "panel";
 
 function SectionGlyph({
   kind,
@@ -969,6 +1103,22 @@ function SectionGlyph({
       </SvgIcon>
     );
   }
+  if (kind === "panel") {
+    // Sliders: the Tina Control Panel page.
+    return (
+      <SvgIcon color={c} size={s} className="shrink-0">
+        <line x1="21" x2="14" y1="4" y2="4" />
+        <line x1="10" x2="3" y1="4" y2="4" />
+        <line x1="21" x2="12" y1="12" y2="12" />
+        <line x1="8" x2="3" y1="12" y2="12" />
+        <line x1="21" x2="16" y1="20" y2="20" />
+        <line x1="12" x2="3" y1="20" y2="20" />
+        <line x1="14" x2="14" y1="2" y2="6" />
+        <line x1="8" x2="8" y1="10" y2="14" />
+        <line x1="16" x2="16" y1="18" y2="22" />
+      </SvgIcon>
+    );
+  }
   if (kind === "history") {
     // Clock with a rewind arrow: the done-history archive.
     return (
@@ -1024,6 +1174,7 @@ const TILE_STYLE: Record<SectionKind, { bg: string; fg: string }> = {
   history: { bg: "rgba(0,181,120,0.10)", fg: "#00a870" },
   weather: { bg: "rgba(245,185,66,0.14)", fg: "#d9930d" },
   fx: { bg: "rgba(0,168,112,0.10)", fg: "#00a870" },
+  panel: { bg: "rgba(0,168,112,0.10)", fg: "#00a870" },
 };
 
 function SectionTile({ kind }: { kind: SectionKind }) {
@@ -1138,6 +1289,15 @@ function NavIcon({ page, size }: { page: BoardPage; size?: number }) {
     return (
       <SvgIcon size={s} className="shrink-0">
         <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" />
+      </SvgIcon>
+    );
+  }
+  if (page === "panel") {
+    // Gauge: Tina's own health-check panel.
+    return (
+      <SvgIcon size={s} className="shrink-0">
+        <path d="m12 14 4-4" />
+        <path d="M3.34 19a10 10 0 1 1 17.32 0" />
       </SvgIcon>
     );
   }
@@ -2331,26 +2491,77 @@ const PROG_GROUPS: ProgGroupDef[] = [
   { titleKey: "progGroupFolded", ids: PROG_FOLDED_IDS, startCollapsed: true },
 ];
 
-/** A verified state older than this renders as 核验过期 (stale) —
- * the board would rather show an honest old check than imply the
- * program was just confirmed. */
+/** A verified "up" state older than this counts as 待核验 (v2.5):
+ * the check is simply old — quiet grey age text on the row face,
+ * never an alarm. The threshold itself is unchanged from v2.2. */
 const PROG_STALE_MS = 24 * 60 * 60 * 1000;
 
-type ProgAnomaly = "down" | "unverified" | "stale";
+/** v2.5 display classification (Mark, 2026-11-17: the status page
+ * read as a wall of alarms). PRESENTATION ONLY — the stored states
+ * are rendered exactly as reported; nothing here writes back.
+ *   anomaly    — verified down AND the category is infrastructure
+ *     that should always be on (readonly / always / proxy / info /
+ *     device): the only rows that may wear red.
+ *   off        — verified down in a category where "off" is a legal
+ *     state (toggle / foxshare / device-status): quiet grey 已关
+ *     （已关机 for device-status), sorted to the group tail.
+ *   running    — verified up.
+ *   unverified — no state row yet: hollow dot, counted quietly
+ *     under 待核验 like a stale check. */
+type ProgFace = "anomaly" | "running" | "off" | "unverified";
 
-/** Why a row is NOT a quiet normal row, or null when it is one.
- * Anomalies surface on the group face (sorted first, detail shown);
- * normal rows show no timestamp, no evidence, no audit text. */
-function programAnomaly(program: ProgramEntry, now: number): ProgAnomaly | null {
+const PROG_QUIET_OFF_CATEGORIES: readonly ProgramEntry["category"][] = [
+  "toggle",
+  "foxshare",
+  "device-status",
+];
+
+function programFace(program: ProgramEntry): ProgFace {
   if (!program.state) return "unverified";
-  if (program.state.status === "down") return "down";
-  if (
-    program.state.verifiedAt &&
-    now - new Date(program.state.verifiedAt).getTime() > PROG_STALE_MS
-  ) {
-    return "stale";
+  if (program.state.status === "down") {
+    return PROG_QUIET_OFF_CATEGORIES.includes(program.category)
+      ? "off"
+      : "anomaly";
   }
-  return null;
+  return "running";
+}
+
+/** 待核验 membership: never verified at all, or verified up but the
+ * check is older than PROG_STALE_MS. Purely a quiet grey count on
+ * the group header and the age text on the row face. */
+function programNeedsVerify(program: ProgramEntry, now: number): boolean {
+  if (!program.state) return true;
+  if (program.state.status !== "up") return false;
+  return (
+    !!program.state.verifiedAt &&
+    now - new Date(program.state.verifiedAt).getTime() > PROG_STALE_MS
+  );
+}
+
+/** The row face's one-line status: the evidence's first sentence
+ * (split on 。/；), truncated with an ellipsis when long. Empty
+ * evidence renders nothing. */
+function progShortEvidence(evidence: string): string {
+  const first = (evidence.split(/[。；;]/)[0] ?? "").trim();
+  const MAX = 42;
+  return first.length > MAX ? `${first.slice(0, MAX)}…` : first;
+}
+
+/** Verification age by Toronto calendar-date difference:
+ * 今天核验 / 昨天核验 / N 天前核验. */
+function progVerifiedAge(verifiedAt: string): string {
+  const then = new Date(verifiedAt);
+  if (Number.isNaN(then.getTime())) return "";
+  const days = Math.round(
+    (new Date(`${torontoTodayKey(new Date())}T00:00:00`).getTime() -
+      new Date(`${torontoTodayKey(then)}T00:00:00`).getTime()) /
+      86400000,
+  );
+  if (days <= 0) return t("progVerifiedToday");
+  if (days === 1) return t("progVerifiedYesterday");
+  return activeLang === "zh"
+    ? `${days} 天前核验`
+    : `Verified ${days} days ago`;
 }
 
 function programActionText(action: string): string {
@@ -2374,7 +2585,18 @@ function programActionText(action: string): string {
   }
 }
 
-function ProgramStateLine({ program }: { program: ProgramEntry }) {
+/** The row face's state cluster (v2.5): status dot + conclusion
+ * word, then — in quiet grey — the evidence's first sentence and
+ * the verification age. Red belongs to true anomalies alone; a
+ * pending request keeps its amber badge exactly as before and
+ * replaces the cluster while it is open. */
+function ProgramStateLine({
+  program,
+  face,
+}: {
+  program: ProgramEntry;
+  face: ProgFace;
+}) {
   if (program.pending) {
     return (
       <span className={`${BADGE_CLASS} bg-[#ff9d0a]/15 font-medium text-[#a15e00] dark:text-[#ffc65c]`}>
@@ -2383,7 +2605,7 @@ function ProgramStateLine({ program }: { program: ProgramEntry }) {
       </span>
     );
   }
-  if (!program.state) {
+  if (face === "unverified" || !program.state) {
     return (
       <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-[var(--dim)]">
         <span aria-hidden="true" className="h-2 w-2 rounded-full border border-[var(--dim)]" />
@@ -2391,42 +2613,64 @@ function ProgramStateLine({ program }: { program: ProgramEntry }) {
       </span>
     );
   }
-  // v2.2 conclusions only: dot + word. The verified-at instant moved
-  // into the row's expanded detail (and shows by default only when
-  // the row is an anomaly).
+  const short = progShortEvidence(program.state.evidence);
+  const age = program.state.verifiedAt
+    ? progVerifiedAge(program.state.verifiedAt)
+    : "";
   return (
-    <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-[var(--dim)]">
-      <span
-        aria-hidden="true"
-        className={`h-2 w-2 rounded-full ${program.state.status === "up" ? "bg-[#00b578]" : "bg-[#f53f3f]"}`}
-      />
-      <span className={program.state.status === "up" ? "font-semibold text-[#00915f] dark:text-[#5ee0a8]" : "font-semibold text-[#d92d20] dark:text-[#ff9d97]"}>
-        {program.state.status === "up" ? t("progRunning") : t("progDown")}
-      </span>
+    <span className="flex min-w-0 items-center gap-1.5 text-xs text-[var(--dim)]">
+      {face === "running" ? (
+        <>
+          <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-[#00b578]" />
+          <span className="shrink-0 font-semibold text-[#00915f] dark:text-[#5ee0a8]">
+            {t("progRunning")}
+          </span>
+        </>
+      ) : face === "anomaly" ? (
+        <>
+          <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-[#f53f3f]" />
+          <span className="shrink-0 font-semibold text-[#d92d20] dark:text-[#ff9d97]">
+            {t("progDown")}
+          </span>
+        </>
+      ) : (
+        <>
+          <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-[var(--dim)]" />
+          <span className="shrink-0 font-medium">
+            {program.category === "device-status"
+              ? t("progOffDevice")
+              : t("progOff")}
+          </span>
+        </>
+      )}
+      {short ? <span className="truncate">{short}</span> : null}
+      {age ? <span className="shrink-0">{age}</span> : null}
     </span>
   );
 }
 
 function ProgramRowView({
   program,
-  anomaly,
+  face,
   audit,
   busy,
   onRequest,
 }: {
   program: ProgramEntry;
-  anomaly: ProgAnomaly | null;
+  face: ProgFace;
   audit: ProgramsData["audit"];
   busy: boolean;
   onRequest: (program: ProgramEntry, action: ProgramActionName) => void;
 }) {
   const name = activeLang === "zh" ? program.name : program.nameEn;
   const note = activeLang === "zh" ? program.note : program.noteEn;
-  // v2.2: detail (note / evidence / verified-at / audit entries) sits
-  // behind the row's chevron. Anomaly rows start expanded — the
-  // reason surfaces without a tap — and Mark can still fold them.
+  // Detail (note / evidence / verified-at / audit entries) sits
+  // behind the row's chevron. v2.5: EVERY row starts folded —
+  // true anomalies included; their top-of-group sort + red word
+  // already carry the signal, and the page stays a status page,
+  // not a log page.
   const [toggled, setToggled] = useState<boolean | null>(null);
-  const expanded = toggled ?? anomaly !== null;
+  const expanded = toggled ?? false;
   const entries = audit.filter((entry) => entry.programId === program.id);
   const btnCls =
     "h-8 shrink-0 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-3 text-[13px] font-medium text-[var(--text)] transition hover:bg-[var(--fill)] active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50";
@@ -2448,7 +2692,7 @@ function ProgramRowView({
             <span className="ml-2 text-xs font-normal text-[var(--dim)]">{program.device}</span>
           </p>
         </div>
-        <ProgramStateLine program={program} />
+        <ProgramStateLine program={program} face={face} />
         {showButtons ? (
           <span className="flex shrink-0 items-center gap-1.5">
             {program.category === "always" ? (
@@ -2528,14 +2772,17 @@ function ProgramRowView({
           ) : null}
           {program.state ? (
             <p className="mt-0.5 text-xs leading-snug text-[var(--dim)]">
-              {anomaly === "down" ? (
+              {face === "anomaly" ? (
                 <span className="font-semibold text-[#d92d20] dark:text-[#ff9d97]">
                   {t("progDown")} ·{" "}
                 </span>
               ) : null}
-              {anomaly === "stale" ? (
-                <span className="font-semibold text-[#a15e00] dark:text-[#ffc65c]">
-                  {t("progStale")} ·{" "}
+              {face === "off" ? (
+                <span className="font-semibold">
+                  {program.category === "device-status"
+                    ? t("progOffDevice")
+                    : t("progOff")}{" "}
+                  ·{" "}
                 </span>
               ) : null}
               {program.state.evidence ? `${program.state.evidence} · ` : ""}
@@ -2663,23 +2910,61 @@ function ProgramsSection() {
                 : (group.categories ?? []).includes(p.category),
             );
             if (rows.length === 0) return null;
-            // v2.2 header caliber, kept: anomalies (down / unverified
-            // / stale) sort to the top of the group and stay visible
-            // even when the group is collapsed; the header carries
-            // the group's verdict — 「N/N 正常」 when all is well,
-            // the anomaly count when it is not.
+            // v2.5 header + order caliber: TRUE anomalies (verified
+            // down in an always-on category) sort to the top of the
+            // group, stay visible when the group is collapsed, and
+            // are the only count the header may show in red. Running
+            // rows keep registry order; quiet-off rows sink to the
+            // group tail. With zero true anomalies the header shows
+            // a quiet grey tally instead — the word 异常 never
+            // appears, and 待核验 is always grey, never red/amber.
             const now = Date.now();
-            const anomalyOf = new Map(
-              rows.map((p) => [p.id, programAnomaly(p, now)] as const),
+            const faceOf = new Map(
+              rows.map((p) => [p.id, programFace(p)] as const),
             );
-            const anomalies = rows.filter((p) => anomalyOf.get(p.id) !== null);
-            const ordered = [
-              ...anomalies,
-              ...rows.filter((p) => anomalyOf.get(p.id) === null),
-            ];
+            const trueAnomalies = rows.filter(
+              (p) => faceOf.get(p.id) === "anomaly",
+            );
+            const runningCount = rows.filter(
+              (p) => faceOf.get(p.id) === "running",
+            ).length;
+            const offCount = rows.filter(
+              (p) => faceOf.get(p.id) === "off",
+            ).length;
+            const verifyCount = rows.filter((p) =>
+              programNeedsVerify(p, now),
+            ).length;
+            const faceRank = (p: ProgramEntry): number => {
+              const f = faceOf.get(p.id);
+              return f === "anomaly" ? 0 : f === "off" ? 2 : 1;
+            };
+            // Array sort is stable: registry order survives inside
+            // each rank.
+            const ordered = [...rows].sort(
+              (a, b) => faceRank(a) - faceRank(b),
+            );
             const collapsed = collapsedGroups.has(group.titleKey);
-            const visible = collapsed ? anomalies : ordered;
+            const visible = collapsed ? trueAnomalies : ordered;
             const groupTitle = t(group.titleKey);
+            const quietSummary = [
+              activeLang === "zh"
+                ? `在跑 ${runningCount}`
+                : `${runningCount} running`,
+              ...(offCount > 0
+                ? [
+                    activeLang === "zh"
+                      ? `已关 ${offCount}`
+                      : `${offCount} off`,
+                  ]
+                : []),
+              ...(verifyCount > 0
+                ? [
+                    activeLang === "zh"
+                      ? `待核验 ${verifyCount}`
+                      : `${verifyCount} to re-verify`,
+                  ]
+                : []),
+            ].join(" · ");
             return (
               <section key={group.titleKey} aria-label={groupTitle} className={CARD_CLASS}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -2706,17 +2991,15 @@ function ProgramsSection() {
                     <span className="text-[13px] font-semibold text-[var(--text)]">
                       {groupTitle}
                     </span>
-                    {anomalies.length === 0 ? (
+                    {trueAnomalies.length === 0 ? (
                       <span className="text-xs tabular-nums text-[var(--dim)]">
-                        {activeLang === "zh"
-                          ? `${rows.length}/${rows.length} 正常`
-                          : `${rows.length}/${rows.length} OK`}
+                        {quietSummary}
                       </span>
                     ) : (
                       <span className="text-xs font-semibold tabular-nums text-[#d92d20] dark:text-[#ff9d97]">
                         {activeLang === "zh"
-                          ? `${anomalies.length} 项异常`
-                          : `${anomalies.length} need attention`}
+                          ? `${trueAnomalies.length} 项异常`
+                          : `${trueAnomalies.length} need attention`}
                       </span>
                     )}
                   </button>
@@ -2758,7 +3041,7 @@ function ProgramsSection() {
                       <ProgramRowView
                         key={program.id}
                         program={program}
-                        anomaly={anomalyOf.get(program.id) ?? null}
+                        face={faceOf.get(program.id) ?? "unverified"}
                         audit={data.audit}
                         busy={requestMutation.isPending}
                         onRequest={handleRequest}
@@ -3031,7 +3314,7 @@ function StatusChip({
   );
 }
 
-type BoardPage = "main" | "more" | "china" | "history" | "jason" | "growth";
+type BoardPage = "main" | "more" | "china" | "history" | "jason" | "growth" | "panel";
 
 /** Navigation (v2.0, phone face reworked v2.3): a Semi-style left
  * rail. Pages keep their v1.9.0 groups — 日常 (daily): 今天 /
@@ -3039,8 +3322,9 @@ type BoardPage = "main" | "more" | "china" | "history" | "jason" | "growth";
  * 历史 — each group with a small heading and every tab carrying the
  * board's one line-icon set. At desktop width the rail is a vertical
  * column beside the content; below lg the groups dissolve
- * (display: contents) and the six tabs form a 3×2 grid that fits
- * 390px exactly — the v2.0–v2.2 horizontal scroll row (573px of
+ * (display: contents) and the tabs form a 3-column grid that fits
+ * 390px exactly (v2.5: seven tabs — 日常 3 + 专题 3 + 记录 1 — in
+ * three rows) — the v2.0–v2.2 horizontal scroll row (573px of
  * content in a 390px viewport, flagged by the v2.2 audit) is gone,
  * and no page hides behind a hamburger menu. v2.3.1 sizes: rail
  * 208px wide, rows 36px desktop / 32px phone (the 32px tap floor),
@@ -3086,6 +3370,7 @@ function RailNav({
       tabs: [
         { target: "growth", label: t("tabGrowth"), aria: t("growthTitle") },
         { target: "china", label: t("tabChina"), aria: t("page3"), count: chinaCount },
+        { target: "panel", label: t("tabPanel"), aria: t("panelTitle") },
       ],
     },
     {
@@ -3317,8 +3602,17 @@ function AddChinaForm({
  * shared by page 1 (≤14 天） and the status page (>14 天）. Items arrive from the
  * server in pure due-date order (soonest first); v1.8.2 stable-pins
  * items due today (Toronto date) to the very top — their relative
- * order is kept, and every other item keeps its order too. */
-function DeadlineGroups({ items }: { items: Item[] }) {
+ * order is kept, and every other item keeps its order too.
+ * v2.4: when `onOpen` is given, each row is a full-width button that
+ * opens the item detail panel (the write path is updateItem /
+ * closeItem against the items table — the board's own source). */
+function DeadlineGroups({
+  items,
+  onOpen,
+}: {
+  items: Item[];
+  onOpen?: (item: Item) => void;
+}) {
   const isDueToday = (item: Item) =>
     item.dueDate !== null && daysUntil(item.dueDate) === 0;
   const ordered = [
@@ -3329,12 +3623,8 @@ function DeadlineGroups({ items }: { items: Item[] }) {
     <ul className="divide-y divide-[var(--border)]">
       {ordered.map((item) => {
         const left = item.dueDate ? daysUntil(item.dueDate) : null;
-        return (
-          <li
-            key={item.id}
-            id={`board-item-${item.id}`}
-            className="flex scroll-mt-24 items-center gap-2 py-[5px] [@media(max-height:949px)]:py-[3px]"
-          >
+        const rowBody = (
+          <>
             <span className="w-[86px] shrink-0 text-xs font-semibold tabular-nums text-[var(--text)]">
               {item.dueDate ? formatDateLabel(item.dueDate) : t("noDate")}
             </span>
@@ -3348,6 +3638,24 @@ function DeadlineGroups({ items }: { items: Item[] }) {
             <span className="flex w-[84px] shrink-0 items-center justify-end">
               {left !== null ? <DeadlineChip left={left} /> : null}
             </span>
+          </>
+        );
+        return (
+          <li key={item.id} id={`board-item-${item.id}`} className="scroll-mt-24">
+            {onOpen ? (
+              <button
+                type="button"
+                onClick={() => onOpen(item)}
+                aria-label={`${item.title} · ${t("openDetailAria")}`}
+                className="flex w-full items-center gap-2 py-[5px] text-left transition hover:bg-[var(--fill)] active:scale-[0.995] motion-reduce:transition-none [@media(max-height:949px)]:py-[3px]"
+              >
+                {rowBody}
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 py-[5px] [@media(max-height:949px)]:py-[3px]">
+                {rowBody}
+              </div>
+            )}
           </li>
         );
       })}
@@ -3545,15 +3853,34 @@ function NewPageHeader({
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-/** 待拍板 page (waiting-on-decision). Feed convention (the ops lane
- * writes via the generic item actions, section "jason"): dueDate =
- * the day the ask was raised, so drag days = today − dueDate and the
+/** 待拍板 page (waiting-on-decision). Feed convention (the ops lane writes via
+ * the generic item actions, section "jason"): dueDate = the day the
+ * ask was raised, so drag days = today − dueDate and the list is
  * sorted longest-wait first; a hard date, when the item has one,
  * rides in `status` as an ISO date and gets the board's DeadlineChip
  * badge （今天到期 orange-red / overdue red — same caliber as the
  * deadlines list). Rows Tina closes land in the 本周已清 strip via
  * getBoard's jasonCleared. Semi List rhythm + soft Tags throughout. */
-function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
+function JasonPage({
+  open,
+  cleared,
+  onOpen,
+}: {
+  open: Item[];
+  cleared: Item[];
+  onOpen?: (item: Item) => void;
+}) {
+  const queryClient = useQueryClient();
+  const [reopenError, setReopenError] = useState<string | null>(null);
+  const reopenMutation = useMutation({
+    mutationFn: async (id: number) => await api.reopenItem({ id }),
+    onMutate: () => setReopenError(null),
+    onError: () => setReopenError(t("errProcess")),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["board"] });
+      void queryClient.invalidateQueries({ queryKey: ["recentlyClosed"] });
+    },
+  });
   const dragOf = (item: Item): number | null =>
     item.dueDate ? -daysUntil(item.dueDate) : null;
   const ordered = [...open].sort((a, b) => {
@@ -3608,8 +3935,8 @@ function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
     const hard = ISO_DATE_RE.test(item.status.trim())
       ? item.status.trim()
       : null;
-    return (
-      <li key={item.id} id={`board-item-${item.id}`} className="scroll-mt-24 py-2">
+    const rowBody = (
+      <>
         <div className="flex items-start justify-between gap-3">
           <p className="min-w-0 text-[15px] font-medium leading-snug text-[var(--text)]">
             {item.title}
@@ -3634,6 +3961,22 @@ function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
             <StatusPill status={item.status} />
           ) : null}
         </div>
+      </>
+    );
+    return (
+      <li key={item.id} id={`board-item-${item.id}`} className="scroll-mt-24">
+        {onOpen ? (
+          <button
+            type="button"
+            onClick={() => onOpen(item)}
+            aria-label={`${item.title} · ${t("openDetailAria")}`}
+            className="block w-full py-2 text-left transition hover:bg-[var(--fill)] active:scale-[0.995] motion-reduce:transition-none"
+          >
+            {rowBody}
+          </button>
+        ) : (
+          <div className="py-2">{rowBody}</div>
+        )}
       </li>
     );
   };
@@ -3678,6 +4021,11 @@ function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
         <SectionHeading icon={<SectionTile kind="jason" />}>
           {t("jasonClearedTitle")}
         </SectionHeading>
+        {reopenError ? (
+          <p role="alert" className="mb-2 rounded-lg border border-[#d92d20] px-3 py-2 text-sm text-[#d92d20] dark:text-[#ff9d97]">
+            {reopenError}
+          </p>
+        ) : null}
         {cleared.length === 0 ? (
           <EmptyLineCompact text={t("jasonClearedEmpty")} />
         ) : (
@@ -3694,12 +4042,410 @@ function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
                     {formatStampToronto(item.closedAt)}
                   </span>
                 ) : null}
+                <button
+                  type="button"
+                  disabled={reopenMutation.isPending}
+                  onClick={() => reopenMutation.mutate(item.id)}
+                  aria-label={`${t("restore")}：${item.title}`}
+                  className="shrink-0 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-2.5 text-xs font-medium text-[var(--accent)] transition hover:bg-[var(--fill)] disabled:opacity-50"
+                >
+                  {t("restore")}
+                </button>
               </li>
             ))}
           </ul>
         )}
       </section>
+      <RecentlyClosedSection
+        sections={["jason"]}
+        excludeIds={cleared.map((i) => i.id)}
+      />
     </>
+  );
+}
+
+/** How a closed row was closed, as a soft badge: 标完成 (done) reads
+ * green, 删除 (delete) reads red, an unmarked closure (pre-v2.4 rows,
+ * lanes/decisions paths) reads plain 已关闭. */
+function ClosedKindBadge({ kind }: { kind: string | null }) {
+  if (kind === "done") {
+    return (
+      <span className={`${BADGE_CLASS} shrink-0 bg-[#00b578]/10 font-medium text-[#00754b] dark:text-[#5ee0a8]`}>
+        {t("closedDoneTag")}
+      </span>
+    );
+  }
+  if (kind === "delete") {
+    return (
+      <span className={`${BADGE_CLASS} shrink-0 bg-[#f53f3f]/10 font-medium text-[#d92d20] dark:text-[#ff9d97]`}>
+        {t("closedDeletedTag")}
+      </span>
+    );
+  }
+  return (
+    <span className={`${BADGE_CLASS} shrink-0 bg-[var(--fill)] font-medium text-[var(--dim)]`}>
+      {t("closedPlainTag")}
+    </span>
+  );
+}
+
+/** 最近关闭 (v2.4): the restore entry for soft-closed deadlines /
+ * jason rows. Fed by getRecentlyClosed (the items table itself —
+ * closed rows are kept, never deleted), newest closure first; each
+ * row carries its close kind and a one-tap 恢复 (reopenItem clears
+ * closed_at, the row returns to its open list untouched). Renders
+ * nothing until the query lands, so the card never flashes an empty
+ * state over real data. */
+function RecentlyClosedSection({
+  sections,
+  excludeIds,
+}: {
+  sections: ("deadlines" | "jason")[];
+  excludeIds?: number[];
+}) {
+  const queryClient = useQueryClient();
+  const query = useQuery({
+    queryKey: ["recentlyClosed"],
+    queryFn: async () => await api.getRecentlyClosed({ limit: 20 }),
+  });
+  const [reopenError, setReopenError] = useState<string | null>(null);
+  const reopenMutation = useMutation({
+    mutationFn: async (id: number) => await api.reopenItem({ id }),
+    onMutate: () => setReopenError(null),
+    onError: () => setReopenError(t("errProcess")),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["board"] });
+      void queryClient.invalidateQueries({ queryKey: ["recentlyClosed"] });
+    },
+  });
+  const excluded = new Set(excludeIds ?? []);
+  const rows = (query.data?.items ?? []).filter(
+    (item) =>
+      (item.section === "deadlines" || item.section === "jason") &&
+      sections.includes(item.section) &&
+      !excluded.has(item.id),
+  );
+  if (query.isPending) return null;
+  return (
+    <section aria-label={t("recentlyClosedTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
+      <SectionHeading
+        icon={<SectionTile kind="history" />}
+        action={
+          rows.length > 0 ? (
+            <span className={`${BADGE_CLASS} bg-[var(--fill)] font-medium tabular-nums text-[var(--dim)]`}>
+              {rows.length}
+            </span>
+          ) : undefined
+        }
+      >
+        {t("recentlyClosedTitle")}
+      </SectionHeading>
+      {reopenError ? (
+        <p role="alert" className="mb-2 rounded-lg border border-[#d92d20] px-3 py-2 text-sm text-[#d92d20] dark:text-[#ff9d97]">
+          {reopenError}
+        </p>
+      ) : null}
+      {rows.length === 0 ? (
+        <EmptyLineCompact text={t("recentlyClosedEmpty")} />
+      ) : (
+        <ul className="divide-y divide-[var(--border)]">
+          {rows.map((item) => (
+            <li key={item.id} className="flex items-center gap-2 py-[5px]">
+              <ClosedKindBadge kind={item.closedKind} />
+              <span className="min-w-0 flex-1 truncate text-sm text-[var(--text)]">
+                <span className="font-medium">{item.title}</span>
+                {item.detail ? (
+                  <span className="text-[var(--dim)]"> · {item.detail}</span>
+                ) : null}
+              </span>
+              <span className="hidden shrink-0 text-xs text-[var(--dim)] sm:inline">
+                {item.section === "jason" ? t("sectionJasonName") : t("sectionDeadlineName")}
+              </span>
+              {item.closedAt ? (
+                <span className="shrink-0 text-xs tabular-nums text-[var(--dim)]">
+                  {formatStampToronto(item.closedAt)}
+                </span>
+              ) : null}
+              <button
+                type="button"
+                disabled={reopenMutation.isPending}
+                onClick={() => reopenMutation.mutate(item.id)}
+                aria-label={`${t("restore")}：${item.title}`}
+                className="shrink-0 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-2.5 text-xs font-medium text-[var(--accent)] transition hover:bg-[var(--fill)] disabled:opacity-50"
+              >
+                {t("restore")}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+type ItemPanelState = { mode: "create" } | { mode: "edit"; item: Item };
+
+/** Item detail panel (v2.4) — the Semi-house editor for deadlines and
+ * 待拍板 rows, opened by tapping a row. One panel, three modes of the
+ * same write path against the items table (the board's source):
+ * create → addItem({section:"deadlines"}); edit → updateItem;
+ * 标完成 / 删除 → closeItem with kind "done" / "delete" (two separate
+ * actions, both soft closes, the kind stamped on the row). Field
+ * semantics follow the section: deadlines edit 标题 / 到期日期 / 备注 /
+ * 状态 (free text); jason edits 标题 / 提出日期 (its dueDate) / 备注 /
+ * 硬日期 (its status, an ISO date in a date field — a non-date status
+ * string is shown in its own text field instead of being silently
+ * dropped). Delete needs a second tap on the armed button, the same
+ * confirm language as the lanes rows. Remounted per open (key from
+ * the parent), so the form always starts from the row's live values. */
+function ItemPanel({
+  state,
+  busy,
+  error,
+  onClose,
+  onSave,
+  onAdd,
+  onCloseItem,
+}: {
+  state: ItemPanelState;
+  busy: boolean;
+  error: string | null;
+  onClose: () => void;
+  onSave: (args: {
+    id: number;
+    title: string;
+    detail: string;
+    status: string;
+    dueDate: string | null;
+  }) => void;
+  onAdd: (args: {
+    title: string;
+    detail: string;
+    status: string;
+    dueDate: string | null;
+  }) => void;
+  onCloseItem: (args: { id: number; kind: "done" | "delete" }) => void;
+}) {
+  const item = state.mode === "edit" ? state.item : null;
+  const section = item?.section ?? "deadlines";
+  const isJason = section === "jason";
+  const rawStatus = item?.status ?? "";
+  const statusIsDate = ISO_DATE_RE.test(rawStatus.trim());
+  const [title, setTitle] = useState(item?.title ?? "");
+  const [dueDate, setDueDate] = useState(item?.dueDate ?? "");
+  const [detail, setDetail] = useState(item?.detail ?? "");
+  const [statusText, setStatusText] = useState(
+    isJason && !statusIsDate ? rawStatus : isJason ? "" : rawStatus,
+  );
+  const [hardDate, setHardDate] = useState(statusIsDate ? rawStatus.trim() : "");
+  const [deleteArmed, setDeleteArmed] = useState(false);
+  const armTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const armDelete = () => {
+    setDeleteArmed(true);
+    if (armTimerRef.current) clearTimeout(armTimerRef.current);
+    armTimerRef.current = setTimeout(() => setDeleteArmed(false), 3500);
+  };
+
+  const heading =
+    state.mode === "create"
+      ? t("panelNewDeadline")
+      : isJason
+        ? t("panelEditJason")
+        : t("panelEditDeadline");
+  const composedStatus = isJason ? hardDate || statusText : statusText;
+  const canSubmit = title.trim().length > 0 && !busy;
+
+  const submit = () => {
+    if (!canSubmit) return;
+    const fields = {
+      title: title.trim(),
+      detail: detail.trim(),
+      status: composedStatus.trim(),
+      dueDate: dueDate ? dueDate : null,
+    };
+    if (item) onSave({ id: item.id, ...fields });
+    else onAdd(fields);
+  };
+
+  const labelClass = "mb-1 block text-[13px] font-medium text-[var(--dim)]";
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={heading}
+      className="fixed inset-0 z-[70] flex items-end justify-center bg-black/45 p-4 sm:items-center"
+      onClick={onClose}
+    >
+      <div
+        className="panel-in max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-[10px] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[0_8px_28px_rgba(28,31,35,0.25)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-base font-semibold text-[var(--text)]">{heading}</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t("cancel")}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] text-lg leading-none text-[var(--dim)] transition hover:bg-[var(--fill)] hover:text-[var(--text)]"
+          >
+            ×
+          </button>
+        </div>
+        {error ? (
+          <p role="alert" className="mt-2 rounded-lg border border-[#d92d20] px-3 py-2 text-sm text-[#d92d20] dark:text-[#ff9d97]">
+            {error}
+          </p>
+        ) : null}
+        <form
+          className="mt-3 space-y-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit();
+          }}
+        >
+          <div>
+            <label htmlFor="item-panel-title" className={labelClass}>
+              {t("fieldTitle")}
+            </label>
+            <input
+              id="item-panel-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={t("titlePh")}
+              aria-label={t("formTitleAria")}
+              autoFocus
+              className={INPUT_CLASS}
+            />
+          </div>
+          <div>
+            <label htmlFor="item-panel-date" className={labelClass}>
+              {isJason ? t("fieldAskedDate") : t("fieldDueDate")}
+            </label>
+            <input
+              id="item-panel-date"
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              aria-label={isJason ? t("fieldAskedDate") : t("fieldDueDate")}
+              className={INPUT_CLASS}
+            />
+          </div>
+          <div>
+            <label htmlFor="item-panel-detail" className={labelClass}>
+              {t("fieldDetail")}
+            </label>
+            <textarea
+              id="item-panel-detail"
+              value={detail}
+              onChange={(e) => setDetail(e.target.value)}
+              placeholder={t("detailPh")}
+              aria-label={t("formDetailAria")}
+              rows={2}
+              className="w-full rounded-[6px] border border-[var(--border)] bg-[var(--fill)] px-3 py-2 text-[15px] text-[var(--text)] placeholder:text-[var(--dim)] transition focus:border-[var(--accent)] focus:bg-[var(--surface)] focus:shadow-[0_0_0_3px_var(--accent-ring)] focus:outline-none"
+            />
+          </div>
+          {isJason ? (
+            <>
+              <div>
+                <label htmlFor="item-panel-hard" className={labelClass}>
+                  {t("fieldHardDate")}
+                </label>
+                <input
+                  id="item-panel-hard"
+                  type="date"
+                  value={hardDate}
+                  onChange={(e) => setHardDate(e.target.value)}
+                  aria-label={t("fieldHardDate")}
+                  className={INPUT_CLASS}
+                />
+              </div>
+              {rawStatus !== "" && !statusIsDate ? (
+                <div>
+                  <label htmlFor="item-panel-status" className={labelClass}>
+                    {t("fieldStatusText")}
+                  </label>
+                  <input
+                    id="item-panel-status"
+                    value={statusText}
+                    onChange={(e) => setStatusText(e.target.value)}
+                    aria-label={t("formStatusAria")}
+                    className={INPUT_CLASS}
+                  />
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <div>
+              <label htmlFor="item-panel-status" className={labelClass}>
+                {t("fieldStatus")}
+              </label>
+              <input
+                id="item-panel-status"
+                value={statusText}
+                onChange={(e) => setStatusText(e.target.value)}
+                placeholder={t("statusPh")}
+                aria-label={t("formStatusAria")}
+                className={INPUT_CLASS}
+              />
+            </div>
+          )}
+          <div className="flex gap-2 pt-1">
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              className="h-10 flex-1 rounded-[6px] bg-[var(--accent)] text-[15px] font-semibold text-white transition hover:bg-[var(--accent-hover)] active:bg-[var(--accent-active)] disabled:opacity-50"
+            >
+              {busy ? t("processing") : state.mode === "create" ? t("add") : t("save")}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="h-10 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-4 text-[15px] font-medium text-[var(--text)] transition hover:bg-[var(--fill)]"
+            >
+              {t("cancel")}
+            </button>
+          </div>
+        </form>
+        {item ? (
+          <div className="mt-3 flex gap-2 border-t border-[var(--border)] pt-3">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => onCloseItem({ id: item.id, kind: "done" })}
+              className="h-9 flex-1 rounded-[6px] border border-[#00b578]/40 text-sm font-medium text-[#00754b] transition hover:bg-[#00b578]/10 disabled:opacity-50 dark:text-[#5ee0a8]"
+            >
+              {t("markDone")}
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                if (deleteArmed) onCloseItem({ id: item.id, kind: "delete" });
+                else armDelete();
+              }}
+              aria-label={deleteArmed ? t("deleteConfirm") : t("delete")}
+              className={`h-9 flex-1 rounded-[6px] text-sm font-medium transition disabled:opacity-50 ${
+                deleteArmed
+                  ? "bg-[#f53f3f] font-semibold text-white hover:bg-[#d92d20]"
+                  : "border border-[#f53f3f]/40 text-[#d92d20] hover:bg-[#f53f3f]/10 dark:text-[#ff9d97]"
+              }`}
+            >
+              {deleteArmed ? t("deleteConfirm") : t("delete")}
+            </button>
+          </div>
+        ) : null}
+      </div>
+    </div>
   );
 }
 
@@ -3709,6 +4455,542 @@ function JasonPage({ open, cleared }: { open: Item[]; cleared: Item[] }) {
  * "outreach" (the three outreach lines). `status` carries the feed's
  * value string and is shown verbatim; nothing is computed here except
  * the page's own update stamp. */
+type ControlPanelData = ApiResponse<typeof api, "getControlPanel">;
+type ControlSnapshot = NonNullable<ControlPanelData["snapshot"]>;
+type ControlHealth = ControlSnapshot["payload"]["metrics"][number]["health"];
+type ControlEntry = ControlSnapshot["payload"]["memoryFiles"][number];
+
+/** Health verdict badge — the panel's one caliber: 正常 green /
+ * 注意 amber / 该处理 red, soft fills only, same box as every other
+ * badge on the board. */
+function PanelHealthBadge({ health }: { health: ControlHealth }) {
+  const cls =
+    health === "act"
+      ? "bg-[#f53f3f]/10 text-[#d92d20] dark:text-[#ff9d97]"
+      : health === "watch"
+        ? "bg-[#ff9d0a]/15 text-[#a15e00] dark:text-[#ffc65c]"
+        : "bg-[#00b578]/10 text-[#00754b] dark:text-[#5ee0a8]";
+  const dot =
+    health === "act"
+      ? "bg-[#f53f3f]"
+      : health === "watch"
+        ? "bg-[#ff9d0a]"
+        : "bg-[#00b578]";
+  const word =
+    health === "act"
+      ? t("panelHealthAct")
+      : health === "watch"
+        ? t("panelHealthWatch")
+        : t("panelHealthOk");
+  return (
+    <span className={`${BADGE_CLASS} font-medium ${cls}`}>
+      <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+      {word}
+    </span>
+  );
+}
+
+/** The one hard threshold the page enforces itself, whatever the
+ * snapshot's verdict says: MEMORY.md over 80 KB is 该瘦身 (act);
+ * over 64 KB it can never read better than 注意 (watch). */
+function memoryMdHealth(bytes: number, reported: ControlHealth): ControlHealth {
+  if (bytes > 80 * 1024) return "act";
+  if (bytes > 64 * 1024 && reported === "ok") return "watch";
+  return reported;
+}
+
+function trendTitle(key: string): string {
+  switch (key) {
+    case "memoryMd":
+      return t("panelTrendMemoryMd");
+    case "memoryTotal":
+      return t("panelTrendMemoryTotal");
+    case "cron":
+      return t("panelTrendCron");
+    default:
+      return t("panelTrendProjects");
+  }
+}
+
+function trendValue(key: string, value: number): string {
+  if (key === "memoryMd") return `${(value / 1024).toFixed(1)} KB`;
+  if (key === "memoryTotal") return `${value} MB`;
+  return `${value}`;
+}
+
+/** One trend series: an SVG sparkline once two weekly snapshots
+ * exist; a single snapshot renders as one dot + its value, honestly
+ * labeled by its week — no line is drawn through one point. */
+function PanelTrendRow({
+  trend,
+}: {
+  trend: ControlPanelData["trends"][number];
+}) {
+  const points = trend.points;
+  const last = points[points.length - 1];
+  if (!last) return null;
+  const w = 200;
+  const h = 40;
+  const pad = 5;
+  const values = points.map((p) => p.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || 1;
+  const coords = points.map((p, i) => {
+    const x =
+      points.length === 1
+        ? w / 2
+        : pad + (i * (w - pad * 2)) / (points.length - 1);
+    const y = h - pad - ((p.value - min) / span) * (h - pad * 2);
+    return { x, y };
+  });
+  return (
+    <li className="flex items-center gap-3 py-1.5">
+      <span className="w-[92px] shrink-0 text-sm font-medium text-[var(--text)]">
+        {trendTitle(trend.key)}
+      </span>
+      <svg
+        viewBox={`0 0 ${w} ${h}`}
+        className="h-10 min-w-0 flex-1 text-[var(--accent)]"
+        role="img"
+        aria-label={`${trendTitle(trend.key)} ${trendValue(trend.key, last.value)}`}
+        preserveAspectRatio="none"
+      >
+        {coords.length > 1 ? (
+          <polyline
+            points={coords.map((c) => `${c.x},${c.y}`).join(" ")}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        ) : null}
+        {coords.map((c, i) => (
+          <circle key={i} cx={c.x} cy={c.y} r="3" fill="currentColor" />
+        ))}
+      </svg>
+      <span className="shrink-0 text-right">
+        <span className="block text-[15px] font-bold tabular-nums text-[var(--text)]">
+          {trendValue(trend.key, last.value)}
+        </span>
+        <span className="block text-[11px] tabular-nums text-[var(--dim)]">
+          {last.weekKey.slice(5)}
+        </span>
+      </span>
+    </li>
+  );
+}
+
+/** Tina Control Panel (v2.5): Tina's own health check — the concept
+ * from Mark's forwarded post, upgraded. The page reads ONLY the
+ * weekly snapshot Tina files via reportControlPanel (never her
+ * filesystem) and stamps it with its report time; every quantity
+ * carries a health verdict, the MEMORY.md 80 KB slimming line is
+ * enforced by the page itself, weekly snapshots accumulate into
+ * trend sparklines, and the 「该整理了」 list at the bottom is
+ * actionable — 关/删 close through the generic closeItem (kind
+ * done/delete, same as deadlines/jason), 留 stamps the row "kept"
+ * via updateItem. Cleanup rows arrive through getBoard like every
+ * other section. Costs and mail render honest 尚未同步 states until
+ * Tina's reports carry them. */
+function ControlPanelPage({ items }: { items: Item[] }) {
+  const queryClient = useQueryClient();
+  const panelQuery = useQuery({
+    queryKey: ["controlPanel"],
+    queryFn: async () => await api.getControlPanel({}),
+  });
+  const [busyId, setBusyId] = useState<number | null>(null);
+  const [armDeleteId, setArmDeleteId] = useState<number | null>(null);
+  const [actionFailed, setActionFailed] = useState(false);
+
+  const closeMutation = useMutation({
+    mutationFn: async (args: { id: number; kind: "done" | "delete" }) =>
+      await api.closeItem(args),
+    onMutate: (args) => {
+      setBusyId(args.id);
+      setActionFailed(false);
+    },
+    onError: () => setActionFailed(true),
+    onSettled: () => {
+      setBusyId(null);
+      setArmDeleteId(null);
+      void queryClient.invalidateQueries({ queryKey: ["board"] });
+    },
+  });
+  const keepMutation = useMutation({
+    mutationFn: async (id: number) =>
+      await api.updateItem({ id, status: "kept" }),
+    onMutate: (id) => {
+      setBusyId(id);
+      setActionFailed(false);
+    },
+    onError: () => setActionFailed(true),
+    onSettled: () => {
+      setBusyId(null);
+      void queryClient.invalidateQueries({ queryKey: ["board"] });
+    },
+  });
+
+  const snapshot = panelQuery.data?.snapshot ?? null;
+  const trends = panelQuery.data?.trends ?? [];
+  const payload = snapshot?.payload ?? null;
+  const stale =
+    snapshot !== null &&
+    Date.now() - new Date(snapshot.reportedAt).getTime() >
+      8 * 24 * 60 * 60 * 1000;
+  const cronMetric = payload?.metrics.find((m) => m.key === "cron") ?? null;
+
+  const entryList = (rows: ControlEntry[]) => (
+    <ul className="divide-y divide-[var(--border)]">
+      {rows.map((entry, i) => (
+        <li key={`${entry.name}-${i}`} className="flex items-center gap-2 py-1.5">
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-medium text-[var(--text)]">
+              {entry.name}
+            </span>
+            {entry.detail ? (
+              <span className="block text-[13px] leading-snug text-[var(--dim)]">
+                {entry.detail}
+              </span>
+            ) : null}
+          </span>
+          <PanelHealthBadge health={entry.health} />
+        </li>
+      ))}
+    </ul>
+  );
+
+  const suggestBadge = (status: string) => {
+    if (status === "kept") {
+      return (
+        <span className={`${BADGE_CLASS} bg-[#00b578]/10 font-medium text-[#00754b] dark:text-[#5ee0a8]`}>
+          {t("panelKept")}
+        </span>
+      );
+    }
+    if (status === "delete") {
+      return (
+        <span className={`${BADGE_CLASS} bg-[#f53f3f]/10 font-medium text-[#d92d20] dark:text-[#ff9d97]`}>
+          {t("panelSuggestDelete")}
+        </span>
+      );
+    }
+    if (status === "close") {
+      return (
+        <span className={`${BADGE_CLASS} bg-[#ff9d0a]/15 font-medium text-[#a15e00] dark:text-[#ffc65c]`}>
+          {t("panelSuggestClose")}
+        </span>
+      );
+    }
+    return (
+      <span className={`${BADGE_CLASS} bg-[var(--fill)] font-medium text-[var(--dim)]`}>
+        {t("panelSuggestKeep")}
+      </span>
+    );
+  };
+
+  return (
+    <>
+      {/* Header: page name + the snapshot's own report stamp — a
+          stale snapshot is visible before any number is read. */}
+      <div className={`${CARD_CLASS} mt-[var(--space-stack)] flex flex-wrap items-center gap-x-3 gap-y-1`}>
+        <span className="flex shrink-0 items-center gap-2 text-sm font-semibold text-[var(--text)]">
+          <SectionTile kind="panel" />
+          {t("panelTitle")}
+        </span>
+        <span className="min-w-0 text-sm text-[var(--dim)]">{t("panelSub")}</span>
+        <span className="ml-auto shrink-0 text-xs tabular-nums text-[var(--dim)]">
+          {snapshot
+            ? `${t("panelSnapshotAt")} ${formatStampToronto(snapshot.reportedAt)}${t("torontoTimeSuffix")}`
+            : t("panelNotSynced")}
+        </span>
+      </div>
+
+      {panelQuery.isPending ? (
+        <div className={`${CARD_CLASS} mt-[var(--space-stack)] text-sm text-[var(--dim)]`}>
+          {t("panelLoading")}
+        </div>
+      ) : panelQuery.isError || !panelQuery.data ? (
+        <div className={`${CARD_CLASS} mt-[var(--space-stack)] flex flex-wrap items-center gap-3`}>
+          <span className="text-sm text-[var(--dim)]">{t("panelUnavailable")}</span>
+          <button
+            type="button"
+            onClick={() => void panelQuery.refetch()}
+            aria-label={t("retry")}
+            className="h-8 shrink-0 rounded-[6px] bg-[var(--accent)] px-3 text-sm font-semibold text-white transition hover:bg-[var(--accent-hover)] active:bg-[var(--accent-active)] disabled:opacity-50"
+          >
+            {t("retry")}
+          </button>
+        </div>
+      ) : !payload ? (
+        <div className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
+          <EmptyLine text={t("panelNotSynced")} />
+        </div>
+      ) : (
+        <>
+          {stale ? (
+            <p className="mt-[var(--space-stack)] rounded-[8px] bg-[#ff9d0a]/15 px-3 py-2 text-sm font-medium text-[#a15e00] dark:text-[#ffc65c]">
+              {t("panelStale")}
+            </p>
+          ) : null}
+
+          {/* 总量速览: every headline quantity with its verdict. */}
+          <section aria-label={t("panelMetricsTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
+            <SectionHeading icon={<SectionTile kind="panel" />}>{t("panelMetricsTitle")}</SectionHeading>
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-4">
+              {payload.metrics.map((metric) => {
+                const health =
+                  metric.key === "memoryMd"
+                    ? memoryMdHealth(metric.value, metric.health)
+                    : metric.health;
+                return (
+                  <li key={metric.key} className="min-w-0">
+                    <span className="flex items-center gap-2">
+                      <span className="truncate text-[13px] font-medium text-[var(--dim)]">
+                        {metric.label}
+                      </span>
+                      <PanelHealthBadge health={health} />
+                    </span>
+                    <span className="mt-0.5 block truncate text-[22px] font-extrabold leading-tight tabular-nums text-[var(--text)]">
+                      {metric.display}
+                    </span>
+                    {metric.note ? (
+                      <span className="block text-[12px] leading-snug text-[var(--dim)]">
+                        {metric.note}
+                      </span>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+
+          {/* 走势: weekly snapshots accumulate into sparklines. */}
+          <section aria-label={t("panelTrendsTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
+            <SectionHeading icon={<SectionTile kind="panel" />}>{t("panelTrendsTitle")}</SectionHeading>
+            {trends.length === 0 ? (
+              <EmptyLineCompact text={t("panelTrendsEmpty")} />
+            ) : (
+              <>
+                <ul className="divide-y divide-[var(--border)]">
+                  {trends.map((trend) => (
+                    <PanelTrendRow key={trend.key} trend={trend} />
+                  ))}
+                </ul>
+                {trends.every((trend) => trend.points.length < 2) ? (
+                  <p className="mt-1 text-[13px] text-[var(--dim)]">{t("panelTrendsEmpty")}</p>
+                ) : null}
+              </>
+            )}
+          </section>
+
+          {/* Module lists in the board's card grid: files / spaces /
+              skills / cron / services / mail / costs. */}
+          <div className="mt-[var(--space-stack)] grid items-start gap-[var(--space-gap)] md:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0">
+            <section aria-label={t("panelFilesTitle")} className={CARD_CLASS}>
+              <SectionHeading icon={<SectionTile kind="panel" />}>{t("panelFilesTitle")}</SectionHeading>
+              {payload.memoryFiles.length === 0 ? (
+                <EmptyLineCompact text={t("panelNotSynced")} />
+              ) : (
+                entryList(payload.memoryFiles)
+              )}
+            </section>
+            <section aria-label={t("panelSpacesTitle")} className={CARD_CLASS}>
+              <SectionHeading icon={<SectionTile kind="panel" />}>{t("panelSpacesTitle")}</SectionHeading>
+              {payload.spaces.length === 0 ? (
+                <EmptyLineCompact text={t("panelNotSynced")} />
+              ) : (
+                entryList(payload.spaces)
+              )}
+            </section>
+            <section aria-label={t("panelSkillsTitle")} className={CARD_CLASS}>
+              <SectionHeading icon={<SectionTile kind="panel" />}>{t("panelSkillsTitle")}</SectionHeading>
+              {payload.skills.length === 0 ? (
+                <EmptyLineCompact text={t("panelNotSynced")} />
+              ) : (
+                entryList(payload.skills)
+              )}
+            </section>
+            <section aria-label={t("panelCronTitle")} className={CARD_CLASS}>
+              <SectionHeading icon={<SectionTile kind="panel" />}>{t("panelCronTitle")}</SectionHeading>
+              <ul className="divide-y divide-[var(--border)]">
+                <li className="flex items-center gap-2 py-1.5">
+                  <span className="min-w-0 flex-1 text-sm font-medium text-[var(--text)]">
+                    {t("panelCronEnabled")}
+                  </span>
+                  <span className="shrink-0 text-[15px] font-bold tabular-nums text-[var(--text)]">
+                    {cronMetric ? cronMetric.display : "—"}
+                  </span>
+                  {cronMetric ? <PanelHealthBadge health={cronMetric.health} /> : null}
+                </li>
+                <li className="flex items-center gap-2 py-1.5">
+                  <span className="min-w-0 flex-1 text-sm font-medium text-[var(--text)]">
+                    {t("panelCronFailures")}
+                  </span>
+                  {payload.cronFailures7d === null ? (
+                    <span className="shrink-0 text-[13px] text-[var(--dim)]">
+                      {t("panelCronFailuresPending")}
+                    </span>
+                  ) : (
+                    <>
+                      <span className="shrink-0 text-[15px] font-bold tabular-nums text-[var(--text)]">
+                        {payload.cronFailures7d}
+                      </span>
+                      <PanelHealthBadge
+                        health={payload.cronFailures7d > 0 ? "act" : "ok"}
+                      />
+                    </>
+                  )}
+                </li>
+              </ul>
+            </section>
+            <section aria-label={t("panelServicesTitle")} className={CARD_CLASS}>
+              <SectionHeading icon={<SectionTile kind="panel" />}>{t("panelServicesTitle")}</SectionHeading>
+              {payload.services.length === 0 ? (
+                <EmptyLineCompact text={t("panelNotSynced")} />
+              ) : (
+                entryList(payload.services)
+              )}
+            </section>
+            <section aria-label={t("panelMailTitle")} className={CARD_CLASS}>
+              <SectionHeading icon={<SectionTile kind="panel" />}>{t("panelMailTitle")}</SectionHeading>
+              {payload.mail === null ? (
+                <EmptyLineCompact text={t("panelMailEmpty")} />
+              ) : (
+                <div className="py-1">
+                  <p className="flex flex-wrap items-center gap-2 text-sm text-[var(--text)]">
+                    <span className="font-medium">{payload.mail.summary}</span>
+                    <PanelHealthBadge health={payload.mail.health} />
+                  </p>
+                  <p className="mt-1 text-[13px] tabular-nums text-[var(--dim)]">
+                    {t("panelMailCheckedAt")} {formatStampToronto(payload.mail.checkedAt)}
+                    {t("torontoTimeSuffix")}
+                  </p>
+                </div>
+              )}
+            </section>
+            <section aria-label={t("panelCostsTitle")} className={CARD_CLASS}>
+              <SectionHeading icon={<SectionTile kind="panel" />}>{t("panelCostsTitle")}</SectionHeading>
+              {payload.costs.length === 0 ? (
+                <EmptyLineCompact text={t("panelCostsEmpty")} />
+              ) : (
+                <ul className="divide-y divide-[var(--border)]">
+                  {payload.costs.map((cost, i) => (
+                    <li key={`${cost.name}-${i}`} className="flex items-center gap-2 py-1.5">
+                      <span className="min-w-0 flex-1">
+                        <span className="flex flex-wrap items-center gap-1.5 text-sm font-medium text-[var(--text)]">
+                          {cost.name}
+                          {cost.idle ? (
+                            <span className={`${BADGE_CLASS} bg-[#ff9d0a]/15 font-medium text-[#a15e00] dark:text-[#ffc65c]`}>
+                              {t("panelIdleSeat")}
+                            </span>
+                          ) : null}
+                        </span>
+                        {cost.note ? (
+                          <span className="block text-[13px] leading-snug text-[var(--dim)]">
+                            {cost.note}
+                          </span>
+                        ) : null}
+                      </span>
+                      <span className="shrink-0 text-[15px] font-bold tabular-nums text-[var(--text)]">
+                        {cost.display}
+                      </span>
+                      <PanelHealthBadge health={cost.health} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
+        </>
+      )}
+
+      {/* 「该整理了」: actionable — every row carries Tina's suggested
+          action and Mark's verdict lands on the row itself. */}
+      <section aria-label={t("panelCleanupTitle")} className={`${CARD_CLASS} mt-[var(--space-stack)]`}>
+        <SectionHeading icon={<SectionTile kind="panel" />}>{t("panelCleanupTitle")}</SectionHeading>
+        {actionFailed ? (
+          <p role="alert" className="mb-2 rounded-lg border border-[#d92d20] px-3 py-2 text-sm text-[#d92d20] dark:text-[#ff9d97]">
+            {t("panelActionFailed")}
+          </p>
+        ) : null}
+        {items.length === 0 ? (
+          <EmptyLine text={t("panelCleanupEmpty")} />
+        ) : (
+          <ul className="divide-y divide-[var(--border)]">
+            {items.map((item) => {
+              const kept = item.status === "kept";
+              const busy = busyId === item.id;
+              const armed = armDeleteId === item.id;
+              return (
+                <li key={item.id} id={`board-item-${item.id}`} className="scroll-mt-24 py-2 first:pt-1 last:pb-0">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="min-w-0 text-[15px] font-medium leading-snug text-[var(--text)]">
+                      {item.title}
+                    </p>
+                    {suggestBadge(item.status)}
+                  </div>
+                  {item.detail ? (
+                    <p className="mt-0.5 text-sm leading-relaxed text-[var(--dim)]">
+                      {item.detail}
+                    </p>
+                  ) : null}
+                  {!kept ? (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => closeMutation.mutate({ id: item.id, kind: "done" })}
+                        aria-label={`${t("panelBtnClose")}：${item.title}`}
+                        className="h-8 rounded-[6px] border border-[var(--accent)] px-3 text-sm font-semibold text-[var(--accent)] transition hover:bg-[var(--accent)]/10 active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50"
+                      >
+                        {t("panelBtnClose")}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => {
+                          if (armed) {
+                            closeMutation.mutate({ id: item.id, kind: "delete" });
+                          } else {
+                            setArmDeleteId(item.id);
+                            setTimeout(() => {
+                              setArmDeleteId((cur) => (cur === item.id ? null : cur));
+                            }, 3500);
+                          }
+                        }}
+                        aria-label={`${t("panelBtnDelete")}：${item.title}`}
+                        className={
+                          armed
+                            ? "h-8 rounded-[6px] bg-[#f53f3f] px-3 text-sm font-semibold text-white transition active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50"
+                            : "h-8 rounded-[6px] border border-[#f53f3f]/40 px-3 text-sm font-semibold text-[#d92d20] transition hover:bg-[#f53f3f]/10 active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50 dark:text-[#ff9d97]"
+                        }
+                      >
+                        {armed ? t("panelBtnDeleteConfirm") : t("panelBtnDelete")}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => keepMutation.mutate(item.id)}
+                        aria-label={`${t("panelBtnKeep")}：${item.title}`}
+                        className="h-8 rounded-[6px] border border-[var(--border)] px-3 text-sm font-medium text-[var(--dim)] transition hover:bg-[var(--fill)] hover:text-[var(--text)] active:scale-[0.98] motion-reduce:transition-none disabled:opacity-50"
+                      >
+                        {t("panelBtnKeep")}
+                      </button>
+                    </div>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+    </>
+  );
+}
+
 function GrowthPage({ items }: { items: Item[] }) {
   const founding = items.filter((i) => i.lane === "founding");
   const funnel = items.filter((i) => i.lane === "funnel");
@@ -4507,6 +5789,69 @@ export function App() {
     },
   });
 
+  // v2.4 item detail panel (deadlines + 待拍板）: rows open the panel,
+  // and every write goes through the generic item actions against the
+  // items table — save = updateItem, new = addItem({section:
+  // "deadlines"}), 标完成/删除 = closeItem with the kind stamped on
+  // the row. A successful write closes the panel; a failed one keeps
+  // it open with the error inside, so nothing typed is lost.
+  const [panel, setPanel] = useState<ItemPanelState | null>(null);
+  const [panelError, setPanelError] = useState<string | null>(null);
+  const openPanel = (next: ItemPanelState) => {
+    setPanelError(null);
+    setPanel(next);
+  };
+  const invalidateBoardAndClosed = () => {
+    void queryClient.invalidateQueries({ queryKey: ["board"] });
+    void queryClient.invalidateQueries({ queryKey: ["recentlyClosed"] });
+  };
+  const panelSaveMutation = useMutation({
+    mutationFn: async (args: {
+      id: number;
+      title: string;
+      detail: string;
+      status: string;
+      dueDate: string | null;
+    }) => await api.updateItem(args),
+    onMutate: () => setPanelError(null),
+    onError: () => setPanelError(t("errSave")),
+    onSuccess: () => setPanel(null),
+    onSettled: invalidateBoardAndClosed,
+  });
+  const panelAddMutation = useMutation({
+    mutationFn: async (args: {
+      title: string;
+      detail: string;
+      status: string;
+      dueDate: string | null;
+    }) =>
+      await api.addItem({
+        section: "deadlines",
+        lane: "",
+        title: args.title,
+        detail: args.detail,
+        status: args.status,
+        dueDate: args.dueDate,
+        sort: 9999,
+      }),
+    onMutate: () => setPanelError(null),
+    onError: () => setPanelError(t("errAdd")),
+    onSuccess: () => setPanel(null),
+    onSettled: invalidateBoardAndClosed,
+  });
+  const panelCloseMutation = useMutation({
+    mutationFn: async (args: { id: number; kind: "done" | "delete" }) =>
+      await api.closeItem(args),
+    onMutate: () => setPanelError(null),
+    onError: () => setPanelError(t("errProcess")),
+    onSuccess: () => setPanel(null),
+    onSettled: invalidateBoardAndClosed,
+  });
+  const panelBusy =
+    panelSaveMutation.isPending ||
+    panelAddMutation.isPending ||
+    panelCloseMutation.isPending;
+
   if (board.isPending) {
     return (
       <div className="min-h-screen bg-[var(--bg)]">
@@ -5078,7 +6423,20 @@ export function App() {
           </>
         ) : page === "jason" ? (
           <>
-                        <JasonPage open={data.jasonOpen} cleared={data.jasonCleared} />
+                        <JasonPage
+                          open={data.jasonOpen}
+                          cleared={data.jasonCleared}
+                          onOpen={(item) => openPanel({ mode: "edit", item })}
+                        />
+            <footer className="mt-[var(--space-stack)] border-t border-[var(--border)] pt-2 text-center">
+              <p className="text-xs text-[var(--dim)]">
+                OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
+              </p>
+            </footer>
+          </>
+        ) : page === "panel" ? (
+          <>
+                        <ControlPanelPage items={data.panel} />
             <footer className="mt-[var(--space-stack)] border-t border-[var(--border)] pt-2 text-center">
               <p className="text-xs text-[var(--dim)]">
                 OpsDeck · {BOARD_VERSION} · Built by Tina for Mark
@@ -5297,18 +6655,38 @@ export function App() {
             扫一眼优先于「一个信息一个家」，不许再被去重收敛）。
             近 14 天逐行全列，14 天后分区同卡在下；状态页零渲染。 */}
         <section aria-label={t("deadlinesTitle")} className={CARD_CLASS}>
-          <SectionHeading icon={<SectionTile kind="deadlines" />}>{t("deadlinesTitle")}</SectionHeading>
+          <SectionHeading
+            icon={<SectionTile kind="deadlines" />}
+            action={
+              <button
+                type="button"
+                onClick={() => openPanel({ mode: "create" })}
+                aria-label={t("newDeadlineAria")}
+                className="h-8 shrink-0 rounded-[6px] bg-[var(--accent)] px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--accent-hover)] active:bg-[var(--accent-active)] active:scale-[0.98] motion-reduce:transition-none"
+              >
+                {t("addNew")}
+              </button>
+            }
+          >
+            {t("deadlinesTitle")}
+          </SectionHeading>
           {nearDeadlines.length === 0 ? (
             <EmptyLineCompact text={t("deadlinesEmpty")} />
           ) : (
-            <DeadlineGroups items={nearDeadlines} />
+            <DeadlineGroups
+              items={nearDeadlines}
+              onOpen={(item) => openPanel({ mode: "edit", item })}
+            />
           )}
           {farDeadlines.length > 0 ? (
             <>
               <h3 className="mb-1 mt-2.5 border-t border-[var(--border)] pt-2.5 text-[13px] font-semibold text-[var(--text)]">
                 {t("farTitle")}
               </h3>
-              <DeadlineGroups items={farDeadlines} />
+              <DeadlineGroups
+                items={farDeadlines}
+                onOpen={(item) => openPanel({ mode: "edit", item })}
+              />
             </>
           ) : null}
         </section>
@@ -5400,6 +6778,10 @@ export function App() {
         </section>
         </div>
 
+        {/* v2.4 最近关闭：刚标完成 / 删除的到期与待拍板行在这里
+            一键恢复（reopenItem 清 closed_at，行回原列表）。 */}
+        <RecentlyClosedSection sections={["deadlines", "jason"]} />
+
         {/* 页面底部 slim 环境条 (v2.2)：天气 · 汇率 · Spotify 一行
             压完 — 状态页撤下的三样在这里安家，不做大卡不占版面。 */}
         <EnvStrip
@@ -5425,6 +6807,22 @@ export function App() {
         )}
         </main>
       </div>
+      {panel ? (
+        <ItemPanel
+          key={
+            panel.mode === "edit"
+              ? `edit-${panel.item.id}-${panel.item.updatedAt}`
+              : "create"
+          }
+          state={panel}
+          busy={panelBusy}
+          error={panelError}
+          onClose={() => setPanel(null)}
+          onSave={(args) => panelSaveMutation.mutate(args)}
+          onAdd={(args) => panelAddMutation.mutate(args)}
+          onCloseItem={(args) => panelCloseMutation.mutate(args)}
+        />
+      ) : null}
     </div>
   );
 }

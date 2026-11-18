@@ -7,11 +7,18 @@ import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 // open when ticked done — completion is the `status` field, "done",
 // not `closedAt`, so a ticked row remains visible struck through.)
 // v1.9.0 sections (the plain-TEXT column needs no SQL migration):
-//   "jason"  = the 待拍板 page (waiting-on-decision list): dueDate is
-//     the day the ask was raised (drag days = today − dueDate), and
+//   "jason"  = the 待拍板 page (waiting-on-decision list): dueDate is the
+//     day the ask was raised (drag days = today − dueDate), and
 //     `status` carries a hard date as an ISO date string when the item
 //     has one. Closed rows surface in getBoard as this Toronto week's
 //     本周已清 strip instead of disappearing.
+//   "panel"  = v2.5 Tina Control Panel 的「该整理了」清单： lane is
+//     always "cleanup"; `status` carries Tina's suggested action —
+//     "close" （建议关） | "delete" （建议删） | "keep" （建议留） —
+//     and once Mark taps 留 on the page the status becomes "kept"
+//     (his verdict, row stays open and badged 已决定留）. 关/删 go
+//     through the generic closeItem with kind done/delete, exactly
+//     like the deadlines/jason CRUD.
 //   "money"  = the CFO page (page retired in v1.9.1; the data
 //     pipeline stays): lane is "ar" （应收） or "ap" （应付）, dueDate
 //     is the due date. The CAD amount lives in the numeric `amount`
@@ -36,6 +43,7 @@ export const items = sqliteTable("items", {
       "jason",
       "money",
       "growth",
+      "panel",
     ],
   }).notNull(),
   lane: text("lane").notNull().default(""),
@@ -51,6 +59,13 @@ export const items = sqliteTable("items", {
   // "answered and closed" from "dismissed without answering".
   verdict: text("verdict").notNull().default(""),
   sort: integer("sort").notNull().default(0),
+  // v2.4: HOW a row was closed, stamped by closeItem when the caller
+  // says so — "done" （标完成） vs "delete" （删除）. Both are soft
+  // closes (closedAt set, row kept); this column is what keeps the
+  // two distinguishable and auditable afterwards. Null = closed
+  // without a recorded kind (every pre-v2.4 closure, and the lanes /
+  // decisions close paths, which pass no kind).
+  closedKind: text("closed_kind"),
   closedAt: integer("closed_at", { mode: "timestamp_ms" }),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
@@ -137,6 +152,21 @@ export const programPrefs = sqliteTable("program_prefs", {
   proxyAutostart: integer("proxy_autostart", { mode: "boolean" })
     .notNull()
     .default(true),
+});
+
+// v2.5 Tina Control Panel snapshots: one row per weekly report Tina
+// files through reportControlPanel (the Monday digest + on demand).
+// `payload` is the whole snapshot JSON (headline metrics with health
+// verdicts, system-file / space / skill / service lists, AI-seat
+// costs, mail check). Same-week reports REPLACE that week's row, so
+// the table holds at most one row per Toronto week (weekKey = the
+// week's Monday, YYYY-MM-DD) and the rows double as the trend series
+// the page draws. The page never reads Tina's filesystem itself.
+export const controlSnapshots = sqliteTable("control_snapshots", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  weekKey: text("week_key").notNull(),
+  payload: text("payload").notNull(),
+  reportedAt: integer("reported_at", { mode: "timestamp_ms" }).notNull(),
 });
 
 // Single-row table (id = 1) holding the board's last-updated instant,
